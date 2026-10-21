@@ -40,7 +40,7 @@ export function PrintTrigger({
     <div className="printToolbar noPrint">
       <Link href={backHref} className="adminBtn adminBtnGhost">← الرجوع للطلب</Link>
       <button type="button" className="adminBtn adminBtnPrimary" onClick={print} disabled={pending || Boolean(disabledReason)} title={disabledReason}>
-        {pending ? 'جاري التجهيز…' : 'طباعة'}
+        {pending ? 'جاري التجهيز…' : 'فتح نافذة الطباعة'}
       </button>
       {disabledReason && <span className="adminMuted">{disabledReason}</span>}
       {error && <span className="adminAlert isError" style={{ margin: 0 }}>{error}</span>}

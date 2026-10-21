@@ -87,6 +87,7 @@ export type CatalogProductFilters = {
   minPrice?: number;
   maxPrice?: number;
   limit?: number;
+  page?: number;
 };
 
 export type CategoryProductsResult = {
@@ -94,6 +95,8 @@ export type CategoryProductsResult = {
   categories: CatalogCategory[];
   products: CatalogProduct[];
   total: number;
+  page: number;
+  pageCount: number;
   filters: CatalogProductFilters;
 };
 

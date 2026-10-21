@@ -20,7 +20,7 @@ const optionalText = z
 
 const optionalUrl = z
   .union([
-    z.string().trim().refine(isValidUrlOrPath, 'Enter a valid URL or a path starting with / or #'),
+    z.string().trim().refine(isValidUrlOrPath, 'أدخل رابطًا صالحًا أو مسارًا يبدأ بـ / or #'),
     z.literal('').transform(() => undefined)
   ])
   .optional();

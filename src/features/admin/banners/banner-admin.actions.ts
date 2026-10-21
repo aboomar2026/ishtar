@@ -16,7 +16,7 @@ export async function createBannerAction(input: BannerInput): Promise<BannerResu
   await requireAdmin();
   const parsed = bannerInputSchema.safeParse(input);
   if (!parsed.success) {
-    return fail('Please fix the highlighted fields.', parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })));
+    return fail('يرجى تصحيح الحقول المحددة.', parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })));
   }
   const data = parsed.data;
   const created = await prisma.banner.create({
@@ -48,7 +48,7 @@ export async function updateBannerAction(id: string, input: BannerInput): Promis
 
   const parsed = bannerInputSchema.safeParse(input);
   if (!parsed.success) {
-    return fail('Please fix the highlighted fields.', parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })));
+    return fail('يرجى تصحيح الحقول المحددة.', parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })));
   }
   const data = parsed.data;
   await prisma.banner.update({

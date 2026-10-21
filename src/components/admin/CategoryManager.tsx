@@ -83,6 +83,8 @@ export function CategoryManager({
     };
 
     startTransition(async () => {
+      try {
+
       const result = editor.id
         ? await updateCategoryAction(editor.id, payload)
         : await createCategoryAction(payload);
@@ -95,14 +97,21 @@ export function CategoryManager({
         result.issues.forEach((issue) => { map[issue.path] = issue.message; });
         setIssues(map);
       }
+
+      } catch { setRowError('تعذر الاتصال بالخادم. احتُفظ بالتعديلات؛ أعِد المحاولة.'); }
     });
   }
 
   function toggleActive(category: AdminCategoryListItem) {
     setRowError(null);
     startTransition(async () => {
-      await setCategoryActiveAction(category.id, !category.isActive);
+      try {
+
+      const result = await setCategoryActiveAction(category.id, !category.isActive);
+      if (!result.ok) { setRowError('تعذر إتمام العملية. أعِد المحاولة.'); return; }
       router.refresh();
+
+      } catch { setRowError('تعذر الاتصال بالخادم. احتُفظ بالتعديلات؛ أعِد المحاولة.'); }
     });
   }
 
@@ -110,9 +119,13 @@ export function CategoryManager({
     setRowError(null);
     if (!window.confirm(`حذف التصنيف "${category.name}"؟ لا يمكن التراجع عن هذا الإجراء.`)) return;
     startTransition(async () => {
+      try {
+
       const result = await deleteCategoryAction(category.id);
       if (!result.ok) setRowError(result.message ?? 'تعذّر حذف التصنيف.');
       else router.refresh();
+
+      } catch { setRowError('تعذر الاتصال بالخادم. احتُفظ بالتعديلات؛ أعِد المحاولة.'); }
     });
   }
 
@@ -133,27 +146,27 @@ export function CategoryManager({
           {formMessage && <div className="adminAlert isError">{formMessage}</div>}
           <div className="adminFormGrid two">
             <div className="adminField">
-              <label>الاسم *</label>
-              <input className={issues.name ? 'hasError' : ''} value={editor.name} onChange={(e) => setEditor({ ...editor, name: e.target.value, slug: slugEdited ? editor.slug : slugify(e.target.value) })} required />
+              <label htmlFor="categorymanager-1">الاسم *</label>
+          <input id="categorymanager-1" className={issues.name ? 'hasError' : ''} value={editor.name} onChange={(e) => setEditor({ ...editor, name: e.target.value, slug: slugEdited ? editor.slug : slugify(e.target.value) })} required />
               {issues.name && <span className="adminFieldError">{issues.name}</span>}
             </div>
             <div className="adminField">
-              <label>الـ slug *</label>
-              <input className={issues.slug ? 'hasError' : ''} value={editor.slug} onChange={(e) => { setSlugEdited(true); setEditor({ ...editor, slug: e.target.value }); }} onBlur={(e) => setEditor({ ...editor, slug: slugify(e.target.value) })} required />
+              <label htmlFor="categorymanager-2">الـ slug *</label>
+          <input id="categorymanager-2" className={issues.slug ? 'hasError' : ''} value={editor.slug} onChange={(e) => { setSlugEdited(true); setEditor({ ...editor, slug: e.target.value }); }} onBlur={(e) => setEditor({ ...editor, slug: slugify(e.target.value) })} required />
               {issues.slug && <span className="adminFieldError">{issues.slug}</span>}
             </div>
             <div className="adminField spanTwo">
-              <label>الوصف</label>
-              <textarea value={editor.description} onChange={(e) => setEditor({ ...editor, description: e.target.value })} />
+              <label htmlFor="categorymanager-3">الوصف</label>
+          <textarea id="categorymanager-3" value={editor.description} onChange={(e) => setEditor({ ...editor, description: e.target.value })} />
             </div>
             <div className="adminField">
-              <label>رابط الصورة أو المسار</label>
-              <input className={issues.imageUrl ? 'hasError' : ''} value={editor.imageUrl} onChange={(e) => setEditor({ ...editor, imageUrl: e.target.value })} placeholder="/mock-products/bag-camel.svg" />
+              <label htmlFor="categorymanager-4">رابط الصورة أو المسار</label>
+          <input id="categorymanager-4" className={issues.imageUrl ? 'hasError' : ''} value={editor.imageUrl} onChange={(e) => setEditor({ ...editor, imageUrl: e.target.value })} placeholder="/mock-products/bag-camel.svg" />
               {issues.imageUrl && <span className="adminFieldError">{issues.imageUrl}</span>}
             </div>
             <div className="adminField">
-              <label>التصنيف الأب</label>
-              <select className={issues.parentId ? 'hasError' : ''} value={editor.parentId} onChange={(e) => setEditor({ ...editor, parentId: e.target.value })}>
+              <label htmlFor="categorymanager-5">التصنيف الأب</label>
+          <select id="categorymanager-5" className={issues.parentId ? 'hasError' : ''} value={editor.parentId} onChange={(e) => setEditor({ ...editor, parentId: e.target.value })}>
                 <option value="">لا شيء (مستوى أعلى)</option>
                 {editorParents.map((option) => (
                   <option key={option.id} value={option.id}>{option.name}</option>
@@ -162,8 +175,8 @@ export function CategoryManager({
               {issues.parentId && <span className="adminFieldError">{issues.parentId}</span>}
             </div>
             <div className="adminField">
-              <label>ترتيب العرض</label>
-              <input type="number" min="0" step="1" value={editor.sortOrder} onChange={(e) => setEditor({ ...editor, sortOrder: e.target.value })} />
+              <label htmlFor="categorymanager-6">ترتيب العرض</label>
+          <input id="categorymanager-6" type="number" min="0" step="1" value={editor.sortOrder} onChange={(e) => setEditor({ ...editor, sortOrder: e.target.value })} />
             </div>
             <div className="adminField">
               <label>&nbsp;</label>

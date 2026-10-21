@@ -1,5 +1,6 @@
 'use client';
 
+import { useDialog } from './useDialog';
 import { useMemo, useState, type SyntheticEvent } from 'react';
 import type { CatalogProductImage } from '@/features/catalog/catalog.types';
 import { FALLBACK_PRODUCT_IMAGE } from '@/features/catalog/catalog.utils';
@@ -17,21 +18,24 @@ export function ProductMediaGallery({ images, title }: { images: CatalogProductI
   );
   const [activeImage, setActiveImage] = useState(galleryImages[0]?.url ?? FALLBACK_PRODUCT_IMAGE);
 
+  const [zoomOpen, setZoomOpen] = useState(false);
+  const zoomRef = useDialog(zoomOpen, () => setZoomOpen(false));
   return (
     <div className="mediaGallery">
-      <div className="mediaMain">
+      <button type="button" className="mediaMain" aria-label={`تكبير صورة ${title}`} onClick={() => setZoomOpen(true)}>
         <img
           src={getCloudinaryTransformedUrl(activeImage, PRODUCT_GALLERY_IMAGE)}
           alt={title}
           onError={handleImageError}
         />
-      </div>
+      </button>
       <div className="mediaThumbs">
         {galleryImages.map((image) => (
           <button
             type="button"
             key={image.id}
             className={activeImage === image.url ? 'active' : ''}
+            aria-label={`عرض ${image.alt || title}`} aria-pressed={activeImage === image.url}
             onClick={() => setActiveImage(image.url)}
           >
             <img
@@ -42,6 +46,12 @@ export function ProductMediaGallery({ images, title }: { images: CatalogProductI
           </button>
         ))}
       </div>
+      {zoomOpen && <div className="galleryZoomBackdrop" onClick={(event) => { if (event.target === event.currentTarget) setZoomOpen(false); }}>
+        <div className="galleryZoom" role="dialog" aria-modal="true" aria-label={`صورة ${title}`} ref={zoomRef} tabIndex={-1}>
+          <button type="button" className="ghostButton" onClick={() => setZoomOpen(false)}>إغلاق الصورة</button>
+          <img src={getCloudinaryTransformedUrl(activeImage, PRODUCT_GALLERY_IMAGE)} alt={title} onError={handleImageError} />
+        </div>
+      </div>}
     </div>
   );
 }

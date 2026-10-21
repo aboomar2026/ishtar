@@ -56,7 +56,7 @@ export async function adjustVariantQuantityAction(
 
   const target = Math.trunc(newQuantity);
   if (!Number.isFinite(target) || target < 0) {
-    return { ok: false, message: 'Quantity must be a whole number ≥ 0.' };
+    return { ok: false, message: 'الكمية يجب أن تكون عددًا صحيحًا لا يقل عن صفر.' };
   }
 
   let productSlug: string | undefined;
@@ -94,7 +94,7 @@ export async function adjustVariantQuantityAction(
     return { ok: true, quantity };
   } catch (error) {
     if (error instanceof Error && error.message === 'VARIANT_NOT_FOUND') {
-      return { ok: false, message: 'Variant not found.' };
+      return { ok: false, message: 'الخيار غير موجود.' };
     }
     throw error;
   }
@@ -104,7 +104,7 @@ export async function updateVariantThresholdAction(variantId: string, threshold:
   await requireAdmin();
   const value = Math.trunc(threshold);
   if (!Number.isFinite(value) || value < 0) {
-    return { ok: false, message: 'Threshold must be a whole number ≥ 0.' };
+    return { ok: false, message: 'حد المخزون يجب أن يكون عددًا صحيحًا لا يقل عن صفر.' };
   }
   const variant = await prisma.productVariant.update({
     where: { id: variantId },
@@ -155,7 +155,7 @@ export async function setVariantActiveAction(variantId: string, isActive: boolea
     return { ok: true, quantity: variant.quantity };
   } catch (error) {
     if (error instanceof Error && error.message === 'VARIANT_NOT_FOUND') {
-      return { ok: false, message: 'Variant not found.' };
+      return { ok: false, message: 'الخيار غير موجود.' };
     }
     if (error instanceof Error && error.message === 'LAST_ACTIVE_VARIANT_FOR_ACTIVE_PRODUCT') {
       return { ok: false, message: 'لا يمكن تعطيل آخر خيار نشط لمنتج منشور. أضف خياراً آخر أو حوّل المنتج إلى مسودة أولاً.' };

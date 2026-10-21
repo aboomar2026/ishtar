@@ -1,4 +1,5 @@
 'use client';
+import { showCatalogMetrics } from '@/lib/catalog-display';
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -15,6 +16,7 @@ export function ProductCard({ product }: { product: Product }) {
   const router = useRouter();
   const { addToCart } = useCart();
   const [added, setAdded] = useState(false);
+  const [addFailed, setAddFailed] = useState(false);
   const availableVariants = product.variants.filter((variant) => variant.isActive && variant.quantity > 0);
   const canQuickAdd = availableVariants.length === 1;
   const quickVariant = availableVariants[0];
@@ -27,7 +29,7 @@ export function ProductCard({ product }: { product: Product }) {
       return;
     }
 
-    addToCart({
+    const accepted = addToCart({
       productId: product.id,
       variantId: quickVariant.id,
       slug: product.slug,
@@ -39,8 +41,11 @@ export function ProductCard({ product }: { product: Product }) {
       quantity: 1,
       unitPrice: quickVariant.price,
       compareAtPrice: quickVariant.compareAtPrice,
+      maxQuantity: quickVariant.quantity,
       sku: quickVariant.sku
     });
+    setAddFailed(!accepted);
+    if (!accepted) return;
     setAdded(true);
     window.setTimeout(() => setAdded(false), 1300);
   }
@@ -60,17 +65,18 @@ export function ProductCard({ product }: { product: Product }) {
         />
         <SaleBadge oldPrice={product.compareAtPrice} price={product.price} discountPercent={product.discountPercent} />
         {product.isNewArrival ? <span className="newBadge">جديد</span> : null}
-        {product.isBestSeller ? <span className="sellerBadge">الأكثر مبيعاً</span> : null}
+        {showCatalogMetrics && product.isBestSeller ? <span className="sellerBadge">الأكثر مبيعاً</span> : null}
         {product.isOutOfStock ? <span className="stockOverlay"><span>غير متوفر حالياً</span></span> : null}
       </Link>
       <div className="productCardBody">
+        {addFailed && <p role="alert">وصلتِ للكمية المتاحة في السلة.</p>}
         <div className="productInfoBlock">
           <Link href={`/product/${product.slug}`} className="productTitle">{product.name}</Link>
           <p className="productSubtitle">{product.subtitle}</p>
-          <div className="productMeta">
+          {showCatalogMetrics && <div className="productMeta">
             {product.rating ? <span>★ {product.rating}</span> : null}
             <span>{product.soldCount}+ طلب</span>
-          </div>
+          </div>}
         </div>
         <div className="productBuyRow">
           <Price price={product.price} oldPrice={product.compareAtPrice} currency={product.currency} />
@@ -86,7 +92,7 @@ export function ProductCard({ product }: { product: Product }) {
             ) : added ? (
               <>
                 <IconCheck size={16} />
-                <span>تمت</span>
+                <span role="status">تمت</span>
               </>
             ) : canQuickAdd ? (
               <>

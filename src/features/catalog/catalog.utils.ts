@@ -5,6 +5,7 @@ export const CURRENCY = '₪' as const;
 export const FALLBACK_PRODUCT_IMAGE = '/mock-products/gift-box.svg';
 
 export const virtualCategories: Record<string, CatalogCategory> = {
+  all: { id: 'virtual-all', name: 'جميع المنتجات', slug: 'all', description: 'اكتشفي جميع المنتجات المتاحة في المتجر.', isVirtual: true },
   'new-in': {
     id: 'virtual-new-in',
     name: 'وصل حديثاً',

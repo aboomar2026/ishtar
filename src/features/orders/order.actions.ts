@@ -1,5 +1,6 @@
 'use server';
 
+import { createHash } from 'node:crypto';
 import { revalidatePath } from 'next/cache';
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
@@ -41,6 +42,8 @@ export async function createCodOrderAction(input: CheckoutInput): Promise<Create
     return { ok: false, error: 'يرجى تعبئة بيانات التوصيل بشكل صحيح.', fieldErrors };
   }
   const data = parsed.data;
+  const canonicalLines = [...data.lines].sort((a, b) => a.variantId.localeCompare(b.variantId));
+  const fingerprint = createHash('sha256').update(JSON.stringify({ ...data, requestKey: undefined, lines: canonicalLines })).digest('hex');
 
   // Merge duplicate variant lines defensively.
   const qtyByVariant = new Map<string, number>();
@@ -55,6 +58,14 @@ export async function createCodOrderAction(input: CheckoutInput): Promise<Create
   for (let attempt = 0; attempt < MAX_RETRIES; attempt += 1) {
     try {
       const result = await prisma.$transaction(async (tx) => {
+        // Serialize retries of the same attempt before checking for an existing order.
+        // Cast the void return value: Prisma cannot deserialize PostgreSQL void.
+        await tx.$queryRaw(Prisma.sql`SELECT pg_advisory_xact_lock(hashtextextended(${data.requestKey}, 0))::text`);
+        const existing = await tx.order.findUnique({ where: { checkoutRequestKey: data.requestKey } });
+        if (existing) {
+          if (existing.checkoutFingerprint !== fingerprint) throw new Error('CHECKOUT_KEY_CONFLICT');
+          return { orderId: existing.id, orderNumber: existing.orderNumber, total: existing.total.toNumber(), productSlugs: [] as string[], categorySlugs: [] as string[], reused: true };
+        }
         // 1. Lock the variant rows so concurrent checkouts can't oversell.
         await lockVariantsForUpdate(tx, variantIds);
 
@@ -64,7 +75,7 @@ export async function createCodOrderAction(input: CheckoutInput): Promise<Create
           include: {
             product: {
               include: {
-                category: { select: { slug: true } },
+                category: { select: { slug: true, isActive: true } },
                 images: { orderBy: [{ isPrimary: 'desc' }, { sortOrder: 'asc' }], take: 1 }
               }
             }
@@ -76,7 +87,7 @@ export async function createCodOrderAction(input: CheckoutInput): Promise<Create
         const stockErrors: OrderStockError[] = [];
         for (const [variantId, qty] of qtyByVariant) {
           const variant = variantMap.get(variantId);
-          if (!variant || !variant.isActive || variant.product.status !== 'ACTIVE') {
+          if (!variant || !variant.isActive || variant.product.status !== 'ACTIVE' || !variant.product.category?.isActive) {
             stockErrors.push({ code: 'UNAVAILABLE', variantId, productName: variant?.product.name ?? 'منتج غير متوفر', available: 0 });
             continue;
           }
@@ -146,6 +157,8 @@ export async function createCodOrderAction(input: CheckoutInput): Promise<Create
         const order = await tx.order.create({
           data: {
             orderNumber,
+            checkoutRequestKey: data.requestKey,
+            checkoutFingerprint: fingerprint,
             invoiceNumber: invoiceNumberForOrder(orderNumber),
             customerId: customer.id,
             status: 'PENDING',
@@ -214,6 +227,7 @@ export async function createCodOrderAction(input: CheckoutInput): Promise<Create
         }
 
         return {
+          reused: false,
           orderId: order.id,
           orderNumber: order.orderNumber,
           total: totals.total,
@@ -222,6 +236,7 @@ export async function createCodOrderAction(input: CheckoutInput): Promise<Create
         };
       }, ORDER_TRANSACTION_OPTIONS);
 
+      try {
       revalidatePath('/admin/orders');
       revalidatePath('/admin');
       revalidatePath('/admin/inventory');
@@ -230,15 +245,17 @@ export async function createCodOrderAction(input: CheckoutInput): Promise<Create
       revalidatePath('/category/sale');
       for (const slug of result.categorySlugs) revalidatePath(`/category/${slug}`);
       for (const slug of result.productSlugs) revalidatePath(`/product/${slug}`);
+      } catch (cacheError) { console.error('Order committed; cache refresh failed', cacheError); }
 
       try {
-        await notifyAdminAboutNewOrder(result.orderId);
+        if (!result.reused) await notifyAdminAboutNewOrder(result.orderId);
       } catch (notificationError) {
         console.error('notifyAdminAboutNewOrder failed', notificationError);
       }
 
       return { ok: true, orderNumber: result.orderNumber, orderId: result.orderId, total: result.total };
     } catch (error) {
+      if (error instanceof Error && error.message === 'CHECKOUT_KEY_CONFLICT') return { ok: false, error: 'تغيّرت بيانات محاولة الطلب. حدّثي الصفحة وراجعي السلة.' };
       if (error instanceof StockAbort) {
         return { ok: false, error: 'بعض المنتجات لم تعد متوفرة بالكمية المطلوبة.', stockErrors: error.stockErrors };
       }
@@ -267,4 +284,11 @@ export async function trackOrderAction(input: { orderNumber: string; phone: stri
     return { ok: false, error: 'لم نتمكن من العثور على طلب بهذا الرقم ورقم الجوال.' };
   }
   return { ok: true, order };
+}
+
+/** A random attempt key is a receipt capability; return no customer details. */
+export async function recoverCheckoutAction(requestKey: string): Promise<{ orderNumber: string } | null> {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestKey)) return null;
+  const order = await prisma.order.findUnique({ where: { checkoutRequestKey: requestKey }, select: { orderNumber: true } });
+  return order;
 }

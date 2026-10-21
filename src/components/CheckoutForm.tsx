@@ -2,12 +2,13 @@
 
 import { brandStorageKeys } from '@/lib/brand-storage';
 
-import { FormEvent, useEffect, useState } from 'react';
+import Link from 'next/link';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CartSummary } from './CartSummary';
 import { EmptyState } from './EmptyState';
 import { useCart } from './CartProvider';
-import { createCodOrderAction } from '@/features/orders/order.actions';
+import { createCodOrderAction, recoverCheckoutAction } from '@/features/orders/order.actions';
 import { saveRecentOrder } from '@/features/orders/recent-orders.client';
 import type { OrderStockError } from '@/features/orders/order.types';
 
@@ -20,10 +21,14 @@ const EMPTY_FIELDS: ShippingFields = { name: '', phone: '', whatsappPhone: '', c
 
 export function CheckoutForm() {
   const router = useRouter();
-  const { lines, subtotal, deliveryFee, total, clearCart } = useCart();
+  const { lines, subtotal, deliveryFee, total, clearCart, isCartLoaded, refreshing, cartError, refreshCart } = useCart();
 
+  const errorRef = useRef<HTMLDivElement>(null);
+  const attemptRef = useRef<{ key: string } | null>(null);
   const [fields, setFields] = useState<ShippingFields>(EMPTY_FIELDS);
   const [submitting, setSubmitting] = useState(false);
+  const [uncertain, setUncertain] = useState(false);
+  const [recovering, setRecovering] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [stockErrors, setStockErrors] = useState<OrderStockError[]>([]);
@@ -38,6 +43,43 @@ export function CheckoutForm() {
     }
   }, []);
 
+  useEffect(() => {
+    let active = true;
+    async function recover() {
+      try {
+        const saved = sessionStorage.getItem(`${SHIPPING_KEY}:attempt`);
+        if (!saved) return;
+        const attempt: { key?: string } = JSON.parse(saved);
+        if (typeof attempt.key !== 'string') return;
+        attemptRef.current = { key: attempt.key };
+        const receipt = await recoverCheckoutAction(attempt.key);
+        if (receipt && active) {
+          sessionStorage.removeItem(`${SHIPPING_KEY}:attempt`);
+          clearCart(); router.push(`/order-success?order=${encodeURIComponent(receipt.orderNumber)}`);
+        }
+      } catch { if (active) setUncertain(true); }
+      finally { if (active) setRecovering(false); }
+    }
+    void recover();
+    return () => { active = false; };
+  }, [clearCart, router]);
+
+  async function checkPreviousAttempt() {
+    if (!attemptRef.current) { setUncertain(false); return; }
+    setSubmitting(true);
+    try {
+      const receipt = await recoverCheckoutAction(attemptRef.current.key);
+      if (receipt) {
+        try { sessionStorage.removeItem(`${SHIPPING_KEY}:attempt`); } catch { /* optional */ }
+        clearCart(); router.push(`/order-success?order=${encodeURIComponent(receipt.orderNumber)}`);
+      } else {
+        // Retain the key: an in-flight transaction can still finish after this lookup.
+        setUncertain(false); setError('لم تظهر نتيجة محفوظة بعد. أعيدي المحاولة بنفس البيانات؛ سنستخدم معرّف المحاولة نفسه.');
+      }
+    } catch { setError('تعذر التحقق من نتيجة المحاولة. تحققي من الاتصال وأعيدي التحقق.'); }
+    finally { setSubmitting(false); }
+  }
+
   function set<K extends keyof ShippingFields>(key: K, value: string) {
     setFields((prev) => ({ ...prev, [key]: value }));
   }
@@ -50,7 +92,9 @@ export function CheckoutForm() {
     setFieldErrors({});
     setStockErrors([]);
 
-    const result = await createCodOrderAction({
+    try {
+
+    const payload = {
       fullName: fields.name,
       phone: fields.phone,
       whatsappPhone: fields.whatsappPhone || undefined,
@@ -58,8 +102,11 @@ export function CheckoutForm() {
       area: fields.area,
       address: fields.address,
       notes: fields.notes || undefined,
-      lines: lines.map((line) => ({ variantId: line.variantId, quantity: line.quantity }))
-    });
+      lines: lines.map((line) => ({ variantId: line.variantId, quantity: line.quantity })).sort((a, b) => a.variantId.localeCompare(b.variantId))
+    };
+    if (!attemptRef.current) attemptRef.current = { key: crypto.randomUUID() };
+    try { sessionStorage.setItem(`${SHIPPING_KEY}:attempt`, JSON.stringify(attemptRef.current)); } catch { /* The key still survives a retry during this mount. */ }
+    const result = await createCodOrderAction({ ...payload, requestKey: attemptRef.current.key });
 
     if (result.ok) {
       try {
@@ -77,27 +124,41 @@ export function CheckoutForm() {
         deliveryFeeStatus: 'PENDING',
         createdAt: new Date().toISOString()
       });
+      try { sessionStorage.removeItem(`${SHIPPING_KEY}:attempt`); } catch { /* optional */ }
       clearCart();
       router.push(`/order-success?order=${encodeURIComponent(result.orderNumber)}`);
       return;
     }
 
-    setSubmitting(false);
+    // Only validation and stock rejection establish that this attempt did not commit.
+    if (result.fieldErrors || result.stockErrors) {
+      try { sessionStorage.removeItem(`${SHIPPING_KEY}:attempt`); } catch { /* optional */ }
+      attemptRef.current = null;
+    } else { setUncertain(true); }
     setError(result.error);
     if (result.fieldErrors) setFieldErrors(result.fieldErrors);
     if (result.stockErrors) setStockErrors(result.stockErrors);
-    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch {
+      setUncertain(true);
+      setError('تعذر استلام نتيجة الطلب. أعيدي المحاولة بنفس البيانات؛ نحافظ على معرّف المحاولة لمنع تكراره.');
+    } finally { setSubmitting(false); }
+
   }
 
+  useEffect(() => { if (error) errorRef.current?.focus(); }, [error]);
+  if (!isCartLoaded || recovering) return <p role="status">جاري استعادة السلة...</p>;
+  const recoveryPanel = uncertain ? <section className="formCard" role="status"><p>نتيجة المحاولة السابقة غير مؤكدة. تحققي منها قبل محاولة جديدة.</p><button className="primaryButton" type="button" onClick={() => void checkPreviousAttempt()} disabled={submitting}>التحقق من نتيجة المحاولة</button>{error && <p role="alert">{error}</p>}</section> : null;
+  if (uncertain) return recoveryPanel;
   if (!lines.length) {
     return <EmptyState title="لا يوجد طلب لإتمامه" description="أضيفي منتجات للسلة ثم ارجعي للدفع عند الاستلام." actionHref="/" actionLabel="تصفّح المنتجات" />;
   }
 
   return (
     <div className="checkoutLayout">
+      {cartError && <div role="alert">{cartError} <button type="button" onClick={() => void refreshCart()}>إعادة المحاولة</button></div>}
       <form className="checkoutForm" onSubmit={onSubmit} noValidate aria-busy={submitting}>
         {error && (
-          <div className="stockNotice" role="alert">
+          <div className="stockNotice" role="alert" tabIndex={-1} ref={errorRef}>
             {error}
             {stockErrors.length > 0 && (
               <ul style={{ margin: '8px 0 0', paddingInlineStart: 18 }}>
@@ -114,7 +175,7 @@ export function CheckoutForm() {
         <section className="formCard">
           <span className="eyebrow">Cash on delivery</span>
           <h2>معلومات التوصيل</h2>
-          <p className="checkoutTrustText">الدفع عند الاستلام فقط — سنتواصل معك لتأكيد الطلب وسعر التوصيل حسب المنطقة قبل التجهيز.</p>
+          <p className="fieldHint">أدخلي بيانات التواصل وعنوان التسليم.</p>
           <div className="formGrid">
             <label>
               الاسم الكامل
@@ -163,19 +224,19 @@ export function CheckoutForm() {
             <input type="radio" name="payment" checked readOnly />
             <span>
               <strong>كاش عند الاستلام</strong>
-              <small>لا يوجد دفع إلكتروني حالياً. سعر التوصيل يحدد عند تأكيد الطلب حسب المنطقة.</small>
+              <small>سنتواصل معك لتأكيد الطلب والتوصيل قبل التجهيز.</small>
             </span>
           </label>
         </section>
 
-        <button type="submit" className="primaryButton fullWidth checkoutSubmit" disabled={submitting}>
+        <button type="submit" className="primaryButton fullWidth checkoutSubmit" disabled={submitting || refreshing || Boolean(cartError) || lines.some((line) => line.maxQuantity === 0)}>
           {submitting ? 'جاري تأكيد الطلب...' : 'تأكيد الطلب'}
         </button>
       </form>
 
       <aside className="checkoutSide">
         <div className="miniOrderList">
-          <h2>منتجاتك</h2>
+          <h2>منتجاتك</h2><Link href="/cart">تعديل السلة والكميات</Link>
           {lines.map((line) => (
             <div className="miniOrderItem" key={line.variantId}>
               <img src={line.image} alt={line.name} />
@@ -192,7 +253,7 @@ export function CheckoutForm() {
           ))}
         </div>
         <CartSummary subtotal={subtotal} deliveryFee={deliveryFee} total={total} checkout={false} />
-        <p className="checkoutTrustText" style={{ marginTop: 12 }}>المبلغ الظاهر هو قبل التوصيل. سيتم تحديد سعر التوصيل عند التواصل معك حسب المنطقة وظروف التسليم.</p>
+
       </aside>
     </div>
   );

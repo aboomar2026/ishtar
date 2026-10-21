@@ -11,12 +11,12 @@ export async function loginAction(_prevState: LoginState, formData: FormData): P
   const password = String(formData.get('password') ?? '');
 
   if (!identifier.trim() || !password) {
-    return { error: 'Please enter your email and password.' };
+    return { error: 'أدخل البريد الإلكتروني وكلمة المرور.' };
   }
 
   const payload = await authenticateAdmin(identifier, password);
   if (!payload) {
-    return { error: 'Invalid credentials or inactive account.' };
+    return { error: 'بيانات الدخول غير صحيحة أو الحساب غير نشط.' };
   }
 
   await setAdminSessionCookie(payload);

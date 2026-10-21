@@ -4,7 +4,7 @@ import { EmptyState } from './EmptyState';
 
 export function ProductGrid({ products }: { products: Product[] }) {
   if (!products.length) {
-    return <EmptyState title="لا توجد منتجات" description="جرّبي البحث بكلمة مختلفة أو اختاري تصنيفاً آخر." />;
+    return <EmptyState title="لا توجد منتجات" description="جرّبي البحث بكلمة مختلفة أو اختاري تصنيفاً آخر." actionHref="/category/all" actionLabel="تصفّح جميع المنتجات" />;
   }
 
   return (

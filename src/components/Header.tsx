@@ -1,5 +1,8 @@
 'use client';
 
+import { useDialog } from './useDialog';
+import { storeLinks } from '@/lib/store-navigation';
+import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import Link from 'next/link';
 import { brand } from '@/lib/brand';
@@ -8,28 +11,14 @@ import { BrandLogo } from './BrandLogo';
 import { IconCart, IconMenu } from './Icons';
 import { SearchBar } from './SearchBar';
 
-const navLinks = [
-  { href: '/category/new-in', label: 'وصل حديثاً' },
-  { href: '/category/bags', label: 'شنط' },
-  { href: '/category/perfumes', label: 'عطور' },
-  { href: '/category/creams-makeup', label: 'مكياج' },
-  { href: '/category/accessories', label: 'إكسسوارات' },
-  { href: '/category/sale', label: 'العروض' },
-  { href: '/track-order', label: 'تتبع الطلب' }
-];
-
-const drawerLinks = [
-  { href: '/', label: 'الرئيسية' },
-  { href: '/category/new-in', label: 'وصل حديثاً' },
-  { href: '/category/sale', label: 'العروض' },
-  { href: '/category/accessories', label: 'الإكسسوارات' },
-  { href: '/track-order', label: 'تتبع الطلب' },
-  { href: '/cart', label: 'السلة' }
-];
+const navLinks = storeLinks;
+const drawerLinks = [{ href: '/', label: 'الرئيسية' }, ...storeLinks, { href: '/cart', label: 'السلة' }];
 
 export function Header() {
   const { itemCount } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const drawerRef = useDialog(menuOpen, () => setMenuOpen(false));
 
   return (
     <>
@@ -57,7 +46,7 @@ export function Header() {
           </div>
         </div>
         <nav className="desktopNav" aria-label="التصنيفات الرئيسية">
-          {navLinks.map((link) => <Link key={link.href} href={link.href}>{link.label}</Link>)}
+          {navLinks.map((link) => <Link key={link.href} href={link.href} aria-current={pathname === link.href ? "page" : undefined}>{link.label}</Link>)}
         </nav>
       </header>
 
@@ -69,7 +58,7 @@ export function Header() {
             aria-label="إغلاق القائمة"
             onClick={() => setMenuOpen(false)}
           />
-          <div className="storeDrawer" role="dialog" aria-modal="true" aria-label="قائمة التنقل">
+          <div className="storeDrawer" ref={drawerRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label="قائمة التنقل">
             <div className="storeDrawerHead">
               <BrandLogo variant="header" />
               <button

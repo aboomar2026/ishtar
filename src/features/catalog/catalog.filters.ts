@@ -16,6 +16,7 @@ export function normalizeCatalogFilters(searchParams?: Record<string, SearchPara
     : 'all';
 
   return {
+    page: Math.min(100000, Math.max(1, Math.floor(parseNumberFilter(searchParams?.page) ?? 1))),
     q,
     sort,
     availability,

@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useRef } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import { useImageUpload } from '@/features/admin/uploads/use-image-upload';
 import { UPLOAD_ACCEPT_ATTR, type UploadKind, type UploadedImage } from '@/features/admin/uploads/upload-constants';
 
@@ -12,17 +12,21 @@ import { UPLOAD_ACCEPT_ATTR, type UploadKind, type UploadedImage } from '@/featu
 export function ImageUploadButton({
   kind,
   onUploaded,
+  onUploadingChange,
   label = 'رفع صورة',
   className = 'adminBtn adminBtnGhost adminBtnSm'
 }: {
   kind: UploadKind;
   onUploaded: (image: UploadedImage) => void;
+  onUploadingChange?: (uploading: boolean) => void;
   label?: string;
   className?: string;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const inputId = useId();
   const { status, error, upload, isUploading } = useImageUpload(kind);
+
+  useEffect(() => { onUploadingChange?.(isUploading); }, [isUploading, onUploadingChange]);
 
   async function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -53,8 +57,8 @@ export function ImageUploadButton({
       >
         {isUploading ? 'جارٍ الرفع…' : label}
       </button>
-      {status === 'success' && <span className="adminUploaderOk">تم رفع الصورة</span>}
-      {status === 'error' && error && <span className="adminUploaderError">{error}</span>}
+      {status === 'success' && <span className="adminUploaderOk" role="status">تم رفع الصورة</span>}
+      {status === 'error' && error && <span className="adminUploaderError" role="alert">{error}</span>}
     </span>
   );
 }

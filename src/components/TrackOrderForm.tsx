@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { trackOrderSchema } from '@/features/orders/order.validation';
 import { trackOrderAction } from '@/features/orders/order.actions';
 import {
   clearRecentOrders,
@@ -24,14 +25,14 @@ type RecentStatusLookup = {
 function formatDate(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return 'تاريخ غير معروف';
-  return new Intl.DateTimeFormat('ar', { dateStyle: 'medium' }).format(date);
+  return new Intl.DateTimeFormat('ar', { dateStyle: 'medium', timeZone: 'Asia/Hebron' }).format(date);
 }
 
 function formatDateTime(value?: string) {
   if (!value) return '';
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return '';
-  return new Intl.DateTimeFormat('ar', { dateStyle: 'short', timeStyle: 'short' }).format(date);
+  return new Intl.DateTimeFormat('ar', { dateStyle: 'short', timeStyle: 'short', timeZone: 'Asia/Hebron' }).format(date);
 }
 
 function orderLocation(order: RecentOrder) {
@@ -58,6 +59,8 @@ async function copyTextToClipboard(value: string) {
 export function TrackOrderForm({ initialOrderNumber = '' }: { initialOrderNumber?: string }) {
   const [orderNumber, setOrderNumber] = useState(initialOrderNumber);
   const [phone, setPhone] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const manualFormRef = useRef<HTMLFormElement>(null);
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
   const [recentLoaded, setRecentLoaded] = useState(false);
   const [recentLookup, setRecentLookup] = useState<Record<string, RecentStatusLookup>>({});
@@ -150,7 +153,16 @@ export function TrackOrderForm({ initialOrderNumber = '' }: { initialOrderNumber
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    await runTracking(orderNumber, phone, 'manual');
+    const parsed = trackOrderSchema.safeParse({ orderNumber, phone });
+    if (!parsed.success) {
+      const errors: Record<string, string> = {};
+      for (const issue of parsed.error.issues) errors[String(issue.path[0])] = issue.message;
+      setFieldErrors(errors);
+      requestAnimationFrame(() => manualFormRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus());
+      return;
+    }
+    setFieldErrors({});
+    await runTracking(parsed.data.orderNumber, parsed.data.phone, 'manual');
   }
 
   function trackSavedOrder(savedOrder: RecentOrder) {
@@ -200,7 +212,7 @@ export function TrackOrderForm({ initialOrderNumber = '' }: { initialOrderNumber
   const canRefreshRecent = recentLoaded && recentOrders.length > 0 && !refreshingRecent;
 
   return (
-    <div className="trackOrderWrap">
+    <div className={`trackOrderWrap${recentLoaded && !recentOrders.length ? " noRecentOrders" : ""}`}>
       <section className="formCard recentOrdersPanel" aria-labelledby="recent-orders-title">
         <div className="recentOrdersHeader">
           <div>
@@ -303,18 +315,20 @@ export function TrackOrderForm({ initialOrderNumber = '' }: { initialOrderNumber
         )}
       </section>
 
-      <form className="formCard manualTrackForm" onSubmit={onSubmit} noValidate>
+      <form className="formCard manualTrackForm" ref={manualFormRef} onSubmit={onSubmit} noValidate>
         <span className="eyebrow">Manual tracking</span>
-        <h2>أو تتبع طلباً آخر</h2>
+        <h2>{recentOrders.length ? "تتبع طلبًا آخر" : "تتبع طلبك"}</h2>
         <p className="checkoutTrustText">أدخلي رقم الطلب ورقم الجوال المستخدم عند الطلب.</p>
         <div className="formGrid">
           <label>
             رقم الطلب
-            <input value={orderNumber} onChange={(e) => setOrderNumber(e.target.value)} required placeholder="رقم الطلب من تأكيد الشراء" />
+            <input aria-invalid={Boolean(fieldErrors.orderNumber)} aria-describedby={fieldErrors.orderNumber ? "tracking-number-error" : undefined} dir="ltr" autoComplete="off" value={orderNumber} onChange={(e) => setOrderNumber(e.target.value)} required placeholder="رقم الطلب من تأكيد الشراء" />
+            {fieldErrors.orderNumber && <small className="fieldError" id="tracking-number-error">{fieldErrors.orderNumber}</small>}
           </label>
           <label>
             رقم الجوال
-            <input value={phone} onChange={(e) => setPhone(e.target.value)} required inputMode="tel" placeholder="05xxxxxxxx" />
+            <input aria-invalid={Boolean(fieldErrors.phone)} aria-describedby={fieldErrors.phone ? "tracking-phone-error" : undefined} type="tel" dir="ltr" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required inputMode="tel" placeholder="05xxxxxxxx" />
+            {fieldErrors.phone && <small className="fieldError" id="tracking-phone-error">{fieldErrors.phone}</small>}
           </label>
         </div>
         {error && <div className="stockNotice" role="alert" style={{ marginTop: 12 }}>{error}</div>}

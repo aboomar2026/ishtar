@@ -143,7 +143,7 @@ export function Footer() {
             <nav className="footerColumn" aria-label="خدمة العملاء">
               <h3 className="footerColTitle">خدمة العملاء</h3>
               <ul className="footerLinkList">
-                {serviceLinks.map((link) => link.pending ? (
+                {serviceLinks.filter((link) => brand.key !== 'ishtar' || !link.pending).map((link) => link.pending ? (
                   <li key={link.label}>
                     <span className="footerLink footerLink--pending" aria-disabled="true">
                       <span className="footerLinkDot" aria-hidden="true" />
@@ -163,7 +163,7 @@ export function Footer() {
             </nav>
 
             <div className="footerColumn footerContact">
-              <h3 className="footerColTitle">تواصلي معنا</h3>
+              <h3 className="footerColTitle">{brand.contact.whatsappNumber ? "تواصلي معنا" : "موقع المتجر"}</h3>
               <ul className="footerContactList">
                 <li>
                   <span className="footerContactIcon" aria-hidden="true"><IconPin size={18} /></span>
@@ -192,7 +192,7 @@ export function Footer() {
               </ul>
             </div>
 
-            <div className="footerColumn footerNewsletterCol">
+            <div className="footerColumn footerNewsletterCol" hidden={brand.key === "ishtar" && !socialLinks.length}>
               <div className="footerNewsletter">
                 <h3 className="footerColTitle">{brand.key === 'ishtar' ? 'تابعي عشتار' : 'كوني أول من يعرف'}</h3>
                 {brand.key !== 'ishtar' ? <p className="footerNewsletterDesc">اشتركي ليصلك جديد العروض والمنتجات المختارة.</p> : null}

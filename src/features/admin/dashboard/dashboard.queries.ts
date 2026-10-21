@@ -1,4 +1,5 @@
 import 'server-only';
+import { startOfBusinessDay } from '@/lib/business-time';
 import type { DeliveryFeeStatus, OrderStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { variantStockState } from '@/features/admin/shared/admin-format';
@@ -56,8 +57,7 @@ export type DashboardOverview = {
 };
 
 function startOfToday(): Date {
-  const now = new Date();
-  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return startOfBusinessDay();
 }
 
 export async function getDashboardOverview(): Promise<DashboardOverview> {

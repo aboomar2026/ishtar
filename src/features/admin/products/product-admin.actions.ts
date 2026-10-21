@@ -142,7 +142,7 @@ export async function createProductAction(input: ProductInput): Promise<SaveResu
 
   const parsed = productInputSchema.safeParse(input);
   if (!parsed.success) {
-    return fail('Please fix the highlighted fields.', parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })));
+    return fail('يرجى تصحيح الحقول المحددة.', parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })));
   }
   const data = parsed.data;
 
@@ -150,7 +150,7 @@ export async function createProductAction(input: ProductInput): Promise<SaveResu
   const slugIssue = await assertUniqueSlug(data.slug);
   if (slugIssue) issues.push(slugIssue);
   issues.push(...(await assertUniqueSkus(data.variants)));
-  if (issues.length) return fail('Please fix the highlighted fields.', issues);
+  if (issues.length) return fail('يرجى تصحيح الحقول المحددة.', issues);
 
   const images = withPrimaryImage(data.images);
   const product = await prisma.$transaction(async (tx) => {
@@ -194,7 +194,7 @@ export async function updateProductAction(id: string, input: ProductInput): Prom
 
   const parsed = productInputSchema.safeParse(input);
   if (!parsed.success) {
-    return fail('Please fix the highlighted fields.', parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })));
+    return fail('يرجى تصحيح الحقول المحددة.', parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })));
   }
   const data = parsed.data;
 
@@ -202,7 +202,7 @@ export async function updateProductAction(id: string, input: ProductInput): Prom
   const slugIssue = await assertUniqueSlug(data.slug, id);
   if (slugIssue) issues.push(slugIssue);
   issues.push(...(await assertUniqueSkus(data.variants, submittedVariantIds(data.variants))));
-  if (issues.length) return fail('Please fix the highlighted fields.', issues);
+  if (issues.length) return fail('يرجى تصحيح الحقول المحددة.', issues);
 
   const images = withPrimaryImage(data.images);
 

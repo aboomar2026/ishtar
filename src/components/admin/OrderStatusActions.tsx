@@ -33,15 +33,21 @@ export function OrderStatusActions({
     if (next === 'CANCELED') {
       const confirmed = window.confirm('هل تريد إلغاء هذا الطلب؟ ستتم إعادة الكمية إلى المخزون.');
       if (!confirmed) return;
-      note = window.prompt('سبب الإلغاء (اختياري):') ?? undefined;
+      const reason = window.prompt('سبب الإلغاء (اختياري):');
+      if (reason === null) return;
+      note = reason.trim() || undefined;
     }
     startTransition(async () => {
+      try {
+
       const result = await updateOrderStatusAction(orderId, next, note);
       if (!result.ok) {
         setError(result.message);
         return;
       }
       router.refresh();
+
+      } catch { setError('تعذر تأكيد تغيير الحالة. حدّث الطلب قبل إعادة المحاولة.'); }
     });
   }
 

@@ -282,15 +282,14 @@ export function VariantBuilder({ productSlug, basePrice, baseCompareAtPrice, exi
           <span className="adminMuted">يمكن تحديد أكثر من لون مباشرة</span>
         </div>
 
-        <div className="vbPresetSwatches" role="listbox" aria-label="ألوان المنتج" aria-multiselectable="true">
+        <div className="vbPresetSwatches" role="group" aria-label="ألوان المنتج">
           {COLOR_PRESETS.map((preset) => {
             const selected = colors.some((item) => item.colorValue.toLowerCase() === preset.value.toLowerCase());
             return (
               <button
                 key={preset.value}
                 type="button"
-                role="option"
-                aria-selected={selected}
+                aria-pressed={selected}
                 className={`vbSwatchChoice${selected ? ' isSelected' : ''}`}
                 onClick={() => togglePresetColor(preset)}
               >
@@ -319,7 +318,7 @@ export function VariantBuilder({ productSlug, basePrice, baseCompareAtPrice, exi
         {colors.length > 0 ? (
           <div className="vbEditableList" aria-label="الألوان المختارة">
             {colors.map((color, idx) => (
-              <div key={`${color.colorName}-${color.colorValue}-${idx}`} className="vbEditableRow">
+              <div key={idx} className="vbEditableRow">
                 {color.colorValue && <span className="colorPreviewCircle sm" style={{ background: color.colorValue }} aria-hidden="true" />}
                 <label className="adminField">
                   <span className="adminFieldLabel">اسم اللون</span>
@@ -344,11 +343,11 @@ export function VariantBuilder({ productSlug, basePrice, baseCompareAtPrice, exi
           <span className="adminMuted">اختر المقاسات بسرعة أو أضف مقاساً مخصصاً</span>
         </div>
 
-        <div className="vbSizePresets" role="listbox" aria-label="مقاسات المنتج" aria-multiselectable="true">
+        <div className="vbSizePresets" role="group" aria-label="مقاسات المنتج">
           {SIZE_PRESETS.map((size) => {
             const selected = sizes.some((item) => item.toLowerCase() === size.toLowerCase());
             return (
-              <button key={size} type="button" className={`vbSizePreset${selected ? ' isAdded' : ''}`} onClick={() => toggleSize(size)}>
+              <button key={size} type="button" className={`vbSizePreset${selected ? ' isAdded' : ''}`} aria-pressed={selected} onClick={() => toggleSize(size)}>
                 {size}
               </button>
             );

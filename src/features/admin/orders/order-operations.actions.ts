@@ -10,7 +10,7 @@ export type OperationsResult = { ok: true } | { ok: false; message: string };
 export async function updateOrderNotesAction(orderId: string, input: OrderNotesInput): Promise<OperationsResult> {
   await requireAdmin();
   const order = await prisma.order.findUnique({ where: { id: orderId }, select: { id: true } });
-  if (!order) return { ok: false, message: 'Order not found.' };
+  if (!order) return { ok: false, message: 'الطلب غير موجود.' };
 
   const parsed = orderNotesSchema.safeParse(input);
   if (!parsed.success) return { ok: false, message: 'Invalid notes.' };
@@ -31,7 +31,7 @@ export async function updateOrderNotesAction(orderId: string, input: OrderNotesI
 export async function markOrderPrintedAction(orderId: string, type: PrintType): Promise<OperationsResult> {
   await requireAdmin();
   const order = await prisma.order.findUnique({ where: { id: orderId }, select: { id: true, deliveryFeeStatus: true } });
-  if (!order) return { ok: false, message: 'Order not found.' };
+  if (!order) return { ok: false, message: 'الطلب غير موجود.' };
   if (type === 'invoice' && order.deliveryFeeStatus === 'PENDING') {
     return { ok: false, message: 'حدد سعر التوصيل أو اعتمده مجانياً قبل طباعة الفاتورة النهائية.' };
   }
@@ -50,7 +50,7 @@ export async function markOrderPrintedAction(orderId: string, type: PrintType): 
 export async function setOrderPackedAction(orderId: string, isPacked: boolean): Promise<OperationsResult> {
   await requireAdmin();
   const order = await prisma.order.findUnique({ where: { id: orderId }, select: { id: true, status: true } });
-  if (!order) return { ok: false, message: 'Order not found.' };
+  if (!order) return { ok: false, message: 'الطلب غير موجود.' };
   if (order.status === 'CANCELED') return { ok: false, message: 'لا يمكن تعديل حالة التغليف لطلب ملغي.' };
 
   await prisma.order.update({

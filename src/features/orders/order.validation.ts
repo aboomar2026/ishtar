@@ -1,8 +1,9 @@
 import { z } from 'zod';
+import { normalizeDigits } from '@/lib/numbers';
 
 /** Normalise a phone number: keep a leading + and digits only. */
 export function normalizePhone(raw: string): string {
-  const trimmed = raw.trim();
+  const trimmed = normalizeDigits(raw).trim();
   const hasPlus = trimmed.startsWith('+');
   const digits = trimmed.replace(/[^\d]/g, '');
   return hasPlus ? `+${digits}` : digits;
@@ -14,6 +15,7 @@ const lineSchema = z.object({
 });
 
 export const checkoutSchema = z.object({
+  requestKey: z.string().uuid("تعذر التعرف على محاولة الطلب. أعيدي المحاولة."),
   fullName: z.string().trim().min(2, 'الاسم الكامل مطلوب').max(120),
   phone: z
     .string()
@@ -39,7 +41,7 @@ export type CheckoutParsed = z.output<typeof checkoutSchema>;
 
 export const trackOrderSchema = z.object({
   orderNumber: z.string().trim().min(3, 'رقم الطلب مطلوب').max(40),
-  phone: z.string().trim().min(6, 'رقم الجوال مطلوب').transform(normalizePhone)
+  phone: z.string().trim().min(6, 'رقم الجوال مطلوب').transform(normalizePhone).refine((value) => value.replace(/\D/g, '').length >= 7, 'رقم الجوال غير صالح')
 });
 
 export type TrackOrderParsed = z.output<typeof trackOrderSchema>;

@@ -15,6 +15,7 @@ export function PrintableInvoice({
 }) {
   return (
     <div className="printSheet" dir="rtl">
+      {order.deliveryFeeStatus === 'PENDING' && <div className="printDraftNotice">مسودة — رسوم التوصيل غير مؤكدة. هذه ليست فاتورة نهائية.</div>}
       <header className="printHeader">
         <div className="printBrand">
           {brand.key === 'ishtar' ? (

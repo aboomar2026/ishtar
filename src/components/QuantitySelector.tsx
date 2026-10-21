@@ -1,5 +1,6 @@
 'use client';
 
+import { normalizeDigits } from '@/lib/numbers';
 import { ChangeEvent, useEffect, useState } from 'react';
 
 function clampQuantity(value: number, min: number, max?: number) {
@@ -33,7 +34,7 @@ export function QuantitySelector({
   }
 
   function handleInputChange(event: ChangeEvent<HTMLInputElement>) {
-    const digitsOnly = event.target.value.replace(/[^0-9]/g, '');
+    const digitsOnly = normalizeDigits(event.target.value).replace(/[^0-9]/g, '');
     setDraftValue(digitsOnly);
 
     if (!digitsOnly) return;

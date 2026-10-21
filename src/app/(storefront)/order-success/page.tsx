@@ -5,7 +5,7 @@ import { ORDER_STATUS_LABEL_AR } from '@/features/orders/order-status.labels';
 export const dynamic = 'force-dynamic';
 
 function formatOrderDate(value: Date) {
-  return new Intl.DateTimeFormat('ar', { dateStyle: 'medium', timeStyle: 'short' }).format(value);
+  return new Intl.DateTimeFormat('ar', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Hebron' }).format(value);
 }
 
 export default async function OrderSuccessPage({ searchParams }: { searchParams?: Promise<{ order?: string }> }) {

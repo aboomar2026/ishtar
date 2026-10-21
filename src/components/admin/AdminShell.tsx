@@ -1,5 +1,6 @@
 'use client';
 
+import { useDialog } from '@/components/useDialog';
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -36,7 +37,7 @@ function NavLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () 
     <nav className="adminNav">
       <span className="adminNavLabel">الكتالوج</span>
       {NAV.map((item) => (
-        <Link key={item.href} href={item.href} className={isActive(pathname, item) ? 'active' : ''} onClick={onNavigate}>
+        <Link key={item.href} href={item.href} className={isActive(pathname, item) ? 'active' : ''} aria-current={isActive(pathname, item) ? "page" : undefined} onClick={onNavigate}>
           {item.icon}
           <span>{item.label}</span>
         </Link>
@@ -59,6 +60,7 @@ export function AdminShell({
 }) {
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const drawerRef = useDialog(drawerOpen, () => setDrawerOpen(false));
   const current = NAV.find((item) => isActive(pathname, item));
   const title = current?.label ?? 'لوحة التحكم';
 
@@ -97,10 +99,11 @@ export function AdminShell({
       {drawerOpen && (
         <>
           <button type="button" className="adminDrawerBackdrop" aria-label="إغلاق القائمة" onClick={() => setDrawerOpen(false)} />
-          <div className="adminDrawer" role="dialog" aria-label="قائمة الإدارة">
+          <div className="adminDrawer" ref={drawerRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label="قائمة الإدارة">
             <div className="adminSidebarBrand">
               <BrandLogo variant="sidebar" subtitle={admin.name} />
             </div>
+            <button type="button" className="adminBtn adminBtnGhost" onClick={() => setDrawerOpen(false)}>إغلاق القائمة</button>
             <NavLinks pathname={pathname} onNavigate={() => setDrawerOpen(false)} />
             <form action={logoutAction} style={{ marginTop: 14 }}>
               <button type="submit" className="adminBtn adminBtnGhost adminBtnFull">تسجيل الخروج</button>

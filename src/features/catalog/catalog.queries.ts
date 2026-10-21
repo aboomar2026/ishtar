@@ -1,4 +1,4 @@
-import type { Prisma, BannerPlacement } from '@prisma/client';
+import { Prisma, type BannerPlacement } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import type { CatalogProductFilters, CategoryProductsResult, HomeCatalogResult } from './catalog.types';
 import { mapBanner, mapCategory, mapProductCard, mapProductDetail } from './catalog.mappers';
@@ -32,7 +32,7 @@ function activeProductWhere(filters: CatalogProductFilters = {}): Prisma.Product
         { compareAtPrice: { not: null } },
         { variants: { some: { isActive: true, compareAtPrice: { not: null } } } }
       ];
-    } else {
+    } else if (filters.categorySlug !== 'all') {
       where.category = { slug: filters.categorySlug, isActive: true };
     }
   }
@@ -70,20 +70,6 @@ function activeProductWhere(filters: CatalogProductFilters = {}): Prisma.Product
   return where;
 }
 
-function productOrderBy(sort: CatalogProductFilters['sort']): Prisma.ProductOrderByWithRelationInput[] {
-  switch (sort) {
-    case 'price-asc':
-      return [{ basePrice: 'asc' }, { createdAt: 'desc' }];
-    case 'price-desc':
-      return [{ basePrice: 'desc' }, { createdAt: 'desc' }];
-    case 'best-sellers':
-      return [{ soldCount: 'desc' }, { createdAt: 'desc' }];
-    case 'newest':
-    default:
-      return [{ createdAt: 'desc' }];
-  }
-}
-
 async function withEffectiveSoldCounts<T extends { id: string; soldCount: number }>(products: T[]): Promise<T[]> {
   const productIds = products.map((product) => product.id);
   if (productIds.length === 0) return products;
@@ -101,24 +87,39 @@ async function withEffectiveSoldCounts<T extends { id: string; soldCount: number
 
   return products.map((product) => ({
     ...product,
-    soldCount: Math.max(product.soldCount, soldCountByProduct.get(product.id) ?? 0)
+    soldCount: soldCountByProduct.get(product.id) ?? 0
   }));
 }
 
-function sortByEffectiveBestSellers<T extends { soldCount: number; createdAt: Date }>(products: T[]): T[] {
-  return [...products].sort((a, b) => b.soldCount - a.soldCount || b.createdAt.getTime() - a.createdAt.getTime());
+async function getProductPage(filters: CatalogProductFilters = {}) {
+  const limit = Math.min(48, Math.max(1, filters.limit ?? 24));
+  const page = Math.max(1, filters.page ?? 1);
+  const conditions = [Prisma.sql`p.status = 'ACTIVE' AND c."isActive" = true`];
+  if (filters.categorySlug === 'new-in') conditions.push(Prisma.sql`p."isNewArrival" = true`);
+  else if (filters.categorySlug && !['all', 'sale'].includes(filters.categorySlug)) conditions.push(Prisma.sql`c.slug = ${filters.categorySlug}`);
+  if (filters.q) {
+    const pattern = `%${filters.q.replace(/[\\%_]/g, (char) => `\\${char}`)}%`;
+    conditions.push(Prisma.sql`(p.name ILIKE ${pattern} OR p.subtitle ILIKE ${pattern} OR p.description ILIKE ${pattern} OR p.brand ILIKE ${pattern} OR ${filters.q} = ANY(p.tags))`);
+  }
+  if (filters.availability === 'in-stock') conditions.push(Prisma.sql`v.stock > 0`);
+  if (filters.minPrice != null) conditions.push(Prisma.sql`v.price >= ${filters.minPrice}`);
+  if (filters.maxPrice != null) conditions.push(Prisma.sql`v.price <= ${filters.maxPrice}`);
+  if (filters.categorySlug === 'sale') conditions.push(Prisma.sql`EXISTS (SELECT 1 FROM "ProductVariant" d WHERE d."productId" = p.id AND d."isActive" AND d.price = v.price AND (d.quantity > 0 OR v.stock = 0) AND COALESCE(d."compareAtPrice", p."compareAtPrice") > d.price)`);
+  const from = Prisma.sql`FROM "Product" p JOIN "Category" c ON c.id = p."categoryId"
+    JOIN LATERAL (SELECT COALESCE(MIN(price) FILTER (WHERE quantity > 0), MIN(price), p."basePrice") AS price, COALESCE(SUM(quantity),0) AS stock
+      FROM "ProductVariant" WHERE "productId" = p.id AND "isActive" = true) v ON true
+    LEFT JOIN LATERAL (SELECT COALESCE(SUM(i.quantity),0) AS sold FROM "OrderItem" i JOIN "Order" o ON o.id = i."orderId" WHERE i."productId" = p.id AND o.status <> 'CANCELED') sales ON true
+    WHERE ${Prisma.join(conditions, ' AND ')}`;
+  const order = filters.sort === 'price-asc' ? Prisma.sql`v.price ASC` : filters.sort === 'price-desc' ? Prisma.sql`v.price DESC` : filters.sort === 'best-sellers' ? Prisma.sql`sales.sold DESC` : Prisma.sql`p."createdAt" DESC`;
+  const rows = await prisma.$queryRaw<{ id: string; total: bigint; sold: bigint }[]>(Prisma.sql`SELECT p.id, COUNT(*) OVER() AS total, sales.sold ${from} ORDER BY ${order}, p."createdAt" DESC, p.id ASC LIMIT ${limit} OFFSET ${(page - 1) * limit}`);
+  const total = rows.length ? Number(rows[0].total) : Number((await prisma.$queryRaw<{ total: bigint }[]>(Prisma.sql`SELECT COUNT(*) AS total ${from}`))[0]?.total ?? 0);
+  const products = rows.length ? await prisma.product.findMany({ where: { id: { in: rows.map((row) => row.id) } }, include: productListInclude }) : [];
+  const byId = new Map(products.map((product) => [product.id, product]));
+  return { products: rows.flatMap((row) => { const product = byId.get(row.id); return product ? [mapProductCard({ ...product, soldCount: Number(row.sold) })] : []; }), total, page, pageCount: Math.max(1, Math.ceil(total / limit)) };
 }
 
 async function getProductList(filters: CatalogProductFilters = {}) {
-  const products = await prisma.product.findMany({
-    where: activeProductWhere(filters),
-    include: productListInclude,
-    orderBy: productOrderBy(filters.sort),
-    take: filters.limit ?? 24
-  });
-  const productsWithSoldCounts = await withEffectiveSoldCounts(products);
-  const sortedProducts = filters.sort === 'best-sellers' ? sortByEffectiveBestSellers(productsWithSoldCounts) : productsWithSoldCounts;
-  return sortedProducts.map(mapProductCard);
+  return (await getProductPage(filters)).products;
 }
 
 export async function getActiveCategories() {
@@ -150,13 +151,12 @@ export async function getProductsByCategorySlug(slug: string, filters: CatalogPr
   if (!category) return null;
 
   const effectiveFilters = { ...filters, categorySlug: slug };
-  const products = await getProductList(effectiveFilters);
+  const result = await getProductPage(effectiveFilters);
 
   return {
     category,
     categories,
-    products,
-    total: products.length,
+    ...result,
     filters: effectiveFilters
   };
 }
@@ -210,15 +210,8 @@ export async function getNewArrivals(limit = 8) {
   return productsWithSoldCounts.map(mapProductCard);
 }
 
-export async function getBestSellers(limit = 8) {
-  const products = await prisma.product.findMany({
-    where: { ...activeProductWhere(), isBestSeller: true },
-    include: productListInclude,
-    orderBy: [{ soldCount: 'desc' }, { createdAt: 'desc' }],
-    take: limit
-  });
-  const productsWithSoldCounts = await withEffectiveSoldCounts(products);
-  return sortByEffectiveBestSellers(productsWithSoldCounts).map(mapProductCard);
+export async function getBestSellers(limit = 5) {
+  return (await getProductList({ sort: 'best-sellers', availability: 'in-stock', limit })).filter((product) => product.soldCount > 0);
 }
 
 export async function searchProducts(query: string, filters: CatalogProductFilters = {}) {
@@ -247,10 +240,10 @@ export async function getHomeCatalog(): Promise<HomeCatalogResult> {
     getActiveCategories(),
     getActiveBanners('HOME_HERO'),
     getActiveBanners('HOME_PROMO'),
-    getFeaturedProducts(10),
-    getNewArrivals(8),
-    getBestSellers(8),
-    getProductList({ categorySlug: 'sale', limit: 8, sort: 'best-sellers' })
+    getFeaturedProducts(5),
+    getNewArrivals(5),
+    getBestSellers(5),
+    getProductList({ categorySlug: 'sale', limit: 5, sort: 'best-sellers' })
   ]);
 
   return {

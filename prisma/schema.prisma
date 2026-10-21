@@ -187,6 +187,8 @@ model Customer {
 }
 
 model Order {
+  checkoutRequestKey String? @unique
+  checkoutFingerprint String?
   id             String        @id @default(cuid())
   orderNumber    String        @unique
   customerId     String?

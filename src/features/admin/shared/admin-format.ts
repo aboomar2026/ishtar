@@ -45,7 +45,8 @@ export function formatDateTime(value: Date | string | null | undefined): string 
     month: 'short',
     day: '2-digit',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
+    timeZone: 'Asia/Hebron'
   });
 }
 

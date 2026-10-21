@@ -67,7 +67,7 @@ export function OrderOperations({
         </button>
       </div>
       <p className="adminMuted" style={{ marginTop: 10 }}>
-        {isPacked ? 'مُغلَّف ✓ · ' : ''}طُبعت الفاتورة {invoicePrintCount}× · طُبعت قائمة التغليف {packingSlipPrintCount}×
+        {isPacked ? 'مُغلَّف ✓ · ' : ''}فُتحت طباعة الفاتورة {invoicePrintCount}× · فُتحت طباعة التجهيز {packingSlipPrintCount}× (لا يؤكد اكتمال الطباعة)
       </p>
     </div>
   );

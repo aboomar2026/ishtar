@@ -17,4 +17,4 @@ Do not include brackets or the literal orderId placeholder in the environment va
 - No real Telegram messages were sent for verification.
 - TypeScript and targeted ESLint passed.
 - Environment configuration is managed in Netlify; this commit does not modify the production database.
-- Other storefront/checkout batch changes are excluded because their schema update is not deployed.
+- The later consolidated batch is documented separately in ISHTAR-RELEASE-BATCH.md.

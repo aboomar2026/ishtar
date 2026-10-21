@@ -24,12 +24,12 @@ export async function createCategoryAction(input: CategoryInput): Promise<Catego
   await requireAdmin();
   const parsed = categoryInputSchema.safeParse(input);
   if (!parsed.success) {
-    return fail('Please fix the highlighted fields.', parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })));
+    return fail('يرجى تصحيح الحقول المحددة.', parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })));
   }
   const data = parsed.data;
 
   const issue = await slugIssue(data.slug);
-  if (issue) return fail('Please fix the highlighted fields.', [issue]);
+  if (issue) return fail('يرجى تصحيح الحقول المحددة.', [issue]);
 
   const created = await prisma.category.create({
     data: {
@@ -56,16 +56,16 @@ export async function updateCategoryAction(id: string, input: CategoryInput): Pr
 
   const parsed = categoryInputSchema.safeParse(input);
   if (!parsed.success) {
-    return fail('Please fix the highlighted fields.', parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })));
+    return fail('يرجى تصحيح الحقول المحددة.', parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })));
   }
   const data = parsed.data;
 
   if (data.parentId === id) {
-    return fail('Please fix the highlighted fields.', [{ path: 'parentId', message: 'A category cannot be its own parent' }]);
+    return fail('يرجى تصحيح الحقول المحددة.', [{ path: 'parentId', message: 'A category cannot be its own parent' }]);
   }
 
   const issue = await slugIssue(data.slug, id);
-  if (issue) return fail('Please fix the highlighted fields.', [issue]);
+  if (issue) return fail('يرجى تصحيح الحقول المحددة.', [issue]);
 
   await prisma.category.update({
     where: { id },

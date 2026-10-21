@@ -46,7 +46,7 @@ export function HeroBanner({ banner }: { banner?: CatalogBanner }) {
         </div>
         <div className="collageTile collageSmallThree">
           <img src="https://images.pexels.com/photos/30999236/pexels-photo-30999236.jpeg?auto=compress&cs=tinysrgb&w=600" alt="" />
-          <span>Gift Box</span>
+          <span>هدايا</span>
         </div>
       </div>
     </section>

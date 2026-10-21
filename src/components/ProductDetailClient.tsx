@@ -1,4 +1,5 @@
 'use client';
+import { showCatalogMetrics } from '@/lib/catalog-display';
 
 import { useMemo, useState } from 'react';
 import type { Product } from '@/lib/types';
@@ -36,6 +37,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
   const [selectedSize, setSelectedSize] = useState(firstAvailableVariant?.size);
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+  const [addFailed, setAddFailed] = useState(false);
 
   const colorOptions = useMemo(() => {
     if (!hasColorOptions) return [];
@@ -94,7 +96,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
 
   function onAddToCart() {
     if (isOutOfStock || !selectedVariant) return;
-    addToCart({
+    const accepted = addToCart({
       productId: product.id,
       variantId: selectedVariant.id,
       slug: product.slug,
@@ -106,8 +108,11 @@ export function ProductDetailClient({ product }: { product: Product }) {
       quantity,
       unitPrice: selectedVariant.price,
       compareAtPrice: selectedVariant.compareAtPrice,
+      maxQuantity: selectedVariant.quantity,
       sku: selectedVariant.sku
     });
+    setAddFailed(!accepted);
+    if (!accepted) return;
     setAdded(true);
     window.setTimeout(() => setAdded(false), 1600);
   }
@@ -120,18 +125,19 @@ export function ProductDetailClient({ product }: { product: Product }) {
           <span className="eyebrow">{brand.copy.productEyebrow}</span>
           <h1>{product.name}</h1>
           <p>{product.subtitle}</p>
-          <div className="detailRating">
+          {showCatalogMetrics && <div className="detailRating">
             {product.rating ? `★ ${product.rating} · ` : ''}{product.soldCount}+ طلب
-          </div>
+          </div>}
           {product.isOutOfStock ? <div className="stockNotice">هذا المنتج غير متوفر حالياً. يمكنك مشاهدة التفاصيل والرجوع لاحقاً.</div> : null}
           {showLowStock ? <div className="stockNotice lowStockNotice">المتبقي {selectedVariant.quantity} فقط — باقي كمية محدودة</div> : null}
           <Price price={displayPrice} oldPrice={displayCompareAtPrice} currency={product.currency} size="large" />
         </div>
 
         <div className="detailControls">
+          {hasColorOptions && <p className="fieldHint">الصور عامة للمنتج؛ اختاري اللون المطلوب من الخيارات أدناه.</p>}
           <VariantSelector label="اللون" options={colorOptions} value={selectedColor} onChange={handleColorChange} />
           <VariantSelector label="المقاس / الخيار" options={sizeOptions} value={selectedSize} onChange={handleSizeChange} />
-          {selectedVariant ? <div className="skuLine">SKU: {selectedVariant.sku}</div> : null}
+          {selectedVariant ? <div className="skuLine">SKU: <bdi>{selectedVariant.sku}</bdi></div> : null}
           <div className="quantityRow">
             <span>الكمية</span>
             <QuantitySelector value={quantity} onChange={setQuantity} max={selectedVariant?.quantity} />
@@ -142,6 +148,8 @@ export function ProductDetailClient({ product }: { product: Product }) {
           {isOutOfStock ? 'نفدت الكمية' : added ? 'تمت الإضافة للسلة ✓' : 'أضيفي للسلة'}
         </button>
 
+        <p role="alert">{addFailed ? "وصلتِ للكمية المتاحة في السلة." : ""}</p>
+        <span className="srOnly" role="status">{added ? "تمت الإضافة للسلة" : ""}</span>
         <div className="productStoryCard">
           <h2>تفاصيل المنتج</h2>
           <p>{product.description}</p>

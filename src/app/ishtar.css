@@ -153,3 +153,67 @@
     break-inside: avoid;
   }
 }
+
+/* Consolidated review: all appearance changes stay scoped to ISHTAR. */
+[data-brand="ishtar"] { --radius-lg:20px; --radius-xl:24px; --shadow-soft:0 6px 20px rgba(45,36,40,.045); }
+[data-brand="ishtar"] :is(h1,h2,h3) { letter-spacing:normal; line-height:1.3; }
+[data-brand="ishtar"] :is(a,button,input,select,textarea,[tabindex]) { scroll-margin-top:150px; }
+[data-brand="ishtar"] .siteHeader { padding-block:0 8px; box-shadow:0 2px 12px rgba(45,36,40,.035); }
+[data-brand="ishtar"] .headerTop { padding-block:8px; }
+[data-brand="ishtar"] .desktopNav { margin-top:0; }
+[data-brand="ishtar"] .desktopNav a[aria-current="page"] { color:var(--brand-burgundy); background:var(--brand-blush-soft); }
+[data-brand="ishtar"] .heroBanner { min-height:420px; padding:36px; background:var(--brand-section); box-shadow:none; border-color:var(--brand-border); }
+[data-brand="ishtar"] .heroBanner::after { display:none; }
+[data-brand="ishtar"] .heroCopy { align-self:center; }
+[data-brand="ishtar"] .heroCopy h1 { font-size:clamp(34px,4.5vw,60px); line-height:1.25; margin-block:12px 16px; }
+[data-brand="ishtar"] .heroCopy p { font-size:17px; line-height:1.85; }
+[data-brand="ishtar"] .heroCollage { min-height:340px; }
+[data-brand="ishtar"] .collageLarge { height:260px; width:210px; bottom:5%; }
+[data-brand="ishtar"] .collageLarge img { object-fit:contain; background:var(--brand-bg); }
+[data-brand="ishtar"] .heroGlow { display:none; }
+[data-brand="ishtar"] :is(.primaryButton,.stickyAddButton,.adminBtnPrimary) { background:var(--brand-burgundy); color:white; box-shadow:none; border-radius:12px; }
+[data-brand="ishtar"] :is(.primaryButton,.stickyAddButton,.adminBtnPrimary):hover:not(:disabled) { background:var(--brand-burgundy-hover); }
+[data-brand="ishtar"] :is(.ghostButton,.variantOptions button) { border-radius:12px; box-shadow:none; }
+[data-brand="ishtar"] :is(.sectionPanel,.productCard,.mediaGallery,.productDetailPanel,.formCard,.cartSummary,.miniOrderList,.adminCard,.adminRecordCard) { background:var(--brand-surface); border-color:var(--brand-border); box-shadow:var(--shadow-soft); }
+[data-brand="ishtar"] .promoBanner { background:var(--brand-burgundy); box-shadow:none; border-radius:16px; }
+[data-brand="ishtar"] .categoryShowcaseGrid { display:flex; overflow-x:auto; gap:16px; scroll-snap-type:x proximity; padding-bottom:10px; }
+[data-brand="ishtar"] .categoryShowcaseCard { flex:0 0 clamp(155px,18vw,210px); scroll-snap-align:start; }
+[data-brand="ishtar"] .productImage { object-fit:contain; background:var(--brand-bg); }
+[data-brand="ishtar"] .productTitle { font-size:16px; line-height:1.5; }
+[data-brand="ishtar"] .productSubtitle { font-size:13px; line-height:1.65; }
+[data-brand="ishtar"] .productMeta { font-size:12px; }
+[data-brand="ishtar"] .quickAddButton { min-height:44px; min-width:52px; box-shadow:none; }
+[data-brand="ishtar"] .emptyState { display:flex; flex-direction:column; justify-content:center; align-items:center; gap:16px; min-height:260px; padding:32px 20px; box-shadow:none; }
+[data-brand="ishtar"] .emptyState :is(h2,p,.emptyIcon) { margin:0; }
+[data-brand="ishtar"] .emptyState p { max-width:480px; }
+.catalogPagination { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:16px; margin-block:24px; }
+.cartFeedback { padding:12px; background:var(--brand-section); border-radius:12px; margin-bottom:16px; }
+.cartFeedback button { min-height:44px; padding-inline:16px; }
+[data-brand="ishtar"] .cartItemInfo > strong { display:block; margin-block:8px; }
+[data-brand="ishtar"] .noRecentOrders .manualTrackForm { order:-1; }
+[data-brand="ishtar"] .recentOrdersEmpty { padding:12px; }
+.mediaMain { display:block; padding:0; width:100%; border:0; cursor:zoom-in; }
+.galleryZoomBackdrop { position:fixed; inset:0; background:rgba(45,36,40,.8); z-index:100; display:grid; place-items:center; padding:20px; }
+.galleryZoom { max-width:100%; max-height:95dvh; background:var(--brand-bg); padding:16px; border-radius:16px; }
+.galleryZoom img { display:block; max-height:75dvh; max-width:85vw; object-fit:contain; }
+.galleryZoom button { display:block; min-height:44px; margin-bottom:8px; }
+.printDraftNotice { border:2px solid currentColor; padding:12px; margin-bottom:16px; text-align:center; font-weight:800; }
+@media (max-width:1019px) {
+ [data-brand="ishtar"] .heroBanner { min-height:auto; padding:28px; }
+ [data-brand="ishtar"] .pageShell { padding-bottom:calc(100px + env(safe-area-inset-bottom,0px)); }
+ [data-brand="ishtar"] .mobileBottomNav { bottom:0; left:0; right:0; border-radius:16px 16px 0 0; padding-bottom:calc(8px + env(safe-area-inset-bottom,0px)); }
+ [data-brand="ishtar"] .stickyAddButton { position:sticky; bottom:calc(90px + env(safe-area-inset-bottom,0px)); z-index:20; }
+}
+@media (max-width:560px) {
+ [data-brand="ishtar"] .heroBanner { padding:24px 20px; }
+ [data-brand="ishtar"] .heroActions { display:grid; grid-template-columns:1fr; }
+ [data-brand="ishtar"] .heroActions a { width:100%; text-align:center; }
+ [data-brand="ishtar"] .headerNotice { font-size:12px; }
+ [data-brand="ishtar"] .formGrid :is(input,select,textarea) { font-size:16px; }
+ [data-brand="ishtar"] .cartSummary { width:100%; }
+ [data-brand="ishtar"] .checkoutLayout > [role="alert"] { grid-column:1 / -1; }
+ [data-brand="ishtar"] .productDetailPanel { padding:16px; }
+}
+@media print { .printDraftNotice { display:block !important; } .printQr { break-inside:avoid; } .printDocMeta { overflow-wrap:anywhere; } }
+
+[data-brand="ishtar"] [hidden] { display:none !important; }

@@ -17,17 +17,17 @@ const optionalText = z
   .transform((value) => (value ? value : undefined));
 
 export const categoryInputSchema = z.object({
-  name: z.string().trim().min(1, 'Name is required').max(120, 'Name is too long'),
+  name: z.string().trim().min(1, 'الاسم مطلوب').max(120, 'الاسم طويل جدًا'),
   slug: z
     .string()
     .trim()
-    .min(1, 'Slug is required')
-    .max(120, 'Slug is too long')
+    .min(1, 'رابط المنتج مطلوب')
+    .max(120, 'رابط المنتج طويل جدًا')
     .regex(/^[\p{Letter}\p{Number}]+(?:-[\p{Letter}\p{Number}]+)*$/u, 'Use letters, numbers and dashes only'),
   description: optionalText,
   imageUrl: z
     .union([
-      z.string().trim().refine(isValidImageUrl, 'Enter a valid URL or a path starting with /'),
+      z.string().trim().refine(isValidImageUrl, 'أدخل رابطًا صالحًا أو مسارًا يبدأ بـ /'),
       z.literal('').transform(() => undefined)
     ])
     .optional(),

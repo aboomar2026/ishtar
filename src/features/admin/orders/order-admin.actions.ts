@@ -81,7 +81,7 @@ export async function updateOrderStatusAction(
           deliveryFeeStatus: true,
         },
       });
-      if (!order) throw new OrderTransitionAbort("Order not found.");
+      if (!order) throw new OrderTransitionAbort("الطلب غير موجود.");
 
       const fromStatus = order.status;
       if (fromStatus === toStatus)
@@ -230,7 +230,7 @@ export async function updateOrderDeliveryFeeAction(
         where: { id: orderId },
         select: { id: true, status: true, subtotal: true, discount: true },
       });
-      if (!order) throw new OrderTransitionAbort("Order not found.");
+      if (!order) throw new OrderTransitionAbort("الطلب غير موجود.");
       if (order.status === "CANCELED") {
         throw new OrderTransitionAbort("لا يمكن تعديل سعر التوصيل لطلب ملغي.");
       }
@@ -273,7 +273,7 @@ export async function updateOrderAdminNoteAction(
     where: { id: orderId },
     select: { id: true },
   });
-  if (!order) return { ok: false, message: "Order not found." };
+  if (!order) return { ok: false, message: "الطلب غير موجود." };
   await prisma.order.update({
     where: { id: orderId },
     data: { adminNote: adminNote.trim() || null },

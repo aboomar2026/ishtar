@@ -1,3 +1,6 @@
+import type { Metadata } from 'next';
+import { publicSiteUrl } from '@/lib/site-url';
+import { getCategoryBySlug } from '@/features/catalog/catalog.queries';
 import { notFound } from 'next/navigation';
 import { CategoryStrip } from '@/components/CategoryStrip';
 import { ClearableSearchInput } from '@/components/ClearableSearchInput';
@@ -7,9 +10,19 @@ import { normalizeCatalogFilters } from '@/features/catalog/catalog.filters';
 import { brand } from '@/lib/brand';
 
 export const dynamic = 'force-dynamic';
+export async function generateMetadata({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<CategoryPageSearchParams> }): Promise<Metadata> {
+  const { slug } = await params;
+  const filters = await searchParams;
+  const category = await getCategoryBySlug(slug);
+  return { title: `${category?.name ?? 'المنتجات'} | ${brand.name}`, description: category?.description,
+    robots: filters.q || filters.sort || filters.availability || filters.page ? { index: false, follow: true } : undefined,
+    alternates: publicSiteUrl() ? { canonical: `/category/${encodeURIComponent(slug)}` } : undefined };
+}
+
 
 type CategoryPageSearchParams = {
   q?: string;
+  page?: string;
   sort?: string;
   availability?: string;
   minPrice?: string;
@@ -31,6 +44,12 @@ export default async function CategoryPage({
   if (!result) notFound();
 
   const query = filters.q ?? '';
+  function pageHref(page: number) {
+    const values = new URLSearchParams();
+    for (const [key, value] of Object.entries(resolvedSearchParams)) if (value && key !== 'page') values.set(key, value);
+    values.set('page', String(page));
+    return `/category/${slug}?${values.toString()}`;
+  }
   const isFiltered = Boolean(
     query ||
       (filters.sort && filters.sort !== 'newest') ||
@@ -64,6 +83,11 @@ export default async function CategoryPage({
         <span className="filterCount">{result.total} منتج</span>
       </form>
       <ProductGrid products={result.products} />
+      {result.pageCount > 1 && <nav className="catalogPagination" aria-label="صفحات المنتجات">
+        {result.page > 1 && <a className="ghostButton" href={pageHref(result.page - 1)}>السابق</a>}
+        <span>صفحة {result.page} من {result.pageCount} · {result.total} منتج</span>
+        {result.page < result.pageCount && <a className="ghostButton" href={pageHref(result.page + 1)}>التالي</a>}
+      </nav>}
     </div>
   );
 }

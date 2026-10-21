@@ -1,5 +1,6 @@
 'use client';
 
+import { brand } from '@/lib/brand';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -95,6 +96,8 @@ export function BannerManager({ banners }: { banners: AdminBannerListItem[] }) {
     };
 
     startTransition(async () => {
+      try {
+
       const result = editor.id ? await updateBannerAction(editor.id, payload) : await createBannerAction(payload);
       if (result.ok) {
         setEditor(null);
@@ -105,28 +108,42 @@ export function BannerManager({ banners }: { banners: AdminBannerListItem[] }) {
         result.issues.forEach((issue) => { map[issue.path] = issue.message; });
         setIssues(map);
       }
+
+      } catch { setFormMessage('تعذر الاتصال بالخادم. احتُفظ بالتعديلات؛ أعِد المحاولة.'); }
     });
   }
 
   function toggleActive(banner: AdminBannerListItem) {
     startTransition(async () => {
-      await setBannerActiveAction(banner.id, !banner.isActive);
+      try {
+
+      const result = await setBannerActiveAction(banner.id, !banner.isActive);
+      if (!result.ok) { setFormMessage('تعذر إتمام العملية. أعِد المحاولة.'); return; }
       router.refresh();
+
+      } catch { setFormMessage('تعذر الاتصال بالخادم. احتُفظ بالتعديلات؛ أعِد المحاولة.'); }
     });
   }
 
   function remove(banner: AdminBannerListItem) {
     if (!window.confirm(`حذف البنر "${banner.title}"؟`)) return;
     startTransition(async () => {
-      await deleteBannerAction(banner.id);
+      try {
+
+      const result = await deleteBannerAction(banner.id);
+      if (!result.ok) { setFormMessage('تعذر إتمام العملية. أعِد المحاولة.'); return; }
       router.refresh();
+
+      } catch { setFormMessage('تعذر الاتصال بالخادم. احتُفظ بالتعديلات؛ أعِد المحاولة.'); }
     });
   }
 
   return (
     <div>
+      {formMessage && !editor && <div className="adminAlert isError" role="alert">{formMessage}</div>}
       <div className="adminCardHeader">
         <p className="adminMuted">{banners.length} بنر.</p>
+        {!brand.behavior.useDatabaseBannerCopy && <p className="adminAlert isInfo">النصوص والأزرار تتبع الهوية المعتمدة؛ تعديل نص البنر هنا لا يغير نص المتجر. الصورة والرابط فقط يؤثران حسب موضع البنر.</p>}
         {!editor && <button type="button" className="adminBtn adminBtnPrimary" onClick={openAdd}>+ إضافة بنر</button>}
       </div>
 
@@ -136,21 +153,21 @@ export function BannerManager({ banners }: { banners: AdminBannerListItem[] }) {
           {formMessage && <div className="adminAlert isError">{formMessage}</div>}
           <div className="adminFormGrid two">
             <div className="adminField spanTwo">
-              <label>العنوان *</label>
-              <input className={issues.title ? 'hasError' : ''} value={editor.title} onChange={(e) => setEditor({ ...editor, title: e.target.value })} required />
+              <label htmlFor="bannermanager-1">العنوان *</label>
+          <input id="bannermanager-1" className={issues.title ? 'hasError' : ''} value={editor.title} onChange={(e) => setEditor({ ...editor, title: e.target.value })} required />
               {issues.title && <span className="adminFieldError">{issues.title}</span>}
             </div>
             <div className="adminField">
-              <label>النص العلوي</label>
-              <input value={editor.eyebrow} onChange={(e) => setEditor({ ...editor, eyebrow: e.target.value })} />
+              <label htmlFor="bannermanager-2">النص العلوي</label>
+          <input id="bannermanager-2" value={editor.eyebrow} onChange={(e) => setEditor({ ...editor, eyebrow: e.target.value })} />
             </div>
             <div className="adminField">
-              <label>زر الإجراء</label>
-              <input value={editor.ctaLabel} onChange={(e) => setEditor({ ...editor, ctaLabel: e.target.value })} />
+              <label htmlFor="bannermanager-3">زر الإجراء</label>
+          <input id="bannermanager-3" value={editor.ctaLabel} onChange={(e) => setEditor({ ...editor, ctaLabel: e.target.value })} />
             </div>
             <div className="adminField spanTwo">
-              <label>العنوان الفرعي</label>
-              <textarea value={editor.subtitle} onChange={(e) => setEditor({ ...editor, subtitle: e.target.value })} />
+              <label htmlFor="bannermanager-4">العنوان الفرعي</label>
+          <textarea id="bannermanager-4" value={editor.subtitle} onChange={(e) => setEditor({ ...editor, subtitle: e.target.value })} />
             </div>
             <div className="adminField spanTwo">
               <label>صورة البانر</label>
@@ -177,29 +194,29 @@ export function BannerManager({ banners }: { banners: AdminBannerListItem[] }) {
               </div>
             </div>
             <div className="adminField">
-              <label>الرابط (href)</label>
-              <input className={issues.href ? 'hasError' : ''} value={editor.href} onChange={(e) => setEditor({ ...editor, href: e.target.value })} placeholder="/category/sale" />
+              <label htmlFor="bannermanager-5">الرابط (href)</label>
+          <input id="bannermanager-5" className={issues.href ? 'hasError' : ''} value={editor.href} onChange={(e) => setEditor({ ...editor, href: e.target.value })} placeholder="/category/sale" />
               {issues.href && <span className="adminFieldError">{issues.href}</span>}
             </div>
             <div className="adminField">
-              <label>الموضع *</label>
-              <select value={editor.placement} onChange={(e) => setEditor({ ...editor, placement: e.target.value as EditorState['placement'] })}>
+              <label htmlFor="bannermanager-6">الموضع *</label>
+          <select id="bannermanager-6" value={editor.placement} onChange={(e) => setEditor({ ...editor, placement: e.target.value as EditorState['placement'] })}>
                 {BANNER_PLACEMENTS.map((placement) => (
                   <option key={placement} value={placement}>{PLACEMENT_LABEL[placement]}</option>
                 ))}
               </select>
             </div>
             <div className="adminField">
-              <label>ترتيب العرض</label>
-              <input type="number" min="0" step="1" value={editor.sortOrder} onChange={(e) => setEditor({ ...editor, sortOrder: e.target.value })} />
+              <label htmlFor="bannermanager-7">ترتيب العرض</label>
+          <input id="bannermanager-7" type="number" min="0" step="1" value={editor.sortOrder} onChange={(e) => setEditor({ ...editor, sortOrder: e.target.value })} />
             </div>
             <div className="adminField">
-              <label>يبدأ في</label>
-              <input type="datetime-local" value={editor.startsAt} onChange={(e) => setEditor({ ...editor, startsAt: e.target.value })} />
+              <label htmlFor="bannermanager-8">يبدأ في</label>
+          <input id="bannermanager-8" type="datetime-local" value={editor.startsAt} onChange={(e) => setEditor({ ...editor, startsAt: e.target.value })} />
             </div>
             <div className="adminField">
-              <label>ينتهي في</label>
-              <input className={issues.endsAt ? 'hasError' : ''} type="datetime-local" value={editor.endsAt} onChange={(e) => setEditor({ ...editor, endsAt: e.target.value })} />
+              <label htmlFor="bannermanager-9">ينتهي في</label>
+          <input id="bannermanager-9" className={issues.endsAt ? 'hasError' : ''} type="datetime-local" value={editor.endsAt} onChange={(e) => setEditor({ ...editor, endsAt: e.target.value })} />
               {issues.endsAt && <span className="adminFieldError">{issues.endsAt}</span>}
             </div>
             <div className="adminField">

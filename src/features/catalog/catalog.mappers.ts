@@ -93,7 +93,13 @@ function mapDetails(value: Prisma.JsonValue | null): string[] {
   if (Array.isArray(value)) {
     return value.filter((item): item is string => typeof item === 'string');
   }
-  if (typeof value === 'string') return [value];
+  if (typeof value === 'string') {
+    try {
+      const parsed: unknown = JSON.parse(value);
+      if (Array.isArray(parsed)) return parsed.filter((item): item is string => typeof item === 'string');
+    } catch { /* Legacy plain text remains valid. */ }
+    return value.split('\n').map((line) => line.trim()).filter(Boolean);
+  }
   return [];
 }
 
@@ -146,10 +152,13 @@ export function mapProductDetail(product: ProductLike): CatalogProduct {
 function mapProduct(product: ProductLike): CatalogProduct {
   const variants = product.variants.filter((variant) => variant.isActive).map(mapVariant);
   const sortedImages = [...product.images].sort((a, b) => a.sortOrder - b.sortOrder).map(mapImage);
-  const activeVariantPrices = variants.length ? variants.map((variant) => variant.price) : [decimalToNumber(product.basePrice) ?? 0];
+  const purchasable = variants.filter((variant) => variant.quantity > 0);
+  const pricedVariants = purchasable.length ? purchasable : variants;
+  const activeVariantPrices = pricedVariants.length ? pricedVariants.map((variant) => variant.price) : [decimalToNumber(product.basePrice) ?? 0];
   const price = Math.min(...activeVariantPrices);
   const baseCompareAtPrice = decimalToNumber(product.compareAtPrice);
-  const variantCompareAtPrice = variants
+  const variantCompareAtPrice = pricedVariants
+    .filter((variant) => variant.price === price)
     .map((variant) => variant.compareAtPrice)
     .filter((value): value is number => typeof value === 'number' && value > price)
     .sort((a, b) => a - b)[0];

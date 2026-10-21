@@ -2,7 +2,11 @@
 
 ISHTAR is an Arabic, RTL accessories and lifestyle storefront with a staff admin dashboard, built with Next.js App Router, TypeScript, PostgreSQL and Prisma. Its identity uses the approved burgundy, copper, cream and blush palette and official ISHTAR artwork.
 
-**Current status: Phase 4 source implementation.** Brand integrity checks pass; dependency installation, TypeScript, ESLint, production build, browser review and end-to-end checkout/admin testing have not yet been completed for this version. This repository is not production-approved.
+**Current status: consolidated batch with server integration verified; visual acceptance pending.** Dependencies, Prisma generation, TypeScript, ESLint, production build, 28 static brand checks, 9 commerce tests and 12 integration tests passed. Real Prisma order creation/replay/rollback and authenticated HTTP rendering were tested on disposable data. Browser/mobile UI, independent PostgreSQL concurrency and physical print acceptance remain pending. This is not production approval.
+
+Read the latest [runtime verification report](docs/ISHTAR-RUNTIME-VERIFICATION.md), including the checkout lock fix discovered after the original batch.
+
+See [batch implementation and verification](docs/ISHTAR-BATCH-IMPLEMENTATION.md). Checkout now requires the additive database change in `scripts/sql/ishtar-checkout-idempotency.sql` before this version is deployed against an existing database. The store owner has confirmed applying this SQL to the connected database; this environment has not independently inspected the production schema. See [release batch](docs/ISHTAR-RELEASE-BATCH.md).
 
 ## Identity
 
@@ -36,13 +40,15 @@ When ready for the final validation phase:
 
 ```bash
 npm run brand:check
+npm run test:commerce
 npm run typecheck
 npm run lint
 npm run build
+npm run test:integration
 npm run dev
 ```
 
-These commands are instructions, not a claim that they have all passed. Review the existing backfill scripts individually before using them on an existing database.
+The checks listed in the current-status paragraph passed for this batch; `npm run dev` and full browser acceptance are separate. Review the existing backfill scripts individually before using them on an existing database.
 
 ## Configuration
 

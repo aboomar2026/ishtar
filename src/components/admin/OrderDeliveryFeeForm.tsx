@@ -33,6 +33,8 @@ export function OrderDeliveryFeeForm({
   function save(mode: 'SET' | 'FREE') {
     setMessage(null);
     startTransition(async () => {
+      try {
+
       const result = await updateOrderDeliveryFeeAction(orderId, { mode, fee });
       if (!result.ok) {
         setMessage({ type: 'error', text: result.message });
@@ -40,6 +42,8 @@ export function OrderDeliveryFeeForm({
       }
       setMessage({ type: 'success', text: mode === 'FREE' ? 'تم اعتماد التوصيل المجاني.' : 'تم تحديث سعر التوصيل والإجمالي.' });
       router.refresh();
+
+      } catch { setMessage({ type: 'error', text: 'تعذر تأكيد سعر التوصيل. حدّث الطلب قبل إعادة المحاولة.' }); }
     });
   }
 

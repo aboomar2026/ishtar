@@ -74,7 +74,7 @@ export default async function HomePage() {
         <ProductGrid products={catalog.newArrivals} />
       </section>
 
-      <section className="contentSection sectionPanel bestSellerPanel">
+      {catalog.bestSellers.length > 0 && <section className="contentSection sectionPanel bestSellerPanel">
         <div className="sectionHeader">
           <div>
             <span className="eyebrow">Best sellers</span>
@@ -83,7 +83,7 @@ export default async function HomePage() {
           <Link href="/category/bags">تسوّقي الآن</Link>
         </div>
         <ProductGrid products={catalog.bestSellers} />
-      </section>
+      </section>}
 
       <section className="contentSection">
         <div className="sectionHeader">

@@ -1,5 +1,8 @@
 'use client';
 
+import { useUnsavedChanges } from './useUnsavedChanges';
+import { useDialog } from '@/components/useDialog';
+
 import { useMemo, useState, useTransition, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { createProductAction, updateProductAction, type ActionIssue } from '@/features/admin/products/product-admin.actions';
@@ -83,9 +86,10 @@ type VariantAdvancedDrawerProps = {
 };
 
 function VariantAdvancedDrawer({ variant, index, errorFor, onChange, onRemove, onClose }: VariantAdvancedDrawerProps) {
+  const drawerRef = useDialog(true, onClose);
   return (
     <div className="variantDrawerOverlay" role="presentation">
-      <div className="variantDrawer" role="dialog" aria-modal="true" aria-label="تفاصيل الخيار المتقدمة">
+      <div className="variantDrawer" ref={drawerRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label="تفاصيل الخيار المتقدمة">
         <div className="variantDrawerHead">
           <div>
             <strong>تفاصيل الخيار</strong>
@@ -96,8 +100,8 @@ function VariantAdvancedDrawer({ variant, index, errorFor, onChange, onRemove, o
 
         <div className="adminRepeatGrid">
           <div className="adminField">
-            <label>الـ SKU *</label>
-            <input
+            <label htmlFor="product-extra-field-1">الـ SKU *</label>
+            <input id="product-extra-field-1"
               className={fieldError(errorFor, index, 'sku') ? 'hasError' : ''}
               value={variant.sku}
               onChange={(event) => onChange(index, { sku: event.target.value })}
@@ -105,12 +109,12 @@ function VariantAdvancedDrawer({ variant, index, errorFor, onChange, onRemove, o
             {fieldError(errorFor, index, 'sku') && <span className="adminFieldError">{fieldError(errorFor, index, 'sku')}</span>}
           </div>
           <div className="adminField">
-            <label>المقاس</label>
-            <input value={variant.size} onChange={(event) => onChange(index, { size: event.target.value })} />
+            <label htmlFor="product-extra-field-2">المقاس</label>
+            <input id="product-extra-field-2" value={variant.size} onChange={(event) => onChange(index, { size: event.target.value })} />
           </div>
           <div className="adminField">
-            <label>السعر (₪) *</label>
-            <input
+            <label htmlFor="product-extra-field-3">السعر (₪) *</label>
+            <input id="product-extra-field-3"
               className={fieldError(errorFor, index, 'price') ? 'hasError' : ''}
               type="number"
               min="0"
@@ -121,12 +125,12 @@ function VariantAdvancedDrawer({ variant, index, errorFor, onChange, onRemove, o
             {fieldError(errorFor, index, 'price') && <span className="adminFieldError">{fieldError(errorFor, index, 'price')}</span>}
           </div>
           <div className="adminField">
-            <label>قبل الخصم (₪)</label>
-            <input type="number" min="0" step="0.01" value={variant.compareAtPrice} onChange={(event) => onChange(index, { compareAtPrice: event.target.value })} />
+            <label htmlFor="product-extra-field-4">قبل الخصم (₪)</label>
+            <input id="product-extra-field-4" type="number" min="0" step="0.01" value={variant.compareAtPrice} onChange={(event) => onChange(index, { compareAtPrice: event.target.value })} />
           </div>
           <div className="adminField">
-            <label>الكمية *</label>
-            <input
+            <label htmlFor="product-extra-field-5">الكمية *</label>
+            <input id="product-extra-field-5"
               className={fieldError(errorFor, index, 'quantity') ? 'hasError' : ''}
               type="number"
               min="0"
@@ -137,8 +141,8 @@ function VariantAdvancedDrawer({ variant, index, errorFor, onChange, onRemove, o
             {fieldError(errorFor, index, 'quantity') && <span className="adminFieldError">{fieldError(errorFor, index, 'quantity')}</span>}
           </div>
           <div className="adminField">
-            <label>حد المخزون المنخفض</label>
-            <input type="number" min="0" step="1" value={variant.lowStockThreshold} onChange={(event) => onChange(index, { lowStockThreshold: event.target.value })} />
+            <label htmlFor="product-extra-field-6">حد المخزون المنخفض</label>
+            <input id="product-extra-field-6" type="number" min="0" step="1" value={variant.lowStockThreshold} onChange={(event) => onChange(index, { lowStockThreshold: event.target.value })} />
           </div>
         </div>
 
@@ -309,6 +313,7 @@ export function ProductForm({ mode, productId, categories, initial }: {
   const [isNewArrival, setIsNewArrival] = useState(initial.isNewArrival);
   const [isBestSeller, setIsBestSeller] = useState(initial.isBestSeller);
   const [tags, setTags] = useState(initial.tags.join(', '));
+  const [uploading, setUploading] = useState(false);
   const [images, setImages] = useState<ImageState[]>(initial.images);
   const [variants, setVariants] = useState<VariantState[]>(initial.variants);
 
@@ -493,6 +498,7 @@ export function ProductForm({ mode, productId, categories, initial }: {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (uploading) { setFormMessage('انتظر اكتمال رفع الصورة قبل الحفظ.'); return; }
     setFormMessage(null);
     setIssues({});
     const payload = buildPayload();
@@ -514,8 +520,10 @@ export function ProductForm({ mode, productId, categories, initial }: {
 
   const editingVariant = editingVariantIndex != null ? variants[editingVariantIndex] : undefined;
 
+  const dirty = useUnsavedChanges(JSON.stringify(buildPayload()), pending);
   return (
     <form className="adminForm" onSubmit={handleSubmit}>
+      {dirty && <p className="adminAlert isInfo" role="status">لديك تعديلات غير محفوظة.</p>}
       {formMessage && <div className="adminAlert isError" role="alert">{formMessage}</div>}
       {status === 'ACTIVE' && activeCount === 0 && <div className="adminAlert isInfo">يحتاج المنتج النشط إلى خيار نشط واحد على الأقل قبل أن يُحفظ.</div>}
       {status === 'ACTIVE' && allActiveVariantsOutOfStock && <div className="adminAlert isInfo">كل الخيارات النشطة كميتها صفر، سيظهر المنتج كغير متوفر.</div>}
@@ -611,7 +619,7 @@ export function ProductForm({ mode, productId, categories, initial }: {
         <div className="adminCardHeader">
           <div><h2>الصور</h2><p className="adminMuted">ارفعي صورة من جهازك أو أدخلي رابط الصورة يدوياً. الصورة الرئيسية تظهر أولاً.</p></div>
           <div className="adminBtnRow">
-            <ImageUploadButton kind="product" onUploaded={addUploadedImage} label="رفع صورة" />
+            <ImageUploadButton kind="product" onUploadingChange={setUploading} onUploaded={addUploadedImage} label="رفع صورة" />
             <button type="button" className="adminBtn adminBtnGhost adminBtnSm" onClick={() => setImages((prev) => [...prev, { url: '', alt: '', isPrimary: prev.length === 0 }])}>+ رابط صورة</button>
           </div>
         </div>
@@ -629,13 +637,13 @@ export function ProductForm({ mode, productId, categories, initial }: {
                 {image.url ? <img className="adminImagePreview" src={image.url} alt={image.alt || `صورة ${index + 1}`} /> : <div className="adminImagePreview adminImagePreviewEmpty" aria-hidden="true">لا معاينة</div>}
                 <div className="adminRepeatGrid" style={{ flex: 1, minWidth: 0 }}>
                   <div className="adminField">
-                    <label>رابط الصورة *</label>
-                    <input className={errorFor(`images.${index}.url`) ? 'hasError' : ''} value={image.url} onChange={(event) => updateImage(index, { url: event.target.value })} placeholder="/mock-products/bag-camel.svg" />
+                    <label htmlFor="product-extra-field-7">رابط الصورة *</label>
+            <input id="product-extra-field-7" className={errorFor(`images.${index}.url`) ? 'hasError' : ''} value={image.url} onChange={(event) => updateImage(index, { url: event.target.value })} placeholder="/mock-products/bag-camel.svg" />
                     {errorFor(`images.${index}.url`) && <span className="adminFieldError">{errorFor(`images.${index}.url`)}</span>}
                   </div>
                   <div className="adminField">
-                    <label>النص البديل</label>
-                    <input value={image.alt} onChange={(event) => updateImage(index, { alt: event.target.value })} />
+                    <label htmlFor="product-extra-field-8">النص البديل</label>
+            <input id="product-extra-field-8" value={image.alt} onChange={(event) => updateImage(index, { alt: event.target.value })} />
                   </div>
                 </div>
               </div>
@@ -686,8 +694,8 @@ export function ProductForm({ mode, productId, categories, initial }: {
 
         <div className="vmBulkTools">
           <div className="adminField">
-            <label>كمية للتطبيق السريع</label>
-            <input type="number" min="0" step="1" value={bulkQuantity} onChange={(event) => setBulkQuantity(event.target.value)} placeholder="مثال: 10" />
+            <label htmlFor="product-extra-field-9">كمية للتطبيق السريع</label>
+            <input id="product-extra-field-9" type="number" min="0" step="1" value={bulkQuantity} onChange={(event) => setBulkQuantity(event.target.value)} placeholder="مثال: 10" />
           </div>
           <button type="button" className="adminBtn adminBtnGhost adminBtnSm" onClick={applyQuantityToAllVariants}>تطبيق الكمية على كل الخيارات</button>
           <span className="adminMuted">يمكن أيضاً تطبيقها من عنوان اللون أو المقاس داخل الجدول.</span>
@@ -716,10 +724,10 @@ export function ProductForm({ mode, productId, categories, initial }: {
       </div>
 
       <div className="adminBtnRow">
-        <button type="submit" className="adminBtn adminBtnPrimary" disabled={pending}>
+        <button type="submit" className="adminBtn adminBtnPrimary" disabled={pending || uploading}>
           {pending ? 'جارٍ الحفظ…' : mode === 'create' ? 'إنشاء المنتج' : 'حفظ التغييرات'}
         </button>
-        <button type="button" className="adminBtn adminBtnGhost" disabled={pending} onClick={() => router.push('/admin/products')}>إلغاء</button>
+        <button type="button" className="adminBtn adminBtnGhost" disabled={pending} onClick={() => { if (!dirty || window.confirm('تجاهل التعديلات غير المحفوظة؟')) router.push('/admin/products'); }}>إلغاء</button>
       </div>
 
       {editingVariant && editingVariantIndex != null && (

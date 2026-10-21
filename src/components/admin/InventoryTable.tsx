@@ -26,26 +26,39 @@ function InventoryCard({ row }: { row: InventoryRow }) {
 
   function save() {
     setMessage(null);
+    if (!quantity.trim() || !threshold.trim() || !Number.isInteger(Number(quantity)) || !Number.isInteger(Number(threshold)) || Number(quantity) < 0 || Number(threshold) < 0) {
+      setMessage({ kind: 'error', text: 'أدخل كمية وحدًا صحيحين لا يقلان عن صفر.' }); return;
+    }
     startTransition(async () => {
+      try {
+
+      let quantitySaved = false;
       if (Number(quantity) !== row.quantity) {
         const result = await adjustVariantQuantityAction(row.id, Number(quantity));
         if (!result.ok) { setMessage({ kind: 'error', text: result.message }); return; }
+        quantitySaved = true;
       }
       if (Number(threshold) !== row.lowStockThreshold) {
         const result = await updateVariantThresholdAction(row.id, Number(threshold));
-        if (!result.ok) { setMessage({ kind: 'error', text: result.message }); return; }
+        if (!result.ok) { setMessage({ kind: 'error', text: `${quantitySaved ? 'تم حفظ الكمية، لكن تعذر حفظ الحد: ' : ''}${result.message}` }); router.refresh(); return; }
       }
       setMessage({ kind: 'ok', text: 'تم الحفظ' });
       router.refresh();
+
+      } catch { setMessage({ kind: 'error', text: 'تعذر تأكيد الحفظ. حدّث بيانات المخزون قبل المحاولة مجددًا.' }); }
     });
   }
 
   function toggleActive() {
     setMessage(null);
     startTransition(async () => {
+      try {
+
       const result = await setVariantActiveAction(row.id, !row.isActive);
       if (!result.ok) { setMessage({ kind: 'error', text: result.message }); return; }
       router.refresh();
+
+      } catch { setMessage({ kind: 'error', text: 'تعذر تأكيد الحفظ. حدّث بيانات المخزون قبل المحاولة مجددًا.' }); }
     });
   }
 
@@ -73,12 +86,12 @@ function InventoryCard({ row }: { row: InventoryRow }) {
 
       <div className="adminInventoryControls">
         <div className="adminField">
-          <label>الكمية</label>
-          <input type="number" min="0" step="1" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
+          <label htmlFor={"inventorytable-1-" + row.id}>الكمية</label>
+          <input id={"inventorytable-1-" + row.id} type="number" min="0" step="1" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
         </div>
         <div className="adminField">
-          <label>حد المخزون المنخفض</label>
-          <input type="number" min="0" step="1" value={threshold} onChange={(e) => setThreshold(e.target.value)} />
+          <label htmlFor={"inventorytable-2-" + row.id}>حد المخزون المنخفض</label>
+          <input id={"inventorytable-2-" + row.id} type="number" min="0" step="1" value={threshold} onChange={(e) => setThreshold(e.target.value)} />
         </div>
       </div>
 
@@ -89,7 +102,7 @@ function InventoryCard({ row }: { row: InventoryRow }) {
         <button type="button" className="adminBtn adminBtnGhost adminBtnSm" onClick={toggleActive} disabled={pending}>
           {row.isActive ? 'إلغاء التنشيط' : 'تنشيط'}
         </button>
-        {message && <span className={message.kind === 'ok' ? 'adminFieldHint' : 'adminFieldError'}>{message.text}</span>}
+        {message && <span role="status" className={message.kind === 'ok' ? 'adminFieldHint' : 'adminFieldError'}>{message.text}</span>}
         <span className="adminMuted" style={{ marginInlineStart: 'auto', fontSize: 12 }}>{formatDateTime(row.updatedAt)}</span>
       </div>
     </div>

@@ -12,7 +12,11 @@ export type OrderPrintData = {
 
 /** Public base URL used in the QR code. Configurable; defaults to local dev. */
 function siteUrl(): string {
-  return (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/$/, '');
+  const configured = process.env.NEXT_PUBLIC_SITE_URL;
+  if (!configured && process.env.NODE_ENV === 'production') throw new Error('اضبط NEXT_PUBLIC_SITE_URL قبل إنشاء رمز تتبع الطلب.');
+  const url = new URL(configured || 'http://localhost:3000');
+  if (process.env.NODE_ENV === 'production' && (url.protocol !== 'https:' || ['localhost', '127.0.0.1'].includes(url.hostname))) throw new Error('رابط الموقع للطباعة يجب أن يكون HTTPS عامًا.');
+  return url.origin;
 }
 
 /**

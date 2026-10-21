@@ -6,6 +6,7 @@ export type CheckoutLineInput = {
 };
 
 export type CheckoutInput = {
+  requestKey: string;
   fullName: string;
   phone: string;
   whatsappPhone?: string;

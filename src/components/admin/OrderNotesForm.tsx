@@ -26,6 +26,8 @@ export function OrderNotesForm({
     event.preventDefault();
     setMessage(null);
     startTransition(async () => {
+      try {
+
       const result = await updateOrderNotesAction(orderId, {
         internalNote: internal,
         packagingNote: packaging,
@@ -37,26 +39,28 @@ export function OrderNotesForm({
       } else {
         setMessage({ kind: 'error', text: result.message });
       }
+
+      } catch { setMessage({ kind: 'error', text: 'تعذر حفظ الملاحظات. احتُفظ بالنص؛ أعِد المحاولة.' }); }
     });
   }
 
   return (
     <form className="adminForm" onSubmit={onSubmit}>
       <div className="adminField">
-        <label>ملاحظة داخلية (للمشرف فقط)</label>
-        <textarea value={internal} onChange={(e) => setInternal(e.target.value)} placeholder="لا تظهر للعميل ولا على المستندات." />
+        <label htmlFor="ordernotesform-1">ملاحظة داخلية (للمشرف فقط)</label>
+          <textarea id="ordernotesform-1" value={internal} onChange={(e) => setInternal(e.target.value)} placeholder="لا تظهر للعميل ولا على المستندات." />
       </div>
       <div className="adminField">
-        <label>ملاحظة التغليف (تظهر على قائمة التغليف)</label>
-        <textarea value={packaging} onChange={(e) => setPackaging(e.target.value)} />
+        <label htmlFor="ordernotesform-2">ملاحظة التغليف (تظهر على قائمة التغليف)</label>
+          <textarea id="ordernotesform-2" value={packaging} onChange={(e) => setPackaging(e.target.value)} />
       </div>
       <div className="adminField">
-        <label>ملاحظة التسليم (للمشرف)</label>
-        <textarea value={delivery} onChange={(e) => setDelivery(e.target.value)} />
+        <label htmlFor="ordernotesform-3">ملاحظة التسليم (للمشرف)</label>
+          <textarea id="ordernotesform-3" value={delivery} onChange={(e) => setDelivery(e.target.value)} />
       </div>
       <div className="adminBtnRow">
         <button type="submit" className="adminBtn adminBtnPrimary" disabled={pending}>{pending ? 'جارٍ الحفظ…' : 'حفظ الملاحظات'}</button>
-        {message && <span className={message.kind === 'ok' ? 'adminFieldHint' : 'adminFieldError'}>{message.text}</span>}
+        {message && <span role="status" className={message.kind === 'ok' ? 'adminFieldHint' : 'adminFieldError'}>{message.text}</span>}
       </div>
     </form>
   );

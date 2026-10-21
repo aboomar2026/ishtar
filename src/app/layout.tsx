@@ -1,3 +1,4 @@
+import { publicSiteUrl } from '@/lib/site-url';
 import type { Metadata, Viewport } from 'next';
 import { Tajawal, El_Messiri } from 'next/font/google';
 import { activeBrandKey, brand, getBrandCssVariables } from '@/lib/brand';
@@ -19,7 +20,9 @@ const elMessiri = El_Messiri({
 });
 
 export const metadata: Metadata = {
+  metadataBase: publicSiteUrl(),
   title: brand.seo.title,
+  openGraph: { title: brand.seo.title, description: brand.seo.description, siteName: brand.englishName, locale: 'ar_PS', type: 'website' },
   description: brand.seo.description,
   applicationName: brand.englishName,
   manifest: brand.key === 'ishtar' ? '/brand/ishtar/site.webmanifest' : undefined,

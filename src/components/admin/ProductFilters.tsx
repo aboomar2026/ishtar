@@ -66,6 +66,7 @@ export function ProductFilters({ categories }: { categories: CategoryOption[] })
         <option value="name">الاسم (أ–ي)</option>
         <option value="stock-asc">المخزون (من الأقل إلى الأعلى)</option>
       </select>
+      <button type="submit" className="adminBtn adminBtnPrimary">بحث</button>
     </form>
   );
 }

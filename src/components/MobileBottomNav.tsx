@@ -3,14 +3,14 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCart } from './CartProvider';
-import { IconCart, IconGrid, IconHome, IconSearch, IconUser } from './Icons';
+import { IconCart, IconGrid, IconHome, IconGift, IconWallet } from './Icons';
 
 const links = [
   { href: '/', label: 'الرئيسية', icon: IconHome },
   { href: '/category/new-in', label: 'الجديد', icon: IconGrid },
-  { href: '/category/sale', label: 'العروض', icon: IconSearch },
+  { href: '/category/sale', label: 'العروض', icon: IconGift },
   { href: '/cart', label: 'السلة', icon: IconCart },
-  { href: '/checkout', label: 'الدفع', icon: IconUser }
+  { href: '/checkout', label: 'الدفع', icon: IconWallet }
 ];
 
 export function MobileBottomNav() {
@@ -23,7 +23,7 @@ export function MobileBottomNav() {
         const Icon = item.icon;
         const active = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
         return (
-          <Link href={item.href} key={item.href} className={active ? 'active' : ''}>
+          <Link href={item.href} key={item.href} className={active ? 'active' : ''} aria-current={active ? 'page' : undefined}>
             <span className="bottomIconWrap">
               <Icon size={20} />
               {item.href === '/cart' && itemCount > 0 ? <em>{itemCount}</em> : null}

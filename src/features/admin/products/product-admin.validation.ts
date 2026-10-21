@@ -16,9 +16,9 @@ function isValidImageUrl(value: string): boolean {
 const slugSchema = z
   .string()
   .trim()
-  .min(1, 'Slug is required')
-  .max(120, 'Slug is too long')
-  .regex(/^[\p{Letter}\p{Number}]+(?:-[\p{Letter}\p{Number}]+)*$/u, 'Use lowercase letters, numbers and dashes only');
+  .min(1, 'رابط المنتج مطلوب')
+  .max(120, 'رابط المنتج طويل جدًا')
+  .regex(/^[\p{Letter}\p{Number}]+(?:-[\p{Letter}\p{Number}]+)*$/u, 'استخدم الحروف والأرقام والشرطات فقط');
 
 const optionalText = z
   .string()
@@ -54,7 +54,7 @@ export const variantInputSchema = z.object({
 
 export const imageInputSchema = z.object({
   id: z.string().optional(),
-  url: z.string().trim().min(1, 'Image URL is required').refine(isValidImageUrl, 'Enter a valid URL or a path starting with /'),
+  url: z.string().trim().min(1, 'رابط الصورة مطلوب').refine(isValidImageUrl, 'أدخل رابطًا صالحًا أو مسارًا يبدأ بـ /'),
   alt: optionalText,
   sortOrder: z.coerce.number().int().min(0).default(0),
   isPrimary: z.boolean().default(false),
@@ -63,17 +63,17 @@ export const imageInputSchema = z.object({
 
 export const productInputSchema = z
   .object({
-    name: z.string().trim().min(1, 'Name is required').max(160, 'Name is too long'),
+    name: z.string().trim().min(1, 'الاسم مطلوب').max(160, 'الاسم طويل جدًا'),
     slug: slugSchema,
     subtitle: optionalText,
-    description: z.string().trim().min(1, 'Description is required'),
+    description: z.string().trim().min(1, 'الوصف مطلوب'),
     details: z.array(z.string().trim()).optional().default([]),
     careInstructions: optionalText,
     brand: optionalText,
-    categoryId: z.string().trim().min(1, 'Category is required'),
-    basePrice: z.coerce.number().min(0, 'Base price must be ≥ 0'),
+    categoryId: z.string().trim().min(1, 'التصنيف مطلوب'),
+    basePrice: z.coerce.number().min(0, 'السعر الأساسي يجب ألا يقل عن صفر'),
     compareAtPrice: z
-      .union([z.coerce.number().min(0, 'Compare-at price must be ≥ 0'), z.literal('').transform(() => undefined)])
+      .union([z.coerce.number().min(0, 'السعر السابق يجب ألا يقل عن صفر'), z.literal('').transform(() => undefined)])
       .optional(),
     status: z.enum(PRODUCT_STATUSES),
     isFeatured: z.boolean().default(false),
@@ -122,7 +122,7 @@ export const productInputSchema = z
     if (data.images.length > 0 && primaryCount > 1) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Only one image can be primary',
+        message: 'يمكن تحديد صورة رئيسية واحدة فقط',
         path: ['images']
       });
     }

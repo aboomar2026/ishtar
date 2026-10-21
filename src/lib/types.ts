@@ -17,6 +17,7 @@ export type CartLine = {
   selectedColorValue?: string;
   selectedSize?: string;
   quantity: number;
+  maxQuantity?: number;
   unitPrice: number;
   compareAtPrice?: number;
   sku?: string;
