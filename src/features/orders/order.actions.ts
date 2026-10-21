@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma';
 import { checkoutSchema, trackOrderSchema } from './order.validation';
 import { lockVariantsForUpdate } from './order-stock';
 import { calcLineTotal, calcOrderTotals, roundMoney } from './order-pricing';
-import { buildOrderNumber, orderNumberDatePrefix } from './order-number';
+import { buildOrderNumber, invoiceNumberForOrder, orderNumberDatePrefix } from './order-number';
 import { getOrderByNumberAndPhone } from './order.queries';
 import { notifyAdminAboutNewOrder } from './order-notifications';
 import type { CheckoutInput, CreateOrderResult, OrderStockError, OrderView } from './order.types';
@@ -146,7 +146,7 @@ export async function createCodOrderAction(input: CheckoutInput): Promise<Create
         const order = await tx.order.create({
           data: {
             orderNumber,
-            invoiceNumber: orderNumber.replace('BAH-', 'INV-'),
+            invoiceNumber: invoiceNumberForOrder(orderNumber),
             customerId: customer.id,
             status: 'PENDING',
             paymentMethod: 'COD',

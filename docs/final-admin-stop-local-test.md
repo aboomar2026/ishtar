@@ -1,4 +1,6 @@
-# Bab Al Hara — Admin Stop Summary & Local QA
+# ISHTAR — Admin Stop Summary & Local QA
+
+> Inherited baseline checklist/implementation notes. Not evidence that ISHTAR runtime checks have passed; see the root README for current status.
 
 ## What changed in this final stop
 

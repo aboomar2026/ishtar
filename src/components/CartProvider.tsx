@@ -1,5 +1,7 @@
 'use client';
 
+import { brandStorageKeys } from '@/lib/brand-storage';
+
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { CartLine } from '@/lib/types';
 import { calcLineTotal, calcOrderTotals } from '@/features/orders/order-pricing';
@@ -19,7 +21,7 @@ type CartContextValue = {
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
-const STORAGE_KEY = 'bab-al-hara-cart-v2';
+const STORAGE_KEY = brandStorageKeys.cart;
 
 function getLinePrice(line: CartLine) {
   return calcLineTotal(line.unitPrice, line.quantity);

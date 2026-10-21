@@ -1,5 +1,6 @@
 import 'server-only';
 import QRCode from 'qrcode';
+import { invoiceNumberForOrder } from '@/features/orders/order-number';
 import { getAdminOrderById, type AdminOrderDetail } from './order-admin.queries';
 
 export type OrderPrintData = {
@@ -22,7 +23,7 @@ export async function getOrderForPrint(id: string): Promise<OrderPrintData | nul
   const order = await getAdminOrderById(id);
   if (!order) return null;
 
-  const invoiceNumber = order.invoiceNumber ?? order.orderNumber.replace('BAH-', 'INV-');
+  const invoiceNumber = order.invoiceNumber ?? invoiceNumberForOrder(order.orderNumber);
   const trackUrl = `${siteUrl()}/track-order?order=${encodeURIComponent(order.orderNumber)}`;
   const qrDataUrl = await QRCode.toDataURL(trackUrl, { margin: 1, width: 220 });
 

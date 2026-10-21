@@ -1,3 +1,5 @@
+import { brand } from '../src/config/brands';
+
 /**
  * Sprint 7A — Demo product media using DIRECT Pexels CDN image URLs.
  *
@@ -242,6 +244,6 @@ export const DEMO_CATEGORIES: DemoCategoryEntry[] = [
 ];
 
 export const DEMO_BANNERS: DemoBannerEntry[] = [
-  { key: 'home-hero', name: 'بنر الرئيسية', placement: 'HOME_HERO', image: { id: 34027231, page: 'https://www.pexels.com/photo/flat-lay-of-stylish-accessories-with-handbag-34027231/', alt: 'إطلالتك تبدأ من باب الحارة' } },
+  { key: 'home-hero', name: 'بنر الرئيسية', placement: 'HOME_HERO', image: { id: 34027231, page: 'https://www.pexels.com/photo/flat-lay-of-stylish-accessories-with-handbag-34027231/', alt: brand.copy.heroTitle } },
   { key: 'home-promo', name: 'بنر العروض', placement: 'HOME_PROMO', image: { id: 30999236, page: 'https://www.pexels.com/photo/elegant-perfume-gift-box-presentation-30999236/', alt: 'عروض مختارة لفترة محدودة' } }
 ];

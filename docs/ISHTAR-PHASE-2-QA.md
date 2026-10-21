@@ -1,5 +1,7 @@
 # ISHTAR Phase 2 — Verification checkpoint (2026-10-21)
 
+> Historical phase snapshot. The follow-up identity audit now defaults the resolver to `ishtar`; earlier references to the `saad` fallback describe the previous state.
+
 ## Confirmed
 - Independent static brand integrity audit: **28/28 PASS**.
 - Checks cover brand registration, runtime key wiring, RTL root document, dynamic favicon/theme-color wiring, intended logo variants, approved palette presence, referenced logo asset existence, and missing sample phone number.

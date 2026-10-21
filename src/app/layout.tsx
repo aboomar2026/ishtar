@@ -22,6 +22,7 @@ export const metadata: Metadata = {
   title: brand.seo.title,
   description: brand.seo.description,
   applicationName: brand.englishName,
+  manifest: brand.key === 'ishtar' ? '/brand/ishtar/site.webmanifest' : undefined,
   icons: {
     icon: brand.assets.favicon32 ?? '/icon.svg',
     apple: brand.assets.appleTouchIcon ?? brand.assets.favicon32 ?? '/icon.svg'

@@ -1,4 +1,6 @@
-export const RECENT_ORDERS_STORAGE_KEY = 'bab-al-hara:recent-orders';
+import { brandStorageKeys } from '@/lib/brand-storage';
+
+export const RECENT_ORDERS_STORAGE_KEY = brandStorageKeys.recentOrders;
 const MAX_RECENT_ORDERS = 20;
 
 export type RecentOrder = {

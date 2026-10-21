@@ -1,165 +1,92 @@
-# Bab Al Hara E-commerce
+# عشتار | ISHTAR
 
-Mobile-first **Arabic RTL** fashion & lifestyle e-commerce app for **Bab Al Hara**, built on a real PostgreSQL + Prisma backend. The storefront keeps a warm boutique identity (cream, beige, camel, tan, brown, black with soft gold accents) while behaving like a fast mobile marketplace.
+ISHTAR is an Arabic, RTL accessories and lifestyle storefront with a staff admin dashboard, built with Next.js App Router, TypeScript, PostgreSQL and Prisma. Its identity uses the approved burgundy, copper, cream and blush palette and official ISHTAR artwork.
 
-This is a working **Sprint 5** codebase: real database-backed orders, a protected admin dashboard, full order/inventory/invoice/packing-slip workflow, and CSV export.
+**Current status: Phase 4 source implementation.** Brand integrity checks pass; dependency installation, TypeScript, ESLint, production build, browser review and end-to-end checkout/admin testing have not yet been completed for this version. This repository is not production-approved.
 
-## Stack
+## Identity
 
-- Next.js (App Router)
-- TypeScript
-- Prisma ORM
-- PostgreSQL
-- Arabic RTL, mobile-first CSS
-- LocalStorage cart
-- Cookie-based admin dashboard auth
+- Default brand: `ishtar`, including when `NEXT_PUBLIC_STORE_BRAND` is absent or unrecognized.
+- Explicit configuration: `NEXT_PUBLIC_STORE_BRAND=ishtar`.
+- Brand profile and copy: `src/config/brands/ishtar.ts`.
+- Official artwork and icons: `public/brand/ishtar/`.
+- Scoped UI refinements: `src/app/ishtar.css`.
+- Other brand profiles remain available for compatibility. Their names and assets are not ISHTAR content.
+- Phone, WhatsApp, hours and social accounts remain unset until confirmed. Demo products, photos, ratings and sales counts are not verified ISHTAR business data.
 
-## Features
+## Implemented areas — runtime acceptance pending
 
-### Storefront
-- Homepage with hero, category showcase, offers, new arrivals, best sellers
-- Category listing pages (real categories + virtual `new-in` / `sale`)
-- Product detail pages with variants (color, size, SKU, price, stock)
-- LocalStorage cart with product/variant snapshots
-- Cash on Delivery (COD) checkout that creates **real database orders**
-- Order success confirmation
-- Public order tracking by order number
+- Storefront: homepage, categories/search/filtering, product variants, cart, cash-on-delivery checkout, order confirmation and tracking.
+- Staff dashboard: login, products, categories, banners, inventory, orders, delivery pricing, notes, invoices, packing slips and CSV exports.
+- Backend: server-side totals, stock transactions, inventory history and order status history.
+- Shared branding: header, mobile navigation, footer, admin, printing and SEO metadata.
 
-### Admin
-- Protected login (cookie session)
-- Dashboard overview
-- Product management (create / edit / list)
-- Category management
-- Banner management
-- Inventory management with manual stock adjustments
-- Order management with status transitions, notes, and a "packed" toggle
-- Printable invoice
-- Printable packing slip
-- CSV export of orders
+## Local setup
 
-### Backend / business logic
-- Database-backed orders with server-side price calculation
-- Customer upsert on checkout
-- Transactional stock deduction (locked stock transaction)
-- Inventory logs for every stock change, including ProductForm quantity edits and initial product stock
-- Stock restore on order cancellation
-- Order status history
-
-## Routes
-
-### Storefront
-| Route | Description |
-| --- | --- |
-| `/` | Homepage |
-| `/category/[slug]` | Category / collection listing (incl. virtual `new-in`, `sale`) with search, sort, availability filters |
-| `/product/[slug]` | Product detail with variant selection and add-to-cart |
-| `/cart` | LocalStorage cart review |
-| `/checkout` | COD checkout form; creates a real order |
-| `/order-success` | Order confirmation (reads `?order=` number) |
-| `/track-order` | Public order tracking by order number |
-
-### Admin (protected)
-| Route | Description |
-| --- | --- |
-| `/admin/login` | Staff login |
-| `/admin` | Dashboard overview |
-| `/admin/products` | Product list |
-| `/admin/products/new` | Create product |
-| `/admin/products/[id]/edit` | Edit product |
-| `/admin/categories` | Category management |
-| `/admin/banners` | Banner management |
-| `/admin/inventory` | Inventory + manual stock adjustments |
-| `/admin/orders` | Order list with filters |
-| `/admin/orders/[id]` | Order detail: status transitions, notes, packed toggle |
-| `/admin/orders/[id]/invoice` | Printable invoice |
-| `/admin/orders/[id]/packing-slip` | Printable packing slip |
-| `/admin/orders/export` | CSV export endpoint |
-
-## Setup
+Use a dedicated local/test PostgreSQL database. Copy `.env.example` to `.env`, configure it, then:
 
 ```bash
-npm install
-npm run db:generate   # prisma generate
-npm run db:push       # sync schema to the database
-npm run db:seed       # seed categories, products, banners
-npm run db:backfill-delivery-fee-status  # one-time after adding deliveryFeeStatus
-npm run db:backfill-inventory-ledger     # one-time after enabling inventory ledger audit
+npm ci
+npm run db:generate
+```
+
+For a new disposable test database, create the schema with `npm run db:push` or use the project's migration workflow. **`npm run db:seed` deletes existing commerce data before inserting demo records. Never run it against a live store.** Seeding is optional; it is not part of the read-only brand check.
+
+When ready for the final validation phase:
+
+```bash
+npm run brand:check
 npm run typecheck
 npm run lint
 npm run build
 npm run dev
 ```
 
-For a migration-file workflow instead of `db:push`:
+These commands are instructions, not a claim that they have all passed. Review the existing backfill scripts individually before using them on an existing database.
 
-```bash
-npm run db:migrate
-```
-
-## Environment variables
-
-Copy `.env.example` to `.env` and fill in your local values. **Never commit real secrets** — `.env`, `.env.local`, and `.env.*.local` are gitignored.
+## Configuration
 
 | Variable | Purpose |
 | --- | --- |
-| `DATABASE_URL` | PostgreSQL connection string used by Prisma |
-| `ADMIN_EMAIL` | Admin login email (used by the seed script) |
-| `ADMIN_PASSWORD` | Admin login password (used by the seed script) |
-| `ADMIN_NAME` | Display name for the seeded admin |
-| `ADMIN_SESSION_SECRET` | Secret used to sign the admin session cookie |
-| `NEXT_PUBLIC_SITE_URL` | Public base URL used for QR codes on invoices / packing slips and order-tracking links |
-| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name for image uploads |
-| `CLOUDINARY_API_KEY` | Cloudinary API key (server-side signing) |
-| `CLOUDINARY_API_SECRET` | Cloudinary API secret — **server-only**, never exposed to the client |
-| `CLOUDINARY_FOLDER` | Base folder for uploads (images land under `<folder>/products` and `<folder>/banners`) |
+| `NEXT_PUBLIC_STORE_BRAND` | Set to `ishtar`; default is also ISHTAR |
+| `DATABASE_URL` | PostgreSQL connection string; use a test database during QA |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_NAME` | Staff account seed configuration |
+| `ADMIN_SESSION_SECRET` | Admin session signing secret |
+| `NEXT_PUBLIC_SITE_URL` | Site origin for order-tracking links and print QR codes |
+| `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | Server-side media upload credentials |
+| `CLOUDINARY_FOLDER` | Upload namespace, e.g. `ishtar/dev` |
+| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_ADMIN_CHAT_ID` | Optional order notifications |
+| `PEXELS_API_KEY` | Optional demo-media script access |
 
-`.env.example` contains placeholder values only and is safe to commit.
+Only placeholders belong in `.env.example`. Keep real `.env` files and credentials out of Git. New ISHTAR demo-media uploads use `ishtar/demo/`; existing media for alternative profiles retains its compatibility paths. Browser cart, shipping and recent-order data use an ISHTAR namespace without importing other demo brands' saved customer data.
 
-## Cloudinary image uploads
+The root `_prod-db-update.mjs` is a **legacy Saad-only utility**, not an ISHTAR deployment step. It refuses to run unless that legacy profile is explicitly selected. No database update was performed during the identity cleanup.
 
-Admins can upload product and banner images directly from the dashboard. Uploads
-are **signed and server-side**: the browser sends the file to our own protected
-route, which validates the admin session, checks the file type/size, and then
-uploads to Cloudinary. No unsigned upload presets are used, and the API secret
-never reaches the client.
+## Routes
 
-- Upload route: `POST /admin/api/uploads` (multipart form-data, fields `file` + `kind`)
-- Delete route: `POST /admin/api/uploads/delete` (JSON `{ publicId }`)
-- `kind` is `product` or `banner` (defaults to `product`); files are stored under
-  `${CLOUDINARY_FOLDER}/products` or `${CLOUDINARY_FOLDER}/banners`.
-- Allowed types: JPG, PNG, WebP, AVIF. Max size: 5MB. SVG/GIF are rejected.
-- Both routes require a valid admin session and return `401` otherwise.
-
-**Configure locally**
-
-1. Create a free Cloudinary account and open the dashboard to find your cloud name, API key, and API secret.
-2. Add the four `CLOUDINARY_*` variables to your local `.env` (copy the keys from `.env.example`).
-3. Restart `npm run dev` so the new env vars are picked up.
-
-Storefront images use `<img>` with `secure_url`, so existing seed/demo image
-paths keep working alongside newly uploaded Cloudinary URLs.
-
-**Configure on Vercel**
-
-Add `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, and
-`CLOUDINARY_FOLDER` under **Project → Settings → Environment Variables** (do not
-prefix the secret with `NEXT_PUBLIC_`). Redeploy after saving. `res.cloudinary.com`
-is already allowed in `next.config.mjs` for remote images.
+| Area | Routes |
+| --- | --- |
+| Catalog | `/`, `/category/[slug]`, `/product/[slug]` |
+| Purchase | `/cart`, `/checkout`, `/order-success` |
+| Tracking | `/track-order` |
+| Staff access | `/admin/login`, `/admin` |
+| Products | `/admin/products`, `/admin/products/new`, `/admin/products/[id]/edit` |
+| Catalog administration | `/admin/categories`, `/admin/banners`, `/admin/inventory` |
+| Orders | `/admin/orders`, `/admin/orders/[id]`, `/admin/orders/export` |
+| Print documents | `/admin/orders/[id]/invoice`, `/admin/orders/[id]/packing-slip` |
 
 ## Project structure
 
-- `src/app/(storefront)` — public storefront routes and layout
-- `src/app/admin` — admin login and protected admin routes
-- `src/components` — storefront UI components (`src/components/admin` for admin UI)
-- `src/features/catalog` — catalog queries, mappers, filters, types
-- `src/features/orders` — order pricing, stock, validation, actions
-- `src/features/admin/*` — admin queries, actions, and validation per domain
-- `prisma/` — Prisma schema and seed script
+- `src/app/` — storefront/admin routes, layout and styles.
+- `src/components/` — storefront and admin interfaces.
+- `src/config/brands/` — ISHTAR and retained alternative brand profiles.
+- `src/features/` — catalog, commerce and staff operations.
+- `prisma/` — schema and destructive demo seeder.
+- `scripts/` — static checks, demo media and maintenance utilities.
+- `public/brand/ishtar/` — official brand assets.
 
-## QA status
+## QA and handoff
 
-Sprint 7 build. Checkout, orders, inventory, invoices, packing slips, and CSV export are real and functional. Sprint 7 adds signed, admin-protected Cloudinary image uploads for products and banners (manual image URLs still work as a fallback). Customer accounts and a wishlist are intentionally **not** part of this sprint.
+Implementation reports are in `docs/ISHTAR-IMPLEMENTATION.md` and the Phase 2–4 reports. Earlier phase reports are historical snapshots. `docs/LOCAL_QA_CHECKLIST.md` and `docs/final-admin-stop-local-test.md` contain inherited baseline checklists, not proof of ISHTAR runtime verification.
 
-## White-label demo identities
-
-The storefront supports selectable brand profiles while reusing the same application, demo database and Cloudinary account. Set `NEXT_PUBLIC_STORE_BRAND` to `saad`, `bab-al-hara`, or `oppeh`. See `docs/BRAND_PROFILES.md` for the profile structure, shared-database banner behavior and asset checklist.
+Before release, complete content/SEO and font review, confirm business information and real catalog data, then run type/lint/build checks, mobile/desktop visual review, keyboard checks, checkout/admin tests and print preview against a test database. No deployment is implied by this repository import.

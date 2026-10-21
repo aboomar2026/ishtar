@@ -1,5 +1,8 @@
 import { brand } from './brand';
 
+// Preserve existing public IDs for other profiles; new ISHTAR uploads are isolated.
+const DEMO_MEDIA_PREFIX = brand.key === 'ishtar' ? 'ishtar/demo' : 'bab-al-hara/demo';
+
 /**
  * Demo media manifest — the single source of truth that maps each seeded
  * product / category / banner to its license-safe source image(s) on Pexels.
@@ -15,9 +18,9 @@ import { brand } from './brand';
  *      Cloudinary URLs / public ids into the database.
  *
  * Stable Cloudinary public ids (see the *PublicId helpers below):
- *   bab-al-hara/demo/products/{slug}/01-main | 02-detail | 03-lifestyle
- *   bab-al-hara/demo/categories/{slug}
- *   bab-al-hara/demo/banners/home-hero | home-promo
+ *   ishtar/demo/products/{slug}/01-main | 02-detail | 03-lifestyle
+ *   ishtar/demo/categories/{slug}
+ *   ishtar/demo/banners/home-hero | home-promo
  */
 
 export type DemoImageRole = 'main' | 'detail' | 'lifestyle';
@@ -175,19 +178,19 @@ export const DEMO_BANNER_MEDIA: DemoBannerMedia[] = [
   { key: 'home-promo', placement: 'HOME_PROMO', pexelsUrl: 'https://www.pexels.com/photo/elegant-perfume-gift-box-presentation-30999236/', alt: 'عروض مختارة لفترة محدودة' }
 ];
 
-/** Stable Cloudinary public id for a product image, e.g. bab-al-hara/demo/products/{slug}/01-main */
+/** Stable Cloudinary public id for a product image, e.g. ishtar/demo/products/{slug}/01-main */
 export function productImagePublicId(slug: string, role: DemoImageRole): string {
-  return `bab-al-hara/demo/products/${slug}/${ROLE_SLOT[role]}`;
+  return `${DEMO_MEDIA_PREFIX}/products/${slug}/${ROLE_SLOT[role]}`;
 }
 
-/** Stable Cloudinary public id for a category image, e.g. bab-al-hara/demo/categories/{slug} */
+/** Stable Cloudinary public id for a category image, e.g. ishtar/demo/categories/{slug} */
 export function categoryImagePublicId(slug: string): string {
-  return `bab-al-hara/demo/categories/${slug}`;
+  return `${DEMO_MEDIA_PREFIX}/categories/${slug}`;
 }
 
-/** Stable Cloudinary public id for a banner image, e.g. bab-al-hara/demo/banners/home-hero */
+/** Stable Cloudinary public id for a banner image, e.g. ishtar/demo/banners/home-hero */
 export function bannerImagePublicId(key: DemoBannerKey): string {
-  return `bab-al-hara/demo/banners/${key}`;
+  return `${DEMO_MEDIA_PREFIX}/banners/${key}`;
 }
 
 /**
@@ -196,5 +199,8 @@ export function bannerImagePublicId(key: DemoBannerKey): string {
  * The extension is resolved by the script (any of jpg/jpeg/png/webp/avif).
  */
 export function sourceMediaRelPath(publicId: string): string {
-  return publicId.replace(/^bab-al-hara\/demo\//, '');
+  for (const prefix of [DEMO_MEDIA_PREFIX, 'bab-al-hara/demo']) {
+    if (publicId.startsWith(`${prefix}/`)) return publicId.slice(prefix.length + 1);
+  }
+  return publicId;
 }

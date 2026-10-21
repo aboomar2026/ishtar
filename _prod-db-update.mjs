@@ -1,5 +1,6 @@
 /**
- * Production / staging DB content update — Saad Center rebrand.
+ * Legacy Saad Center content utility — not an ISHTAR migration.
+ * Kept only for the explicitly selected Saad profile.
  *
  * Run once against the live database after restoring the Supabase project:
  *
@@ -13,6 +14,11 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+
+// This legacy utility writes Saad-specific content; never apply it to ISHTAR.
+if (process.env.NEXT_PUBLIC_STORE_BRAND !== 'saad') {
+  throw new Error('Legacy Saad utility disabled. It is not an ISHTAR migration.');
+}
 
 // ── 1. Load env ─────────────────────────────────────────────────────────────
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

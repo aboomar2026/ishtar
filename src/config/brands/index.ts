@@ -32,7 +32,7 @@ const aliases: Record<string, BrandKey> = {
 
 function resolveBrandKey(value: string | undefined): BrandKey {
   const normalized = value?.trim().toLowerCase();
-  return (normalized && aliases[normalized]) || 'saad';
+  return (normalized && aliases[normalized]) || 'ishtar';
 }
 
 export const activeBrandKey = resolveBrandKey(process.env.NEXT_PUBLIC_STORE_BRAND);

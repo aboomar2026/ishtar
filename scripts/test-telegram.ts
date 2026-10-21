@@ -1,3 +1,4 @@
+import { brand } from '../src/config/brands';
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -49,7 +50,7 @@ async function main() {
       },
       body: JSON.stringify({
         chat_id: chatId,
-        text: "Test from Bab Al Hara ✅",
+        text: `Test from ${brand.englishName} ✅`,
         disable_web_page_preview: true,
       }),
     },

@@ -1,5 +1,7 @@
 'use client';
 
+import { brandStorageKeys } from '@/lib/brand-storage';
+
 import { FormEvent, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CartSummary } from './CartSummary';
@@ -10,7 +12,7 @@ import { saveRecentOrder } from '@/features/orders/recent-orders.client';
 import type { OrderStockError } from '@/features/orders/order.types';
 
 const governorates = ['غزة', 'شمال غزة', 'دير البلح', 'خانيونس', 'رفح', 'الضفة الغربية', 'القدس'];
-const SHIPPING_KEY = 'bab-al-hara-shipping';
+const SHIPPING_KEY = brandStorageKeys.shipping;
 
 type ShippingFields = { name: string; phone: string; whatsappPhone: string; city: string; area: string; address: string; notes: string };
 

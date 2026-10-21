@@ -1,4 +1,6 @@
-# Bab Al Hara — Local QA Checklist قبل الدمج
+# ISHTAR — Local QA Checklist قبل الدمج
+
+> Inherited baseline checklist/implementation notes. Not evidence that ISHTAR runtime checks have passed; see the root README for current status.
 
 > الهدف من هذا الملف: فحص كل السيناريوهات المهمة بعد آخر تعديلات: Variant Builder، الطلبات، المخزون، sold count، التوصيل اليدوي، تتبع الطلبات، لوحة الأدمن، ورقم واتساب اختياري.
 

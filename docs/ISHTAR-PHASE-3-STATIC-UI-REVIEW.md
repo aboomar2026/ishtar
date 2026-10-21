@@ -1,5 +1,7 @@
 # ISHTAR — Phase 3 Static UI/UX Review
 
+> Historical phase snapshot. The follow-up identity audit now defaults the resolver to `ishtar`; earlier references to the `saad` fallback describe the previous state.
+
 Date: 2026-10-21. Scope: source-level refinement only; running the app, TypeScript, ESLint, build, E2E and screenshot QA explicitly deferred at the user's request.
 
 ## Changes made

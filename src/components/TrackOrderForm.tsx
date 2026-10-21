@@ -310,7 +310,7 @@ export function TrackOrderForm({ initialOrderNumber = '' }: { initialOrderNumber
         <div className="formGrid">
           <label>
             رقم الطلب
-            <input value={orderNumber} onChange={(e) => setOrderNumber(e.target.value)} required placeholder="BAH-20260604-0001" />
+            <input value={orderNumber} onChange={(e) => setOrderNumber(e.target.value)} required placeholder="رقم الطلب من تأكيد الشراء" />
           </label>
           <label>
             رقم الجوال

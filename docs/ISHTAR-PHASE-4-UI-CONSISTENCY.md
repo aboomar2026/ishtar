@@ -1,5 +1,7 @@
 # ISHTAR — Phase 4: UI consistency at source level
 
+> Historical phase snapshot. The follow-up identity audit now defaults the resolver to `ishtar`; earlier references to the `saad` fallback describe the previous state.
+
 Date: 2026-10-21. Baseline: `ishtar-implementation-phase3(1).zip` supplied in this conversation. This is a continuation of that archive, not a verified GitHub revision.
 
 **Status: implemented in source; visual and functional acceptance remain pending.** The user requested that app startup, dependency installation, TypeScript, ESLint, production build and functional testing remain in the final phase. None of those commands was run here.

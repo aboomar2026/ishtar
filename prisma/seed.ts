@@ -1,7 +1,9 @@
 import { PrismaClient, ProductStatus, BannerPlacement, AdminRole } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { brand } from '../src/config/brands';
 
 const prisma = new PrismaClient();
+const skuPrefix = brand.key === 'ishtar' ? 'ISHTAR' : 'BAH';
 
 /**
  * Seed a local admin user from ADMIN_EMAIL / ADMIN_PASSWORD env vars.
@@ -11,7 +13,7 @@ const prisma = new PrismaClient();
 async function seedAdminUser() {
   const email = process.env.ADMIN_EMAIL?.trim().toLowerCase();
   const password = process.env.ADMIN_PASSWORD;
-  const name = process.env.ADMIN_NAME?.trim() || 'Saad Center Admin';
+  const name = process.env.ADMIN_NAME?.trim() || `${brand.englishName} Admin`;
 
   if (!email || !password) {
     console.log('ADMIN_EMAIL/ADMIN_PASSWORD not set, skipping admin user seed.');
@@ -77,8 +79,8 @@ const products: ProductSeed[] = [
     slug: 'camel-boutique-bag',
     subtitle: 'جلد ناعم • عملية وأنيقة',
     description: 'شنطة يومية بلون كاميل دافئ، مناسبة للخروجات السريعة والإطلالات الراقية.',
-    details: ['مساحة داخلية مرتبة', 'سير قابل للتعديل', 'لون كاميل دافئ من مجموعة سعد سنتر'],
-    brand: 'Saad Center Select',
+    details: ['مساحة داخلية مرتبة', 'سير قابل للتعديل', `لون كاميل دافئ من مجموعة ${brand.name}`],
+    brand: `${brand.englishName} Select`,
     basePrice: 89,
     compareAtPrice: 119,
     isFeatured: true,
@@ -90,9 +92,9 @@ const products: ProductSeed[] = [
     tags: ['شنط', 'كاميل', 'بوتيك'],
     images: ['/mock-products/bag-camel.svg', '/mock-products/wallet.svg', '/mock-products/gift-box.svg'],
     variants: [
-      { sku: 'BAH-BAG-CAM-M', colorName: 'كاميل', colorValue: '#bd8754', size: 'متوسط', price: 89, compareAtPrice: 119, quantity: 8 },
-      { sku: 'BAH-BAG-BRN-M', colorName: 'بني', colorValue: '#6b432e', size: 'متوسط', price: 89, compareAtPrice: 119, quantity: 3 },
-      { sku: 'BAH-BAG-BLK-M', colorName: 'أسود', colorValue: '#111111', size: 'متوسط', price: 95, compareAtPrice: 125, quantity: 0 }
+      { sku: `${skuPrefix}-BAG-CAM-M`, colorName: 'كاميل', colorValue: '#bd8754', size: 'متوسط', price: 89, compareAtPrice: 119, quantity: 8 },
+      { sku: `${skuPrefix}-BAG-BRN-M`, colorName: 'بني', colorValue: '#6b432e', size: 'متوسط', price: 89, compareAtPrice: 119, quantity: 3 },
+      { sku: `${skuPrefix}-BAG-BLK-M`, colorName: 'أسود', colorValue: '#111111', size: 'متوسط', price: 95, compareAtPrice: 125, quantity: 0 }
     ]
   },
   {
@@ -112,9 +114,9 @@ const products: ProductSeed[] = [
     tags: ['عطور', 'هدايا', 'ذهبي'],
     images: ['/mock-products/perfume-gold.svg', '/mock-products/makeup-set.svg', '/mock-products/gift-box.svg'],
     variants: [
-      { sku: 'BAH-PRF-GLD-50', colorName: 'ذهبي', colorValue: '#c9a65a', size: '50ml', price: 69, compareAtPrice: 85, quantity: 6 },
-      { sku: 'BAH-PRF-GLD-100', colorName: 'ذهبي', colorValue: '#c9a65a', size: '100ml', price: 105, compareAtPrice: 125, quantity: 2 },
-      { sku: 'BAH-PRF-BEG-50', colorName: 'بيج', colorValue: '#ead8c1', size: '50ml', price: 69, compareAtPrice: 85, quantity: 0 }
+      { sku: `${skuPrefix}-PRF-GLD-50`, colorName: 'ذهبي', colorValue: '#c9a65a', size: '50ml', price: 69, compareAtPrice: 85, quantity: 6 },
+      { sku: `${skuPrefix}-PRF-GLD-100`, colorName: 'ذهبي', colorValue: '#c9a65a', size: '100ml', price: 105, compareAtPrice: 125, quantity: 2 },
+      { sku: `${skuPrefix}-PRF-BEG-50`, colorName: 'بيج', colorValue: '#ead8c1', size: '50ml', price: 69, compareAtPrice: 85, quantity: 0 }
     ]
   },
   {
@@ -133,8 +135,8 @@ const products: ProductSeed[] = [
     tags: ['نظارات', 'إكسسوارات'],
     images: ['/mock-products/sunglasses.svg', '/mock-products/hair-clip.svg', '/mock-products/scarf.svg'],
     variants: [
-      { sku: 'BAH-ACC-SUN-BLK', colorName: 'أسود', colorValue: '#111111', size: 'مقاس موحد', price: 45, compareAtPrice: 59, quantity: 11 },
-      { sku: 'BAH-ACC-SUN-BRN', colorName: 'بني', colorValue: '#6b432e', size: 'مقاس موحد', price: 45, compareAtPrice: 59, quantity: 4 }
+      { sku: `${skuPrefix}-ACC-SUN-BLK`, colorName: 'أسود', colorValue: '#111111', size: 'مقاس موحد', price: 45, compareAtPrice: 59, quantity: 11 },
+      { sku: `${skuPrefix}-ACC-SUN-BRN`, colorName: 'بني', colorValue: '#6b432e', size: 'مقاس موحد', price: 45, compareAtPrice: 59, quantity: 4 }
     ]
   },
   {
@@ -154,11 +156,11 @@ const products: ProductSeed[] = [
     tags: ['أحذية', 'كعب', 'سهرة'],
     images: ['/mock-products/heels.svg', '/mock-products/bag-camel.svg', '/mock-products/perfume-gold.svg'],
     variants: [
-      { sku: 'BAH-SHOE-MOC-36', colorName: 'موكا', colorValue: '#8a5b45', size: '36', price: 115, quantity: 3 },
-      { sku: 'BAH-SHOE-MOC-37', colorName: 'موكا', colorValue: '#8a5b45', size: '37', price: 115, quantity: 0 },
-      { sku: 'BAH-SHOE-MOC-38', colorName: 'موكا', colorValue: '#8a5b45', size: '38', price: 115, quantity: 1, lowStockThreshold: 2 },
-      { sku: 'BAH-SHOE-BLK-38', colorName: 'أسود', colorValue: '#111111', size: '38', price: 119, quantity: 4 },
-      { sku: 'BAH-SHOE-BLK-39', colorName: 'أسود', colorValue: '#111111', size: '39', price: 119, quantity: 2 }
+      { sku: `${skuPrefix}-SHOE-MOC-36`, colorName: 'موكا', colorValue: '#8a5b45', size: '36', price: 115, quantity: 3 },
+      { sku: `${skuPrefix}-SHOE-MOC-37`, colorName: 'موكا', colorValue: '#8a5b45', size: '37', price: 115, quantity: 0 },
+      { sku: `${skuPrefix}-SHOE-MOC-38`, colorName: 'موكا', colorValue: '#8a5b45', size: '38', price: 115, quantity: 1, lowStockThreshold: 2 },
+      { sku: `${skuPrefix}-SHOE-BLK-38`, colorName: 'أسود', colorValue: '#111111', size: '38', price: 119, quantity: 4 },
+      { sku: `${skuPrefix}-SHOE-BLK-39`, colorName: 'أسود', colorValue: '#111111', size: '39', price: 119, quantity: 2 }
     ]
   },
   {
@@ -177,9 +179,9 @@ const products: ProductSeed[] = [
     tags: ['مكياج', 'جمال', 'ترابي'],
     images: ['/mock-products/makeup-set.svg', '/mock-products/perfume-gold.svg', '/mock-products/hair-clip.svg'],
     variants: [
-      { sku: 'BAH-MUP-EAR-BASIC', colorName: 'ترابي', colorValue: '#b8815c', size: 'Basic', price: 54, compareAtPrice: 72, quantity: 7 },
-      { sku: 'BAH-MUP-EAR-FULL', colorName: 'ترابي', colorValue: '#b8815c', size: 'Full', price: 84, compareAtPrice: 105, quantity: 2 },
-      { sku: 'BAH-MUP-ROS-BASIC', colorName: 'وردي', colorValue: '#d79a9a', size: 'Basic', price: 54, compareAtPrice: 72, quantity: 0 }
+      { sku: `${skuPrefix}-MUP-EAR-BASIC`, colorName: 'ترابي', colorValue: '#b8815c', size: 'Basic', price: 54, compareAtPrice: 72, quantity: 7 },
+      { sku: `${skuPrefix}-MUP-EAR-FULL`, colorName: 'ترابي', colorValue: '#b8815c', size: 'Full', price: 84, compareAtPrice: 105, quantity: 2 },
+      { sku: `${skuPrefix}-MUP-ROS-BASIC`, colorName: 'وردي', colorValue: '#d79a9a', size: 'Basic', price: 54, compareAtPrice: 72, quantity: 0 }
     ]
   },
   {
@@ -197,8 +199,8 @@ const products: ProductSeed[] = [
     tags: ['ملابس', 'وشاح', 'كاميل'],
     images: ['/mock-products/scarf.svg', '/mock-products/watch.svg', '/mock-products/bag-camel.svg'],
     variants: [
-      { sku: 'BAH-CLO-SCRF-CAM', colorName: 'كاميل', colorValue: '#bd8754', size: 'مقاس موحد', price: 39, quantity: 12 },
-      { sku: 'BAH-CLO-SCRF-CRM', colorName: 'كريمي', colorValue: '#f1dfc8', size: 'مقاس موحد', price: 39, quantity: 5 }
+      { sku: `${skuPrefix}-CLO-SCRF-CAM`, colorName: 'كاميل', colorValue: '#bd8754', size: 'مقاس موحد', price: 39, quantity: 12 },
+      { sku: `${skuPrefix}-CLO-SCRF-CRM`, colorName: 'كريمي', colorValue: '#f1dfc8', size: 'مقاس موحد', price: 39, quantity: 5 }
     ]
   },
   {
@@ -217,8 +219,8 @@ const products: ProductSeed[] = [
     tags: ['محفظة', 'شنط', 'جلد'],
     images: ['/mock-products/wallet.svg', '/mock-products/bag-camel.svg', '/mock-products/gift-box.svg'],
     variants: [
-      { sku: 'BAH-WAL-BRN-ONE', colorName: 'بني', colorValue: '#6b432e', size: 'مقاس موحد', price: 29, compareAtPrice: 39, quantity: 9 },
-      { sku: 'BAH-WAL-BLK-ONE', colorName: 'أسود', colorValue: '#111111', size: 'مقاس موحد', price: 29, compareAtPrice: 39, quantity: 0 }
+      { sku: `${skuPrefix}-WAL-BRN-ONE`, colorName: 'بني', colorValue: '#6b432e', size: 'مقاس موحد', price: 29, compareAtPrice: 39, quantity: 9 },
+      { sku: `${skuPrefix}-WAL-BLK-ONE`, colorName: 'أسود', colorValue: '#111111', size: 'مقاس موحد', price: 29, compareAtPrice: 39, quantity: 0 }
     ]
   },
   {
@@ -237,8 +239,8 @@ const products: ProductSeed[] = [
     tags: ['ساعة', 'إكسسوارات', 'ذهبي'],
     images: ['/mock-products/watch.svg', '/mock-products/hair-clip.svg', '/mock-products/sunglasses.svg'],
     variants: [
-      { sku: 'BAH-WCH-GLD-ONE', colorName: 'ذهبي', colorValue: '#c9a65a', size: 'مقاس موحد', price: 79, compareAtPrice: 99, quantity: 4 },
-      { sku: 'BAH-WCH-ROSE-ONE', colorName: 'روز', colorValue: '#d4a49c', size: 'مقاس موحد', price: 82, compareAtPrice: 105, quantity: 1, lowStockThreshold: 2 }
+      { sku: `${skuPrefix}-WCH-GLD-ONE`, colorName: 'ذهبي', colorValue: '#c9a65a', size: 'مقاس موحد', price: 79, compareAtPrice: 99, quantity: 4 },
+      { sku: `${skuPrefix}-WCH-ROSE-ONE`, colorName: 'روز', colorValue: '#d4a49c', size: 'مقاس موحد', price: 82, compareAtPrice: 105, quantity: 1, lowStockThreshold: 2 }
     ]
   },
   {
@@ -256,8 +258,8 @@ const products: ProductSeed[] = [
     tags: ['مشابك', 'شعر', 'إكسسوارات'],
     images: ['/mock-products/hair-clip.svg', '/mock-products/scarf.svg', '/mock-products/makeup-set.svg'],
     variants: [
-      { sku: 'BAH-HCLP-BEG-3', colorName: 'بيج', colorValue: '#ead8c1', size: '3 قطع', price: 18, quantity: 0 },
-      { sku: 'BAH-HCLP-GLD-5', colorName: 'ذهبي', colorValue: '#c9a65a', size: '5 قطع', price: 25, quantity: 0 }
+      { sku: `${skuPrefix}-HCLP-BEG-3`, colorName: 'بيج', colorValue: '#ead8c1', size: '3 قطع', price: 18, quantity: 0 },
+      { sku: `${skuPrefix}-HCLP-GLD-5`, colorName: 'ذهبي', colorValue: '#c9a65a', size: '5 قطع', price: 25, quantity: 0 }
     ]
   },
   {
@@ -277,8 +279,8 @@ const products: ProductSeed[] = [
     tags: ['هدايا', 'عطور', 'بوكس'],
     images: ['/mock-products/gift-box.svg', '/mock-products/perfume-gold.svg', '/mock-products/makeup-set.svg'],
     variants: [
-      { sku: 'BAH-GIFT-STD', colorName: 'ذهبي', colorValue: '#c9a65a', size: 'Standard', price: 129, compareAtPrice: 149, quantity: 5 },
-      { sku: 'BAH-GIFT-PRM', colorName: 'كريمي', colorValue: '#f1dfc8', size: 'Premium', price: 159, compareAtPrice: 189, quantity: 2 }
+      { sku: `${skuPrefix}-GIFT-STD`, colorName: 'ذهبي', colorValue: '#c9a65a', size: 'Standard', price: 129, compareAtPrice: 149, quantity: 5 },
+      { sku: `${skuPrefix}-GIFT-PRM`, colorName: 'كريمي', colorValue: '#f1dfc8', size: 'Premium', price: 159, compareAtPrice: 189, quantity: 2 }
     ]
   },
   {
@@ -297,9 +299,9 @@ const products: ProductSeed[] = [
     tags: ['ملابس', 'كارديغان', 'بيج'],
     images: ['/mock-products/scarf.svg', '/mock-products/bag-camel.svg'],
     variants: [
-      { sku: 'BAH-CARD-BEG-S', colorName: 'بيج', colorValue: '#ead8c1', size: 'S', price: 74, compareAtPrice: 95, quantity: 3 },
-      { sku: 'BAH-CARD-BEG-M', colorName: 'بيج', colorValue: '#ead8c1', size: 'M', price: 74, compareAtPrice: 95, quantity: 7 },
-      { sku: 'BAH-CARD-CAM-M', colorName: 'كاميل', colorValue: '#bd8754', size: 'M', price: 79, compareAtPrice: 99, quantity: 0 }
+      { sku: `${skuPrefix}-CARD-BEG-S`, colorName: 'بيج', colorValue: '#ead8c1', size: 'S', price: 74, compareAtPrice: 95, quantity: 3 },
+      { sku: `${skuPrefix}-CARD-BEG-M`, colorName: 'بيج', colorValue: '#ead8c1', size: 'M', price: 74, compareAtPrice: 95, quantity: 7 },
+      { sku: `${skuPrefix}-CARD-CAM-M`, colorName: 'كاميل', colorValue: '#bd8754', size: 'M', price: 79, compareAtPrice: 99, quantity: 0 }
     ]
   },
   {
@@ -317,9 +319,9 @@ const products: ProductSeed[] = [
     tags: ['أحذية', 'صندل', 'كاميل'],
     images: ['/mock-products/heels.svg', '/mock-products/wallet.svg'],
     variants: [
-      { sku: 'BAH-SND-CAM-37', colorName: 'كاميل', colorValue: '#bd8754', size: '37', price: 68, quantity: 5 },
-      { sku: 'BAH-SND-CAM-38', colorName: 'كاميل', colorValue: '#bd8754', size: '38', price: 68, quantity: 2, lowStockThreshold: 3 },
-      { sku: 'BAH-SND-CAM-39', colorName: 'كاميل', colorValue: '#bd8754', size: '39', price: 68, quantity: 0 }
+      { sku: `${skuPrefix}-SND-CAM-37`, colorName: 'كاميل', colorValue: '#bd8754', size: '37', price: 68, quantity: 5 },
+      { sku: `${skuPrefix}-SND-CAM-38`, colorName: 'كاميل', colorValue: '#bd8754', size: '38', price: 68, quantity: 2, lowStockThreshold: 3 },
+      { sku: `${skuPrefix}-SND-CAM-39`, colorName: 'كاميل', colorValue: '#bd8754', size: '39', price: 68, quantity: 0 }
     ]
   },
   {
@@ -336,8 +338,8 @@ const products: ProductSeed[] = [
     tags: ['كريم', 'عناية', 'مكياج'],
     images: ['/mock-products/makeup-set.svg', '/mock-products/perfume-gold.svg'],
     variants: [
-      { sku: 'BAH-CRM-50', size: '50ml', price: 32, quantity: 10 },
-      { sku: 'BAH-CRM-100', size: '100ml', price: 49, quantity: 4 }
+      { sku: `${skuPrefix}-CRM-50`, size: '50ml', price: 32, quantity: 10 },
+      { sku: `${skuPrefix}-CRM-100`, size: '100ml', price: 49, quantity: 4 }
     ]
   },
   {
@@ -355,9 +357,9 @@ const products: ProductSeed[] = [
     tags: ['ملابس داخلية', 'أساسيات'],
     images: ['/mock-products/gift-box.svg', '/mock-products/scarf.svg'],
     variants: [
-      { sku: 'BAH-UND-CRM-S', colorName: 'كريمي', colorValue: '#f1dfc8', size: 'S', price: 42, compareAtPrice: 55, quantity: 5 },
-      { sku: 'BAH-UND-CRM-M', colorName: 'كريمي', colorValue: '#f1dfc8', size: 'M', price: 42, compareAtPrice: 55, quantity: 0 },
-      { sku: 'BAH-UND-BLK-M', colorName: 'أسود', colorValue: '#111111', size: 'M', price: 45, compareAtPrice: 59, quantity: 3 }
+      { sku: `${skuPrefix}-UND-CRM-S`, colorName: 'كريمي', colorValue: '#f1dfc8', size: 'S', price: 42, compareAtPrice: 55, quantity: 5 },
+      { sku: `${skuPrefix}-UND-CRM-M`, colorName: 'كريمي', colorValue: '#f1dfc8', size: 'M', price: 42, compareAtPrice: 55, quantity: 0 },
+      { sku: `${skuPrefix}-UND-BLK-M`, colorName: 'أسود', colorValue: '#111111', size: 'M', price: 45, compareAtPrice: 59, quantity: 3 }
     ]
   },
   {
@@ -376,9 +378,9 @@ const products: ProductSeed[] = [
     tags: ['ملابس داخلية', 'بيجاما', 'ساتان'],
     images: ['/mock-products/gift-box.svg', '/mock-products/bag-camel.svg'],
     variants: [
-      { sku: 'BAH-PAJ-ROS-S', colorName: 'روز', colorValue: '#d4a49c', size: 'S', price: 88, compareAtPrice: 110, quantity: 2, lowStockThreshold: 3 },
-      { sku: 'BAH-PAJ-ROS-M', colorName: 'روز', colorValue: '#d4a49c', size: 'M', price: 88, compareAtPrice: 110, quantity: 4 },
-      { sku: 'BAH-PAJ-BRN-L', colorName: 'بني', colorValue: '#6b432e', size: 'L', price: 92, compareAtPrice: 115, quantity: 0 }
+      { sku: `${skuPrefix}-PAJ-ROS-S`, colorName: 'روز', colorValue: '#d4a49c', size: 'S', price: 88, compareAtPrice: 110, quantity: 2, lowStockThreshold: 3 },
+      { sku: `${skuPrefix}-PAJ-ROS-M`, colorName: 'روز', colorValue: '#d4a49c', size: 'M', price: 88, compareAtPrice: 110, quantity: 4 },
+      { sku: `${skuPrefix}-PAJ-BRN-L`, colorName: 'بني', colorValue: '#6b432e', size: 'L', price: 92, compareAtPrice: 115, quantity: 0 }
     ]
   },
   {
@@ -397,7 +399,7 @@ const products: ProductSeed[] = [
     tags: ['شنط', 'سهرة', 'أسود'],
     images: ['/mock-products/bag-camel.svg', '/mock-products/watch.svg'],
     variants: [
-      { sku: 'BAH-CLTCH-BLK-ONE', colorName: 'أسود', colorValue: '#111111', size: 'مقاس موحد', price: 96, compareAtPrice: 125, quantity: 6 }
+      { sku: `${skuPrefix}-CLTCH-BLK-ONE`, colorName: 'أسود', colorValue: '#111111', size: 'مقاس موحد', price: 96, compareAtPrice: 125, quantity: 6 }
     ]
   },
   {
@@ -415,8 +417,8 @@ const products: ProductSeed[] = [
     tags: ['عطر', 'مسك', 'يومي'],
     images: ['/mock-products/perfume-gold.svg', '/mock-products/gift-box.svg'],
     variants: [
-      { sku: 'BAH-MUSK-30', size: '30ml', price: 58, quantity: 9 },
-      { sku: 'BAH-MUSK-50', size: '50ml', price: 76, quantity: 1, lowStockThreshold: 2 }
+      { sku: `${skuPrefix}-MUSK-30`, size: '30ml', price: 58, quantity: 9 },
+      { sku: `${skuPrefix}-MUSK-50`, size: '50ml', price: 76, quantity: 1, lowStockThreshold: 2 }
     ]
   },
   {
@@ -434,9 +436,9 @@ const products: ProductSeed[] = [
     tags: ['ملابس', 'بلوزة', 'كريمي'],
     images: ['/mock-products/scarf.svg', '/mock-products/sunglasses.svg'],
     variants: [
-      { sku: 'BAH-BLO-CRM-S', colorName: 'كريمي', colorValue: '#f1dfc8', size: 'S', price: 59, quantity: 4 },
-      { sku: 'BAH-BLO-CRM-M', colorName: 'كريمي', colorValue: '#f1dfc8', size: 'M', price: 59, quantity: 5 },
-      { sku: 'BAH-BLO-BRN-M', colorName: 'بني فاتح', colorValue: '#b8815c', size: 'M', price: 62, quantity: 0 }
+      { sku: `${skuPrefix}-BLO-CRM-S`, colorName: 'كريمي', colorValue: '#f1dfc8', size: 'S', price: 59, quantity: 4 },
+      { sku: `${skuPrefix}-BLO-CRM-M`, colorName: 'كريمي', colorValue: '#f1dfc8', size: 'M', price: 59, quantity: 5 },
+      { sku: `${skuPrefix}-BLO-BRN-M`, colorName: 'بني فاتح', colorValue: '#b8815c', size: 'M', price: 62, quantity: 0 }
     ]
   },
   {
@@ -455,8 +457,8 @@ const products: ProductSeed[] = [
     tags: ['روج', 'مكياج', 'ترابي'],
     images: ['/mock-products/makeup-set.svg', '/mock-products/hair-clip.svg'],
     variants: [
-      { sku: 'BAH-LIP-CIN', colorName: 'قرفة', colorValue: '#a75b45', size: 'مقاس موحد', price: 24, compareAtPrice: 32, quantity: 8 },
-      { sku: 'BAH-LIP-ROS', colorName: 'روز دافئ', colorValue: '#c57978', size: 'مقاس موحد', price: 24, compareAtPrice: 32, quantity: 0 }
+      { sku: `${skuPrefix}-LIP-CIN`, colorName: 'قرفة', colorValue: '#a75b45', size: 'مقاس موحد', price: 24, compareAtPrice: 32, quantity: 8 },
+      { sku: `${skuPrefix}-LIP-ROS`, colorName: 'روز دافئ', colorValue: '#c57978', size: 'مقاس موحد', price: 24, compareAtPrice: 32, quantity: 0 }
     ]
   },
   {
@@ -475,7 +477,7 @@ const products: ProductSeed[] = [
     tags: ['سلسلة', 'إكسسوارات', 'ذهبي'],
     images: ['/mock-products/watch.svg', '/mock-products/hair-clip.svg'],
     variants: [
-      { sku: 'BAH-NCK-GLD-ONE', colorName: 'ذهبي', colorValue: '#c9a65a', size: 'مقاس موحد', price: 34, compareAtPrice: 45, quantity: 7 }
+      { sku: `${skuPrefix}-NCK-GLD-ONE`, colorName: 'ذهبي', colorValue: '#c9a65a', size: 'مقاس موحد', price: 34, compareAtPrice: 45, quantity: 7 }
     ]
   },
   {
@@ -492,9 +494,9 @@ const products: ProductSeed[] = [
     tags: ['أحذية', 'بيج', 'مسطح'],
     images: ['/mock-products/heels.svg', '/mock-products/scarf.svg'],
     variants: [
-      { sku: 'BAH-FLAT-BEG-37', colorName: 'بيج', colorValue: '#ead8c1', size: '37', price: 73, quantity: 3 },
-      { sku: 'BAH-FLAT-BEG-38', colorName: 'بيج', colorValue: '#ead8c1', size: '38', price: 73, quantity: 0 },
-      { sku: 'BAH-FLAT-BEG-39', colorName: 'بيج', colorValue: '#ead8c1', size: '39', price: 73, quantity: 2 }
+      { sku: `${skuPrefix}-FLAT-BEG-37`, colorName: 'بيج', colorValue: '#ead8c1', size: '37', price: 73, quantity: 3 },
+      { sku: `${skuPrefix}-FLAT-BEG-38`, colorName: 'بيج', colorValue: '#ead8c1', size: '38', price: 73, quantity: 0 },
+      { sku: `${skuPrefix}-FLAT-BEG-39`, colorName: 'بيج', colorValue: '#ead8c1', size: '39', price: 73, quantity: 2 }
     ]
   },
   {
@@ -512,7 +514,7 @@ const products: ProductSeed[] = [
     tags: ['معطر', 'فانيلا', 'عطور'],
     images: ['/mock-products/perfume-gold.svg', '/mock-products/makeup-set.svg'],
     variants: [
-      { sku: 'BAH-MIST-VAN-ONE', colorName: 'فانيلا', colorValue: '#f1dfc8', size: '150ml', price: 37, compareAtPrice: 48, quantity: 0 }
+      { sku: `${skuPrefix}-MIST-VAN-ONE`, colorName: 'فانيلا', colorValue: '#f1dfc8', size: '150ml', price: 37, compareAtPrice: 48, quantity: 0 }
     ]
   }
 ];
@@ -546,23 +548,23 @@ async function main() {
   await prisma.banner.createMany({
     data: [
       {
-        title: 'جمالك يبدأ من سعد سنتر',
-        subtitle: 'مستحضرات تجميل، عطور، عناية وإكسسوارات مختارة بعناية مع لمسات خاصة لتجهيز العرائس.',
-        eyebrow: 'Saad Center Beauty & Bridal',
+        title: brand.copy.heroTitle,
+        subtitle: brand.copy.heroSubtitle,
+        eyebrow: brand.copy.heroEyebrow,
         imageUrl: '/mock-products/bag-camel.svg',
         href: '/category/new-in',
-        ctaLabel: 'تسوّقي الآن',
+        ctaLabel: brand.copy.heroCta,
         placement: BannerPlacement.HOME_HERO,
         sortOrder: 1,
         isActive: true
       },
       {
-        title: 'عروض مختارة لفترة محدودة',
-        subtitle: 'خصومات دافئة على قطع بوتيك مميزة، والتوصيل مجاني للطلبات فوق ₪150.',
-        eyebrow: 'Today Offers',
+        title: brand.copy.promoTitle,
+        subtitle: brand.copy.promoSubtitle,
+        eyebrow: brand.copy.promoEyebrow,
         imageUrl: '/mock-products/gift-box.svg',
         href: '/category/sale',
-        ctaLabel: 'شاهدي العروض',
+        ctaLabel: brand.copy.promoCta,
         placement: BannerPlacement.HOME_PROMO,
         sortOrder: 1,
         isActive: true

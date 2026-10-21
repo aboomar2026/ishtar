@@ -1,4 +1,5 @@
 import { type NextRequest } from 'next/server';
+import { brand } from '@/lib/brand';
 import type { OrderStatus } from '@prisma/client';
 import { getAdminSession } from '@/features/admin/auth/admin-auth';
 import { getOrdersForExport, type AdminOrderDateFilter, type AdminDeliveryFeeFilter } from '@/features/admin/orders/order-admin.queries';
@@ -23,7 +24,7 @@ export async function GET(request: NextRequest) {
   });
 
   const csv = buildOrdersCsv(rows);
-  const filename = `bab-al-hara-orders-${new Date().toISOString().slice(0, 10)}.csv`;
+  const filename = `${brand.key}-orders-${new Date().toISOString().slice(0, 10)}.csv`;
 
   return new Response(csv, {
     status: 200,
