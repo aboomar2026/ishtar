@@ -1,0 +1,155 @@
+/* Phase 4. Legacy rules keep their original fallbacks for every other brand.
+   These aliases cover decorative swatches; product swatches remain data-driven. */
+[data-brand="ishtar"] {
+  --ishtar-ink-rgb: var(--brand-ink-rgb);
+  --ishtar-muted-rgb: var(--brand-muted-rgb);
+  --ishtar-border-rgb: var(--brand-border-rgb);
+  --ishtar-background-rgb: var(--brand-background-rgb);
+  --ishtar-section-rgb: var(--brand-section-rgb);
+  --ishtar-soft-rgb: var(--brand-soft-rgb);
+  --ishtar-accent-rgb: var(--brand-accent-rgb);
+  --ishtar-primary-rgb: var(--brand-primary-rgb);
+  --ishtar-danger-rgb: var(--brand-danger-rgb);
+  --ishtar-success-rgb: var(--brand-success-rgb);
+  --ishtar-success: var(--success);
+  --ishtar-print-heading: #f2f2f2;
+}
+
+/* A dark accent carries text; the pale copper swatch is decorative. */
+[data-brand="ishtar"] :is(.eyebrow, .price, .summaryTotal, .adminTotalsRow.grand) {
+  color: var(--brand-burgundy);
+}
+[data-brand="ishtar"] :is(.formCard, .cartSummary, .miniOrderList, .successCard, .adminCard, .adminLoginCard) {
+  background: var(--brand-surface);
+  border-color: var(--brand-border);
+}
+[data-brand="ishtar"] :is(.emptyState, .adminEmptyState, .recentOrdersEmpty) {
+  background: var(--brand-bg);
+  border-color: var(--brand-border);
+  overflow-wrap: anywhere;
+}
+[data-brand="ishtar"] :is(.emptyIcon, .adminEmptyIcon) {
+  background: var(--brand-blush-soft);
+  color: var(--brand-burgundy);
+}
+[data-brand="ishtar"] .successIcon {
+  background: rgba(var(--brand-success-rgb), 0.12);
+  color: var(--success);
+}
+[data-brand="ishtar"] :is(.cartItem, .productDetailPanel, .formCard, .checkoutSide, .adminMainCol, .adminContent, .adminCard, .adminRecordCard) {
+  min-width: 0;
+}
+[data-brand="ishtar"] :is(.cartItemTitle, .miniOrderItem strong, .adminCellMain strong, .adminRecordTop strong, .orderInfoGrid strong) {
+  overflow-wrap: anywhere;
+}
+
+[data-brand="ishtar"] :is(.formGrid, .adminField) :is(input, textarea, select),
+[data-brand="ishtar"] .adminInput {
+  border-color: var(--brand-border);
+  color: var(--brand-ink);
+  min-width: 0;
+}
+[data-brand="ishtar"] :is(input, textarea)::placeholder {
+  color: var(--brand-muted);
+  opacity: 1;
+}
+[data-brand="ishtar"] :is(input[type="checkbox"], input[type="radio"]) {
+  accent-color: var(--brand-burgundy);
+}
+[data-brand="ishtar"] :is(.formGrid, .adminField) :is(input, textarea, select):focus,
+[data-brand="ishtar"] .adminInput:focus {
+  border-color: var(--brand-burgundy);
+  box-shadow: 0 0 0 3px rgba(var(--brand-primary-rgb), 0.12);
+}
+[data-brand="ishtar"] :is(input, textarea, select):is([aria-invalid="true"], .hasError) {
+  border-color: var(--danger);
+}
+/* The native select arrow is at inline-end; reserve space on the same side. */
+[data-brand="ishtar"] :is(.filterRow select, .formGrid select, .adminField select, .adminFilters select, select.adminInput) {
+  padding-inline: 14px 38px;
+  background-position: left 12px center;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23522B3A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>");
+}
+[data-brand="ishtar"][dir="ltr"] :is(.filterRow select, .formGrid select, .adminField select, .adminFilters select, select.adminInput) {
+  background-position: right 12px center;
+}
+[data-brand="ishtar"] :is(.adminTable, .vmTable) thead th {
+  background: var(--brand-blush-soft);
+  color: var(--brand-burgundy);
+}
+[data-brand="ishtar"] .adminTable tbody tr:hover {
+  background: var(--brand-bg);
+}
+[data-brand="ishtar"] .adminTableWrap {
+  max-width: 100%;
+}
+[data-brand="ishtar"] :is(.adminBadge.orderConfirmed, .adminBadge.orderShipped, .orderStatusBadge.status-SHIPPED) {
+  background: rgba(var(--brand-primary-rgb), 0.1);
+  border-color: rgba(var(--brand-primary-rgb), 0.25);
+  color: var(--brand-burgundy);
+}
+[data-brand="ishtar"] :is(.adminBtn, .primaryButton, .ghostButton, .variantOptions button) {
+  min-height: 44px;
+}
+[data-brand="ishtar"] :is(.adminBtn, .primaryButton, .ghostButton) {
+  white-space: normal;
+  text-align: center;
+}
+[data-brand="ishtar"] .quantitySelector button {
+  min-width: 40px;
+  min-height: 44px;
+}
+/* Use the light background swatch for footer secondary text. */
+[data-brand="ishtar"] .footerMain :is(.footerBrandEn, .footerTagline, .footerContactText small) {
+  color: var(--brand-bg);
+}
+[data-brand="ishtar"] .footerMain :focus-visible {
+  outline-color: var(--brand-bg);
+}
+
+@media (max-width: 919px) {
+  /* Keep the sidebar column below the content until there is room for both. */
+  [data-brand="ishtar"] :is(.cartLayout, .checkoutLayout, .productDetailLayout) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  [data-brand="ishtar"] .cartSummary {
+    position: static;
+  }
+}
+@media (max-width: 560px) {
+  [data-brand="ishtar"] :is(.formGrid, .adminFormGrid) > .spanTwo {
+    grid-column: auto;
+  }
+  [data-brand="ishtar"] .cartItem {
+    grid-template-columns: 80px minmax(0, 1fr);
+  }
+  [data-brand="ishtar"] .cartItemActions {
+    flex-wrap: wrap;
+  }
+  [data-brand="ishtar"] .miniOrderItem {
+    grid-template-columns: 48px minmax(0, 1fr);
+  }
+  [data-brand="ishtar"] .miniOrderItem > b {
+    grid-column: 2;
+  }
+}
+/* Neutral printed documents retain the official artwork, with no color dependency. */
+[data-brand="ishtar"] .printSheet .brandLogo--print img {
+  filter: grayscale(1) brightness(0);
+}
+[data-brand="ishtar"] .printTable :is(td, th) {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 560px) {
+  [data-brand="ishtar"] .printHeader {
+    flex-wrap: wrap;
+  }
+}
+@media print {
+  [data-brand="ishtar"] .printTable thead {
+    display: table-header-group;
+  }
+  [data-brand="ishtar"] :is(.printTable tr, .printTotals, .printNoteBox, .printBrand) {
+    break-inside: avoid;
+  }
+}

@@ -1,0 +1,14 @@
+# Netlify build config for the Next.js (App Router) app.
+# Without this file Netlify defaulted the publish directory to the repo root,
+# which the Next.js runtime rejects ("publish directory cannot be the same as
+# the base directory"). The official @netlify/plugin-nextjs expects `.next`.
+
+[build]
+  command = "prisma generate && npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

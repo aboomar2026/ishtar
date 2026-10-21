@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Store icon">
+  <rect width="200" height="200" rx="52" fill="#201d1b"/>
+  <path d="M52 78h96l-8 76H60l-8-76Z" fill="#fff"/>
+  <path d="M76 82V68c0-19 11-32 24-32s24 13 24 32v14" fill="none" stroke="#b78b58" stroke-width="12" stroke-linecap="round"/>
+</svg>

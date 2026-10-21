@@ -1,0 +1,18 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1100" viewBox="0 0 900 1100" role="img" aria-label="ساعة بوتيك">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f5ead8"/><stop offset="1" stop-color="#fffaf1"/></linearGradient>
+    <radialGradient id="r" cx="50%" cy="38%" r="58%"><stop offset="0" stop-color="#ffffff" stop-opacity=".9"/><stop offset="1" stop-color="#f5ead8" stop-opacity=".4"/></radialGradient>
+  </defs>
+  <rect width="900" height="1100" fill="url(#g)"/>
+  <circle cx="650" cy="180" r="210" fill="url(#r)"/>
+  <circle cx="225" cy="355" r="265" fill="#fff7ec" opacity=".72"/>
+  <circle cx="750" cy="805" r="190" fill="#c7983e" opacity=".13"/>
+  <path d="M152 780c120-160 245-232 374-216 130 16 218 103 264 262" fill="none" stroke="#c7983e" stroke-width="24" stroke-linecap="round" opacity=".28"/>
+  <rect x="250" y="300" rx="42" ry="42" width="400" height="470" fill="#fffdf8" opacity=".92"/>
+  <path d="M325 410h250v260H325z" fill="#c7983e" opacity=".82"/>
+  <path d="M352 410c9-84 62-126 98-126s89 42 98 126" fill="none" stroke="#15110f" stroke-width="24" stroke-linecap="round" opacity=".9"/>
+  <circle cx="342" cy="694" r="18" fill="#15110f" opacity=".75"/>
+  <circle cx="558" cy="694" r="18" fill="#15110f" opacity=".75"/>
+  <text x="450" y="905" text-anchor="middle" font-size="54" font-family="Arial, sans-serif" font-weight="700" fill="#15110f">ساعة بوتيك</text>
+  <text x="450" y="965" text-anchor="middle" font-size="28" font-family="Arial, sans-serif" fill="#c7983e">Saad Center</text>
+</svg>

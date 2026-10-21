@@ -1,0 +1,328 @@
+generator client {
+  provider      = "prisma-client-js"
+  // Netlify runs SSR in serverless functions on Amazon Linux (OpenSSL 3.0),
+  // while the build host is Debian. Generate both engines so the runtime
+  // platform's query engine is available — otherwise every Server Component
+  // render fails to load Prisma at runtime.
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+enum BannerPlacement {
+  HOME_HERO
+  HOME_PROMO
+  CATEGORY_TOP
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELED
+}
+
+enum PaymentMethod {
+  COD
+}
+
+enum DeliveryFeeStatus {
+  PENDING
+  SET
+  FREE
+}
+
+enum InventoryLogType {
+  MANUAL_ADJUSTMENT
+  ORDER_CREATED
+  ORDER_CANCELED
+  RESTOCK
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  CATALOG_MANAGER
+}
+
+model Category {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String     @unique
+  description String?
+  imageUrl    String?
+  parentId    String?
+  sortOrder   Int        @default(0)
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children Category[] @relation("CategoryHierarchy")
+  products Product[]
+
+  @@index([slug])
+  @@index([isActive, sortOrder])
+}
+
+model Product {
+  id               String        @id @default(cuid())
+  categoryId       String
+  name             String
+  slug             String        @unique
+  subtitle         String?
+  description      String
+  details          Json?
+  careInstructions String?
+  brand            String?
+  basePrice        Decimal       @db.Decimal(10, 2)
+  compareAtPrice   Decimal?      @db.Decimal(10, 2)
+  status           ProductStatus @default(DRAFT)
+  isFeatured       Boolean       @default(false)
+  isNewArrival     Boolean       @default(false)
+  isBestSeller     Boolean       @default(false)
+  rating           Decimal?      @db.Decimal(2, 1)
+  reviewCount      Int           @default(0)
+  soldCount        Int           @default(0)
+  viewCount        Int           @default(0)
+  tags             String[]      @default([])
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  category      Category       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  images        ProductImage[]
+  variants      ProductVariant[]
+  orderItems    OrderItem[]
+  inventoryLogs InventoryLog[]
+
+  @@index([status, createdAt])
+  @@index([categoryId, status])
+  @@index([isFeatured, status])
+  @@index([isNewArrival, status])
+  @@index([isBestSeller, status])
+}
+
+model ProductImage {
+  id                 String   @id @default(cuid())
+  productId          String
+  url                String
+  alt                String?
+  sortOrder          Int      @default(0)
+  isPrimary          Boolean  @default(false)
+  cloudinaryPublicId String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId, sortOrder])
+}
+
+model ProductVariant {
+  id                String   @id @default(cuid())
+  productId         String
+  sku               String   @unique
+  colorName         String?
+  colorValue        String?
+  size              String?
+  price             Decimal  @db.Decimal(10, 2)
+  compareAtPrice    Decimal? @db.Decimal(10, 2)
+  quantity          Int      @default(0)
+  lowStockThreshold Int      @default(5)
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  product       Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderItems    OrderItem[]
+  inventoryLogs InventoryLog[]
+
+  @@index([productId, isActive])
+  @@index([quantity])
+}
+
+model Banner {
+  id                 String          @id @default(cuid())
+  title              String
+  subtitle           String?
+  eyebrow            String?
+  imageUrl           String?
+  cloudinaryPublicId String?
+  href               String?
+  ctaLabel           String?
+  placement          BannerPlacement
+  sortOrder          Int             @default(0)
+  isActive           Boolean         @default(true)
+  startsAt           DateTime?
+  endsAt             DateTime?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  @@index([placement, isActive, sortOrder])
+}
+
+model Customer {
+  id            String   @id @default(cuid())
+  fullName      String
+  phone         String   @unique
+  whatsappPhone String?
+  city          String?
+  area          String?
+  address       String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  orders Order[]
+}
+
+model Order {
+  id             String        @id @default(cuid())
+  orderNumber    String        @unique
+  customerId     String?
+  status         OrderStatus   @default(PENDING)
+  paymentMethod  PaymentMethod @default(COD)
+  subtotal       Decimal       @db.Decimal(10, 2)
+  deliveryFee    Decimal       @default(0) @db.Decimal(10, 2)
+  deliveryFeeStatus DeliveryFeeStatus @default(PENDING)
+  discount       Decimal       @default(0) @db.Decimal(10, 2)
+  total          Decimal       @db.Decimal(10, 2)
+  customerName          String
+  customerPhone         String
+  customerWhatsappPhone String?
+  city                  String
+  area           String
+  address        String
+  notes          String?
+  adminNote      String?
+  cancelReason   String?
+  invoiceNumber             String?   @unique
+  internalNote              String?
+  packagingNote             String?
+  deliveryNote              String?
+  isPacked                  Boolean   @default(false)
+  packedAt                  DateTime?
+  invoicePrintCount         Int       @default(0)
+  packingSlipPrintCount     Int       @default(0)
+  lastInvoicePrintedAt      DateTime?
+  lastPackingSlipPrintedAt  DateTime?
+  confirmedAt    DateTime?
+  processingAt   DateTime?
+  shippedAt      DateTime?
+  deliveredAt    DateTime?
+  canceledAt     DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  customer      Customer?            @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  items         OrderItem[]
+  statusHistory OrderStatusHistory[]
+  inventoryLogs InventoryLog[]
+
+  @@index([status, createdAt])
+  @@index([customerPhone])
+  @@index([customerWhatsappPhone])
+  @@index([deliveryFeeStatus])
+}
+
+model OrderItem {
+  id                  String   @id @default(cuid())
+  orderId             String
+  productId           String
+  variantId           String?
+  productNameSnapshot String
+  variantSnapshot     Json?
+  quantity            Int
+  unitPrice           Decimal  @db.Decimal(10, 2)
+  total               Decimal  @db.Decimal(10, 2)
+  createdAt           DateTime @default(now())
+
+  order   Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product         @relation(fields: [productId], references: [id], onDelete: Restrict)
+  variant ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+  @@index([productId])
+  @@index([variantId])
+}
+
+model OrderStatusHistory {
+  id         String       @id @default(cuid())
+  orderId    String
+  fromStatus OrderStatus?
+  toStatus   OrderStatus
+  note       String?
+  createdAt  DateTime     @default(now())
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId, createdAt])
+}
+
+model InventoryLog {
+  id             String           @id @default(cuid())
+  productId      String
+  variantId      String
+  orderId        String?
+  type           InventoryLogType
+  quantityChange Int
+  note           String?
+  createdAt      DateTime         @default(now())
+
+  product Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  order   Order?         @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@index([productId, createdAt])
+  @@index([variantId, createdAt])
+  @@index([orderId])
+}
+
+model BackInStockRequest {
+  id         String    @id @default(cuid())
+  productId  String
+  variantId  String?
+  phone      String
+  createdAt  DateTime  @default(now())
+  notifiedAt DateTime?
+
+  @@index([productId])
+  @@index([variantId])
+  @@index([phone])
+}
+
+model AbandonedCart {
+  id           String   @id @default(cuid())
+  phone        String?
+  customerName String?
+  cartData     Json
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([phone])
+  @@index([updatedAt])
+}
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         AdminRole @default(CATALOG_MANAGER)
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([email])
+}

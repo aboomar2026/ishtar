@@ -1,0 +1,12 @@
+:root {
+  --ishtar-burgundy: #522B3A;
+  --ishtar-rose-gold: #C79A83;
+  --ishtar-ivory: #FBF5ED;
+  --ishtar-blush: #D9B5B4;
+  --ishtar-charcoal: #2D2428;
+  --color-primary: var(--ishtar-burgundy);
+  --color-on-primary: var(--ishtar-ivory);
+  --color-background: var(--ishtar-ivory);
+  --color-text: var(--ishtar-charcoal);
+  --color-accent: var(--ishtar-rose-gold);
+}

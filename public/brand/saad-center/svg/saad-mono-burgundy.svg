@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 520" color="#8B1E33"
+     role="img" aria-label="سعد سنتر — لمستحضرات التجميل وتجهيز العرائس">
+  <!-- single-colour version: recolour by changing the root `color` attribute -->
+  <defs>
+    <style>
+      .saad-name{ font-family:'El Messiri','Tajawal','Segoe UI',sans-serif; font-weight:700; }
+      .saad-sub { font-family:'Tajawal','El Messiri','Segoe UI',sans-serif; font-weight:500; }
+    </style>
+  </defs>
+
+  <g transform="translate(129.5,-18.4) scale(1.27)" fill="currentColor" stroke="currentColor">
+    <path d="M50 178 L50 96 C50 52 110 52 110 96 L110 178" fill="none" stroke-width="13" stroke-linecap="round"/>
+    <path d="M65 150 L65 108 L95 86 L95 150 Q95 167 80 167 Q65 167 65 150 Z" stroke="none"/>
+    <path d="M80 180 C80 192 80 200 80 208" fill="none" stroke-width="3.5" stroke-linecap="round"/>
+    <g stroke="none">
+      <path d="M80 184 Q96 183 93 194 Q84 190 80 188 Z"/>
+      <path d="M80 184 Q64 183 67 194 Q76 190 80 188 Z"/>
+      <path d="M80 192 Q95 191 92 202 Q84 198 80 196 Z"/>
+      <path d="M80 192 Q65 191 68 202 Q76 198 80 196 Z"/>
+      <path d="M80 200 Q93 199 90 209 Q84 205 80 204 Z"/>
+      <path d="M80 200 Q67 199 70 209 Q76 205 80 204 Z"/>
+    </g>
+  </g>
+
+  <text class="saad-name" x="240" y="335" font-size="76" fill="currentColor"
+        text-anchor="middle" direction="rtl" xml:lang="ar">سعد سنتر</text>
+  <line x1="186" y1="362" x2="294" y2="362" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+  <text class="saad-sub" x="240" y="406" font-size="26" fill="currentColor"
+        text-anchor="middle" direction="rtl" xml:lang="ar">لمستحضرات التجميل وتجهيز العرائس</text>
+</svg>

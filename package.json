@@ -1,0 +1,48 @@
+{
+  "name": "bab-al-hara-storefront",
+  "version": "0.2.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:studio": "prisma studio",
+    "media:upload": "tsx scripts/upload-demo-media.ts",
+    "media:apply": "tsx scripts/apply-demo-media.ts",
+    "db:demo-media": "tsx scripts/apply-demo-pexels-media.ts",
+    "db:backfill-sold-count": "tsx scripts/backfill-sold-count.ts",
+    "db:audit-commerce": "tsx scripts/audit-commerce-integrity.ts",
+    "db:backfill-delivery-fee-status": "tsx scripts/backfill-delivery-fee-status.ts",
+    "db:backfill-inventory-ledger": "tsx scripts/backfill-inventory-ledger.ts",
+    "telegram:test": "tsx scripts/test-telegram.ts",
+    "brand:check": "node scripts/check-ishtar-brand.mjs"
+  },
+  "dependencies": {
+    "@prisma/client": "6.19.0",
+    "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.10.0",
+    "next": "16.2.7",
+    "qrcode": "^1.5.4",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "25.9.1",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "19.2.16",
+    "@types/react-dom": "19.2.3",
+    "eslint": "9.39.4",
+    "eslint-config-next": "16.2.7",
+    "prisma": "6.19.0",
+    "tsx": "4.20.6",
+    "typescript": "6.0.3"
+  }
+}
