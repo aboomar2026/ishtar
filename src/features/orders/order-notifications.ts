@@ -4,6 +4,7 @@ import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { sendTelegramMessage } from '@/lib/telegram';
 import { brand } from '@/lib/brand';
+import { publicSiteUrl } from '@/lib/site-url';
 import { decimalToNumber } from './order.mappers';
 import type { VariantSnapshot } from './order.types';
 
@@ -20,10 +21,6 @@ function readVariantSnapshot(value: Prisma.JsonValue | null): Partial<VariantSna
 
 function formatMoney(value: Prisma.Decimal | number | string | null): string {
   return `₪${decimalToNumber(value).toFixed(2)}`;
-}
-
-function getSiteUrl(): string {
-  return (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(/\/$/, '');
 }
 
 function clampTelegramMessage(text: string): string {
@@ -46,7 +43,11 @@ export async function notifyAdminAboutNewOrder(orderId: string): Promise<void> {
     return;
   }
 
-  const orderUrl = `${getSiteUrl()}/admin/orders/${order.id}`;
+  const siteUrl = publicSiteUrl();
+  const orderUrl = siteUrl ? new URL(`/admin/orders/${encodeURIComponent(order.id)}`, siteUrl).href : undefined;
+  if (!orderUrl) {
+    console.warn('Telegram order link omitted: set NEXT_PUBLIC_SITE_URL to the deployed HTTPS origin.');
+  }
   const customerWhatsapp = order.customerWhatsappPhone || order.customerPhone;
 
   const itemsText = order.items
@@ -84,7 +85,7 @@ export async function notifyAdminAboutNewOrder(orderId: string): Promise<void> {
     '',
     order.notes ? `ملاحظات العميل: ${order.notes}` : null,
     '',
-    `فتح الطلب: ${orderUrl}`
+    orderUrl ? `فتح الطلب: ${orderUrl}` : 'فتح الطلب من لوحة الإدارة (رابط الموقع غير مضبوط).'
   ]
     .filter((line): line is string => typeof line === 'string')
     .join('\n');
