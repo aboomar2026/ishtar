@@ -28,7 +28,7 @@ export default async function HomePage() {
           </div>
           <Link href="/category/new-in">تسوّقي وصل حديثاً</Link>
         </div>
-        <div className="categoryShowcaseGrid">
+        <div className="categoryShowcaseGrid" role="region" aria-label="تصفّحي جميع التصنيفات" tabIndex={0}>
           {catalog.categories.map((category) => (
             <Link href={`/category/${category.slug}`} className="categoryShowcaseCard" key={category.slug}>
               <img className="categoryShowcaseImg" src={category.imageUrl ?? '/mock-products/gift-box.svg'} alt={category.name} />
@@ -80,7 +80,7 @@ export default async function HomePage() {
             <span className="eyebrow">Best sellers</span>
             <h2>الأكثر مبيعاً</h2>
           </div>
-          <Link href="/category/bags">تسوّقي الآن</Link>
+          <Link href="/category/all?sort=best-sellers">شاهدي الأكثر مبيعاً</Link>
         </div>
         <ProductGrid products={catalog.bestSellers} />
       </section>}
@@ -91,7 +91,7 @@ export default async function HomePage() {
             <span className="eyebrow">Featured collection</span>
             <h2>{brand.copy.featuredCollectionTitle}</h2>
           </div>
-          <Link href="/category/accessories">اكتشفي المزيد</Link>
+          <Link href="/category/featured">اكتشفي المختارات</Link>
         </div>
         <ProductGrid products={catalog.featuredProducts} />
       </section>

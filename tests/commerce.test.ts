@@ -78,6 +78,18 @@ test('catalog queries execute against isolated Postgres with more than one page'
       assert.equal((await getProductsByCategorySlug('new-in', { q: 'محفظة' }))?.total, 0);
       assert.equal((await getProductsByCategorySlug('all', { q: "%' OR 1=1 --" }))?.total, 0);
     });
+    await t.test('featured collection filters before pagination and supports search and sorting', async () => {
+      await db.query('UPDATE "Product" SET "isFeatured" = true WHERE id IN (\'p0\', \'p28\', \'p29\')');
+      const first = await getProductsByCategorySlug('featured', { sort: 'price-desc', limit: 2 });
+      const second = await getProductsByCategorySlug('featured', { sort: 'price-desc', limit: 2, page: 2 });
+      assert.equal(first?.category.slug, 'featured');
+      assert.equal(first?.total, 3);
+      assert.equal(first?.pageCount, 2);
+      assert.deepEqual(first?.products.map((product) => product.id), ['p29', 'p28']);
+      assert.deepEqual(second?.products.map((product) => product.id), ['p0']);
+      assert.equal((await getProductsByCategorySlug('featured', { q: 'محفظة' }))?.total, 1);
+      assert.equal((await getProductsByCategorySlug('featured', { q: 'منتج 1' }))?.total, 0);
+    });
     await db.query('INSERT INTO "Order" (id,"orderNumber","customerName","customerPhone",city,area,address,subtotal,total,"updatedAt") VALUES (\'o\',\'TEST-1\',\'اختبار\',\'0000000\',\'اختبار\',\'اختبار\',\'اختبار\',50,50,now())');
     await db.query('INSERT INTO "OrderItem" (id,"orderId","productId","productNameSnapshot",quantity,"unitPrice",total) VALUES (\'i\',\'o\',\'p0\',\'اختبار\',50,1,50)');
     await t.test('best seller ranking uses actual orders before limiting, ignores imported counters', async () => {

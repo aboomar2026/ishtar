@@ -1118,7 +1118,7 @@ p {
   font-weight: 800;
   color: var(--deep-brown);
 }
-.price span {
+.priceCurrent {
   font-size: 19px;
   letter-spacing: -0.03em;
 }
@@ -1127,7 +1127,7 @@ p {
   font-weight: 700;
   font-size: 13px;
 }
-.priceLarge span {
+.priceLarge .priceCurrent {
   font-size: 32px;
 }
 .priceLarge del {

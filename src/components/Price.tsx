@@ -15,7 +15,7 @@ export function Price({
 
   return (
     <div className={`price ${size === 'large' ? 'priceLarge' : ''}`}>
-      <bdi>{formattedPrice}</bdi>
+      <bdi className="priceCurrent">{formattedPrice}</bdi>
       {formattedOldPrice ? <del><bdi>{formattedOldPrice}</bdi></del> : null}
     </div>
   );

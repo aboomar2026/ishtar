@@ -113,7 +113,7 @@ export function Footer() {
 
       <div className="footerMain">
         <div className="footerInner">
-          <div className="footerGrid">
+          <div className={`footerGrid${brand.key === 'ishtar' ? ` footerGridIshtar${socialLinks.length ? ' hasSocials' : ''}` : ''}`}>
             <div className="footerBrand">
               <span className="footerGlow" aria-hidden="true" />
               <BrandLogo variant="full" />
@@ -140,7 +140,7 @@ export function Footer() {
               </ul>
             </nav>
 
-            <nav className="footerColumn" aria-label="خدمة العملاء">
+            {brand.key !== 'ishtar' && <nav className="footerColumn" aria-label="خدمة العملاء">
               <h3 className="footerColTitle">خدمة العملاء</h3>
               <ul className="footerLinkList">
                 {serviceLinks.filter((link) => brand.key !== 'ishtar' || !link.pending).map((link) => link.pending ? (
@@ -160,7 +160,7 @@ export function Footer() {
                   </li>
                 ))}
               </ul>
-            </nav>
+            </nav>}
 
             <div className="footerColumn footerContact">
               <h3 className="footerColTitle">{brand.contact.whatsappNumber ? "تواصلي معنا" : "موقع المتجر"}</h3>
