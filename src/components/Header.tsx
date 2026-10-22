@@ -17,6 +17,7 @@ const drawerLinks = [{ href: '/', label: 'الرئيسية' }, ...storeLinks, { 
 export function Header() {
   const { itemCount } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [cartPressed, setCartPressed] = useState(false);
   const pathname = usePathname();
   const drawerRef = useDialog(menuOpen, () => setMenuOpen(false));
 
@@ -39,8 +40,16 @@ export function Header() {
           </Link>
           <SearchBar compact />
           <div className="headerActions">
-            <Link href="/cart" className="cartButton" aria-label="السلة">
-              <IconCart size={20} />
+            <Link
+              href="/cart"
+              className={`cartButton${itemCount > 0 ? ' hasItems' : ''}${cartPressed ? ' isPressed' : ''}`}
+              aria-label="السلة"
+              onClick={() => {
+                if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) setCartPressed(true);
+              }}
+              onAnimationEnd={() => setCartPressed(false)}
+            >
+              <IconCart key={itemCount} size={brand.key === 'ishtar' ? 28 : 20} />
               {itemCount > 0 ? <span>{itemCount}</span> : null}
             </Link>
           </div>

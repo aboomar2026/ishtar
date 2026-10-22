@@ -137,7 +137,6 @@ export function ProductDetailClient({ product }: { product: Product }) {
           {hasColorOptions && <p className="fieldHint">الصور عامة للمنتج؛ اختاري اللون المطلوب من الخيارات أدناه.</p>}
           <VariantSelector label="اللون" options={colorOptions} value={selectedColor} onChange={handleColorChange} />
           <VariantSelector label="المقاس / الخيار" options={sizeOptions} value={selectedSize} onChange={handleSizeChange} />
-          {selectedVariant ? <div className="skuLine">SKU: <bdi>{selectedVariant.sku}</bdi></div> : null}
           <div className="quantityRow">
             <span>الكمية</span>
             <QuantitySelector value={quantity} onChange={setQuantity} max={selectedVariant?.quantity} />
@@ -159,6 +158,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
             </ul>
           ) : null}
           {product.careInstructions ? <p className="careInstructions">العناية: {product.careInstructions}</p> : null}
+          {selectedVariant ? <p className="productSku">رمز المنتج: <bdi>{selectedVariant.sku}</bdi></p> : null}
         </div>
       </section>
     </div>

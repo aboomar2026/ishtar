@@ -4,12 +4,16 @@ import { useDialog } from './useDialog';
 import { useMemo, useState, type SyntheticEvent } from 'react';
 import type { CatalogProductImage } from '@/features/catalog/catalog.types';
 import { FALLBACK_PRODUCT_IMAGE } from '@/features/catalog/catalog.utils';
+import { brand } from '@/lib/brand';
 import { getCloudinaryTransformedUrl, PRODUCT_GALLERY_IMAGE, PRODUCT_THUMB_IMAGE } from '@/lib/cloudinary-image';
 
 function handleImageError(event: SyntheticEvent<HTMLImageElement>) {
   if (event.currentTarget.src.endsWith(FALLBACK_PRODUCT_IMAGE)) return;
   event.currentTarget.src = FALLBACK_PRODUCT_IMAGE;
 }
+
+const galleryTransform = brand.key === 'ishtar' ? { ...PRODUCT_GALLERY_IMAGE, crop: 'fit' as const } : PRODUCT_GALLERY_IMAGE;
+const thumbTransform = brand.key === 'ishtar' ? { ...PRODUCT_THUMB_IMAGE, crop: 'fit' as const } : PRODUCT_THUMB_IMAGE;
 
 export function ProductMediaGallery({ images, title }: { images: CatalogProductImage[]; title: string }) {
   const galleryImages = useMemo(
@@ -24,7 +28,7 @@ export function ProductMediaGallery({ images, title }: { images: CatalogProductI
     <div className="mediaGallery">
       <button type="button" className="mediaMain" aria-label={`تكبير صورة ${title}`} onClick={() => setZoomOpen(true)}>
         <img
-          src={getCloudinaryTransformedUrl(activeImage, PRODUCT_GALLERY_IMAGE)}
+          src={getCloudinaryTransformedUrl(activeImage, galleryTransform)}
           alt={title}
           onError={handleImageError}
         />
@@ -39,7 +43,7 @@ export function ProductMediaGallery({ images, title }: { images: CatalogProductI
             onClick={() => setActiveImage(image.url)}
           >
             <img
-              src={getCloudinaryTransformedUrl(image.url, PRODUCT_THUMB_IMAGE)}
+              src={getCloudinaryTransformedUrl(image.url, thumbTransform)}
               alt={image.alt ?? ''}
               onError={handleImageError}
             />
@@ -49,7 +53,7 @@ export function ProductMediaGallery({ images, title }: { images: CatalogProductI
       {zoomOpen && <div className="galleryZoomBackdrop" onClick={(event) => { if (event.target === event.currentTarget) setZoomOpen(false); }}>
         <div className="galleryZoom" role="dialog" aria-modal="true" aria-label={`صورة ${title}`} ref={zoomRef} tabIndex={-1}>
           <button type="button" className="ghostButton" onClick={() => setZoomOpen(false)}>إغلاق الصورة</button>
-          <img src={getCloudinaryTransformedUrl(activeImage, PRODUCT_GALLERY_IMAGE)} alt={title} onError={handleImageError} />
+          <img src={getCloudinaryTransformedUrl(activeImage, galleryTransform)} alt={title} onError={handleImageError} />
         </div>
       </div>}
     </div>

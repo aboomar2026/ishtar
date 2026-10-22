@@ -16,7 +16,7 @@ export function PromoBanner({ banner }: { banner?: CatalogBanner }) {
         <strong>{title}</strong>
         <p>{subtitle}</p>
       </div>
-      <Link href={banner?.href ?? '/category/sale'}>{ctaLabel}</Link>
+      <Link href={brand.key === 'ishtar' && !useDatabaseCopy ? '/category/all' : banner?.href ?? '/category/sale'}>{ctaLabel}</Link>
     </section>
   );
 }

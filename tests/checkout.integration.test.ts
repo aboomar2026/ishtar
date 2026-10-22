@@ -28,7 +28,7 @@ test('real Prisma checkout and HTTP rendering on disposable Postgres', { timeout
   let next: ReturnType<typeof spawn> | undefined;
   try {
     await prisma.category.create({ data: { id: 'qa-category', name: 'قسم اختبار', slug: 'qa-category' } });
-    await prisma.product.create({ data: { id: 'qa-product', name: 'حقيبة اختبار', slug: 'qa-product', description: 'بيانات مصطنعة ومعزولة', categoryId: 'qa-category', status: 'ACTIVE', basePrice: 999, variants: { create: { id: 'qa-variant', sku: 'QA-ONLY', price: 25, quantity: 2 } } } });
+    await prisma.product.create({ data: { id: 'qa-product', name: 'حقيبة اختبار', slug: 'qa-product', description: 'بيانات مصطنعة ومعزولة', categoryId: 'qa-category', status: 'ACTIVE', basePrice: 999, isFeatured: true, isNewArrival: true, variants: { create: { id: 'qa-variant', sku: 'QA-ONLY', price: 25, compareAtPrice: 40, quantity: 2 } } } });
     const key = randomUUID();
     let orderNumber = '';
     let orderId = '';
@@ -104,13 +104,22 @@ test('real Prisma checkout and HTTP rendering on disposable Postgres', { timeout
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
     await t.test('production HTTP routes render catalogue/product/cart and reject unknown products', async () => {
-      for (const path of ['/','/category/all','/product/qa-product','/cart','/checkout','/track-order']) {
+      for (const path of ['/','/category/all','/category/featured','/category/all?sort=best-sellers','/product/qa-product','/cart','/checkout','/track-order']) {
         const response = await fetch(origin + path);
         assert.equal(response.status, 200, `${path}: ${output.slice(-800)}`);
         assert.match(await response.text(), /عشتار/);
       }
       const missing = await fetch(`${origin}/product/qa-not-found`);
       assert.match(await missing.text(), /الصفحة غير موجودة|NEXT_HTTP_ERROR_FALLBACK;404/);
+    });
+    await t.test('homepage keeps overlapping product sections and links to matching collections', async () => {
+      const html = await (await fetch(origin + '/')).text();
+      assert.equal((html.match(/<article class="productCard /g) ?? []).length, 4);
+      assert.match(html, /href="\/category\/all\?sort=best-sellers"/);
+      assert.match(html, /href="\/category\/featured"/);
+      const featured = await (await fetch(origin + '/category/featured')).text();
+      assert.match(featured, /حقيبة اختبار/);
+      assert.match(featured, /class="priceCurrent"/);
     });
     await t.test('admin SSR requires a session and accepts an isolated signed test session', async () => {
       const rejected = await fetch(`${origin}/admin`, { redirect: 'manual' });

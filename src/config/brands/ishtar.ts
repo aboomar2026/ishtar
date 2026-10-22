@@ -35,7 +35,7 @@ export const ishtarBrand: BrandProfile = {
     heroTitle: 'تفاصيل تعبّر عنكِ',
     heroSubtitle: 'إكسسوارات وحقائب وعطور ولمسات جمال تضيف طابعك الخاص لكل إطلالة.',
     heroCta: 'اكتشفي المجموعة',
-    heroSecondaryCta: 'تصفّحي الاختيارات',
+    heroSecondaryCta: 'تصفّحي جميع المنتجات',
     heroTrustItems: ['إكسسوارات مميزة', 'اختيارات متنوعة', 'تسوّق بسهولة'],
     heroCollageLabel: 'عشتار · اختيارات تناسبك',
     promoEyebrow: 'ISHTAR EDIT',

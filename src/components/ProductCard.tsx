@@ -1,5 +1,6 @@
 'use client';
 import { showCatalogMetrics } from '@/lib/catalog-display';
+import { brand } from '@/lib/brand';
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -54,7 +55,7 @@ export function ProductCard({ product }: { product: Product }) {
     <article className={`productCard ${product.isOutOfStock ? 'isOutOfStock' : ''}`}>
       <Link href={`/product/${product.slug}`} className="productImageWrap" aria-label={product.name}>
         <img
-          src={getCloudinaryTransformedUrl(product.image, PRODUCT_CARD_IMAGE)}
+          src={getCloudinaryTransformedUrl(product.image, brand.key === 'ishtar' ? { ...PRODUCT_CARD_IMAGE, crop: 'fit' } : PRODUCT_CARD_IMAGE)}
           alt={product.name}
           className="productImage"
           loading="lazy"
@@ -97,10 +98,10 @@ export function ProductCard({ product }: { product: Product }) {
             ) : canQuickAdd ? (
               <>
                 <IconPlus size={16} />
-                <span>أضف</span>
+              <span>أضيفي</span>
               </>
             ) : (
-              <span>اختيار</span>
+              <span>الخيارات</span>
             )}
           </button>
         </div>

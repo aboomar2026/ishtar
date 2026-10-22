@@ -32,6 +32,8 @@ function activeProductWhere(filters: CatalogProductFilters = {}): Prisma.Product
         { compareAtPrice: { not: null } },
         { variants: { some: { isActive: true, compareAtPrice: { not: null } } } }
       ];
+    } else if (filters.categorySlug === 'featured') {
+      where.isFeatured = true;
     } else if (filters.categorySlug !== 'all') {
       where.category = { slug: filters.categorySlug, isActive: true };
     }
@@ -96,6 +98,7 @@ async function getProductPage(filters: CatalogProductFilters = {}) {
   const page = Math.max(1, filters.page ?? 1);
   const conditions = [Prisma.sql`p.status = 'ACTIVE' AND c."isActive" = true`];
   if (filters.categorySlug === 'new-in') conditions.push(Prisma.sql`p."isNewArrival" = true`);
+  else if (filters.categorySlug === 'featured') conditions.push(Prisma.sql`p."isFeatured" = true`);
   else if (filters.categorySlug && !['all', 'sale'].includes(filters.categorySlug)) conditions.push(Prisma.sql`c.slug = ${filters.categorySlug}`);
   if (filters.q) {
     const pattern = `%${filters.q.replace(/[\\%_]/g, (char) => `\\${char}`)}%`;

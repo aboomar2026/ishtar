@@ -155,7 +155,7 @@ export function CheckoutForm() {
 
   return (
     <div className="checkoutLayout">
-      {cartError && <div role="alert">{cartError} <button type="button" onClick={() => void refreshCart()}>إعادة المحاولة</button></div>}
+      {cartError && <div className="checkoutCartError" role="alert">{cartError} <button type="button" onClick={() => void refreshCart()}>إعادة المحاولة</button></div>}
       <form className="checkoutForm" onSubmit={onSubmit} noValidate aria-busy={submitting}>
         {error && (
           <div className="stockNotice" role="alert" tabIndex={-1} ref={errorRef}>
@@ -175,7 +175,7 @@ export function CheckoutForm() {
         <section className="formCard">
           <span className="eyebrow">Cash on delivery</span>
           <h2>معلومات التوصيل</h2>
-          <p className="fieldHint">أدخلي بيانات التواصل وعنوان التسليم.</p>
+          <p className="fieldHint">أدخلي بيانات التواصل وعنوان التسليم. جميع الحقول مطلوبة ما لم يُذكر أنها اختيارية.</p>
           <div className="formGrid">
             <label>
               الاسم الكامل
@@ -187,13 +187,13 @@ export function CheckoutForm() {
               <input name="phone" autoComplete="tel" type="tel" dir="ltr" aria-invalid={Boolean(fieldErrors.phone)} aria-describedby={fieldErrors.phone ? "checkout-phone-error" : undefined} value={fields.phone} onChange={(e) => set('phone', e.target.value)} required inputMode="tel" placeholder="05xxxxxxxx" />
               {fieldErrors.phone && <small id="checkout-phone-error" className="fieldError">{fieldErrors.phone}</small>}
             </label>
-            <label>
+            <label className="spanTwo">
               رقم واتساب (اختياري)
               <input name="whatsappPhone" type="tel" dir="ltr" aria-invalid={Boolean(fieldErrors.whatsappPhone)} aria-describedby={fieldErrors.whatsappPhone ? "checkout-whatsapp-hint checkout-whatsappPhone-error" : "checkout-whatsapp-hint"} value={fields.whatsappPhone} onChange={(e) => set('whatsappPhone', e.target.value)} inputMode="tel" placeholder="اتركيه فارغاً إذا نفس رقم الجوال" />
               <small id="checkout-whatsapp-hint" className="fieldHint">استخدميه إذا كان رقم واتساب مختلفاً عن رقم الاتصال.</small>
               {fieldErrors.whatsappPhone && <small id="checkout-whatsappPhone-error" className="fieldError">{fieldErrors.whatsappPhone}</small>}
             </label>
-            <label>
+            <label className="spanTwo">
               المحافظة
               <select name="city" autoComplete="address-level1" aria-invalid={Boolean(fieldErrors.city)} aria-describedby={fieldErrors.city ? "checkout-city-error" : undefined} value={fields.city} onChange={(e) => set('city', e.target.value)} required>
                 <option value="" disabled>اختاري المحافظة</option>
@@ -201,7 +201,7 @@ export function CheckoutForm() {
               </select>
               {fieldErrors.city && <small id="checkout-city-error" className="fieldError">{fieldErrors.city}</small>}
             </label>
-            <label>
+            <label className="spanTwo">
               المنطقة / الحي
               <input name="area" autoComplete="address-level2" aria-invalid={Boolean(fieldErrors.area)} aria-describedby={fieldErrors.area ? "checkout-area-error" : undefined} value={fields.area} onChange={(e) => set('area', e.target.value)} required placeholder="اسم المنطقة" />
               {fieldErrors.area && <small id="checkout-area-error" className="fieldError">{fieldErrors.area}</small>}

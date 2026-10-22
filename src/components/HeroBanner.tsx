@@ -5,8 +5,8 @@ import { brand } from '@/lib/brand';
 import { BrandLogo } from './BrandLogo';
 
 export function HeroBanner({ banner }: { banner?: CatalogBanner }) {
-  const href = banner?.href ?? '/category/new-in';
   const useDatabaseCopy = brand.behavior.useDatabaseBannerCopy;
+  const href = brand.key === 'ishtar' && !useDatabaseCopy ? '/category/new-in' : banner?.href ?? '/category/new-in';
   const title = useDatabaseCopy ? banner?.title ?? brand.copy.heroTitle : brand.copy.heroTitle;
   const subtitle = useDatabaseCopy ? banner?.subtitle ?? brand.copy.heroSubtitle : brand.copy.heroSubtitle;
   const eyebrow = useDatabaseCopy ? banner?.eyebrow ?? brand.copy.heroEyebrow : brand.copy.heroEyebrow;
@@ -20,7 +20,7 @@ export function HeroBanner({ banner }: { banner?: CatalogBanner }) {
         <p>{subtitle}</p>
         <div className="heroActions">
           <Link href={href} className="primaryButton">{ctaLabel}</Link>
-          <Link href="/category/sale" className="ghostButton">{brand.copy.heroSecondaryCta}</Link>
+          <Link href={brand.key === 'ishtar' ? '/category/all' : '/category/sale'} className="ghostButton">{brand.copy.heroSecondaryCta}</Link>
         </div>
         <div className="heroTrustRow" aria-label="مميزات التسوق">
           {brand.copy.heroTrustItems.map((item) => <span key={item}>{item}</span>)}
