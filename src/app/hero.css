@@ -123,3 +123,10 @@
 .heroPreviewHeader span { font-size:11px; font-family:var(--font-brand); }
 .heroPreviewFooter { text-align:center; padding:20px 12px; color:#695760; font-size:12px; }
 @media (max-width:600px) { .heroLayoutPicker { grid-template-columns:1fr; } .heroLayoutChoice { grid-template-columns:70px 1fr; } .heroLayoutMini { grid-row:span 2; height:75px; padding:6px; } .heroLayoutChoice input { top:14px; inset-inline-start:14px; } .heroPreviewScroll { padding:6px; } }
+.heroReviewPage { padding:24px; max-width:1320px; margin:auto; }
+.heroReviewPage > h1 { font-size:26px; }
+.heroReviewControls { display:flex; flex-wrap:wrap; align-items:end; gap:12px; margin:20px 0; }
+.heroReviewControls label { display:grid; gap:6px; font-size:14px; }
+.heroReviewControls select,.heroReviewControls button { min-height:44px; padding:8px 12px; border:1px solid #dfcfcc; border-radius:8px; color:#522b3a; background:#fff; font:inherit; }
+.heroReviewScroll { overflow:auto; background:#eee6e2; padding:16px; border-radius:16px; }
+.heroReviewCanvas { margin:auto; flex:none; max-width:none; }

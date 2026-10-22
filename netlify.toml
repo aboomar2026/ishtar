@@ -12,3 +12,6 @@
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+[context.deploy-preview.environment]
+  NEXT_PUBLIC_HERO_QA_ENABLED = "true"
