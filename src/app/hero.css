@@ -35,12 +35,13 @@
 .shopHero--campaign { display:block; padding:0; min-height:0; }
 .shopHeroCampaignSlide { display:grid; grid-template-columns:1fr 1fr; min-height:420px; }
 .shopHeroCampaignSlide .shopHeroCopy { padding:36px; }
-.shopHeroCampaignImage { min-height:420px; min-width:0; overflow:hidden; display:block; background:#ead8c6; }
-.shopHeroCampaignImage picture { height:100%; }
+.shopHeroCampaignImage { position:relative; min-height:420px; min-width:0; overflow:hidden; display:block; background:#ead8c6; }
+.shopHeroCampaignImage picture { position:absolute; inset:0; height:100%; }
 .shopHeroCampaignImage img { object-fit:cover; }
 .shopHeroViewport { overflow:hidden; }
 .shopHeroTrack { display:flex; touch-action:pan-y pinch-zoom; }
-.shopHeroSlide { flex:0 0 100%; min-width:0; }
+.shopHeroSlide { flex:0 0 100%; min-width:0; display:flex; }
+.shopHeroSlide > .shopHeroCampaignSlide { flex:1; }
 .shopHeroCarousel { position:relative; }
 .shopHeroNavigation { display:flex; gap:12px; justify-content:center; align-items:center; min-height:64px; padding:8px 16px; background:#fff8ee; border-top:1px solid #dfcfcc; }
 .shopHeroArrow,.shopHeroRotation { border:1px solid #dfcfcc; background:#fff9f2; color:#522b3a; border-radius:50%; cursor:pointer; }
@@ -81,7 +82,7 @@
   .shopHero--signature .shopHeroFloat2 { display:none; }
   .shopHero--signature .shopHeroTitleAccent { text-underline-offset:8px; }
   .shopHero--campaign { padding:0; }
-  .shopHeroCampaignSlide { grid-template-columns:1fr; min-height:0; }
+  .shopHeroCampaignSlide { grid-template-columns:1fr; grid-template-rows:240px 1fr; min-height:0; }
   .shopHeroCampaignImage { grid-row:1; height:240px; min-height:0; }
   .shopHeroCampaignSlide .shopHeroCopy { padding:22px 20px; min-height:275px; }
   .shopHeroCampaignSlide .shopHeroTags { display:none; }
