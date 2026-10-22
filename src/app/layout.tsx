@@ -4,6 +4,7 @@ import { Tajawal, El_Messiri } from 'next/font/google';
 import { activeBrandKey, brand, getBrandCssVariables } from '@/lib/brand';
 import './globals.css';
 import './ishtar.css';
+import './hero.css';
 
 const tajawal = Tajawal({
   subsets: ['arabic', 'latin'],

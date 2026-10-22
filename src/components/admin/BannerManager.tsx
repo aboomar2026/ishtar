@@ -1,6 +1,5 @@
 'use client';
 
-import { brand } from '@/lib/brand';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -143,7 +142,7 @@ export function BannerManager({ banners }: { banners: AdminBannerListItem[] }) {
       {formMessage && !editor && <div className="adminAlert isError" role="alert">{formMessage}</div>}
       <div className="adminCardHeader">
         <p className="adminMuted">{banners.length} بنر.</p>
-        {!brand.behavior.useDatabaseBannerCopy && <p className="adminAlert isInfo">النصوص والأزرار تتبع الهوية المعتمدة؛ تعديل نص البنر هنا لا يغير نص المتجر. الصورة والرابط فقط يؤثران حسب موضع البنر.</p>}
+        <p className="adminMuted">نصوص وأزرار بنرات الواجهة تظهر في الهيرو. بنرات العروض الأخرى تتبع إعدادات الهوية.</p>
         {!editor && <button type="button" className="adminBtn adminBtnPrimary" onClick={openAdd}>+ إضافة بنر</button>}
       </div>
 

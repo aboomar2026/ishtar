@@ -4,7 +4,7 @@
 # the base directory"). The official @netlify/plugin-nextjs expects `.next`.
 
 [build]
-  command = "prisma generate && npm run build"
+  command = "prisma generate && prisma db execute --file prisma/additive/hero-settings.sql --schema prisma/schema.prisma && npm run build"
   publish = ".next"
 
 [build.environment]

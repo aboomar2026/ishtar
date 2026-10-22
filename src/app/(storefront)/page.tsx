@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { CategoryStrip } from '@/components/CategoryStrip';
-import { HeroBanner } from '@/components/HeroBanner';
+import { HeroView } from '@/components/hero/HeroView';
+import { getHeroSettings } from '@/features/hero/hero.queries';
 import { ProductGrid } from '@/components/ProductGrid';
 import { PromoBanner } from '@/components/PromoBanner';
 import { getHomeCatalog } from '@/features/catalog/catalog.queries';
@@ -10,13 +11,13 @@ import { BrandLogo } from '@/components/BrandLogo';
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
-  const catalog = await getHomeCatalog();
-  const heroBanner = catalog.heroBanners[0];
+  const [catalog, heroSettings] = await Promise.all([getHomeCatalog(), getHeroSettings()]);
+  const heroProducts = [...catalog.newArrivals, ...catalog.featuredProducts].filter((product, index, all) => all.findIndex(other => other.id === product.id) === index).slice(0, 3).map(product => ({ image: product.image, name: product.name, href: `/product/${product.slug}` }));
   const promoBanner = catalog.promoBanners[0];
 
   return (
     <div className="homePage">
-      <HeroBanner banner={heroBanner} />
+      <HeroView settings={heroSettings} banners={catalog.heroBanners} products={heroProducts} />
       <CategoryStrip categories={catalog.categories} />
       <PromoBanner banner={promoBanner} />
 

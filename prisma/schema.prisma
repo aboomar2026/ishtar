@@ -328,3 +328,9 @@ model AdminUser {
 
   @@index([email])
 }
+
+model HeroSettings {
+  id        String   @id @default("home")
+  config    Json
+  updatedAt DateTime @updatedAt
+}

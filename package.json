@@ -24,12 +24,16 @@
     "brand:check": "node scripts/check-ishtar-brand.mjs",
     "test:checkout-client": "node --import tsx --test tests/checkout-recovery.test.tsx",
     "test:commerce": "node --import tsx --test tests/commerce.test.ts",
-    "test:integration": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/checkout.integration.test.ts"
+    "test:integration": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/checkout.integration.test.ts",
+    "test:hero": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/hero-settings.test.ts tests/hero-render.test.tsx"
   },
   "dependencies": {
     "@prisma/client": "6.19.0",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.10.0",
+    "embla-carousel-fade": "^8.6.0",
+    "embla-carousel-react": "^8.6.0",
+    "motion": "^12.43.0",
     "next": "16.2.7",
     "qrcode": "^1.5.4",
     "react": "19.2.7",
