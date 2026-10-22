@@ -12,6 +12,7 @@ const imagePath = z.string().max(2000).refine((value) => {
 }, 'استخدم رابط صورة HTTPS أو مساراً محلياً');
 export const heroSettingsSchema = z.object({
   layout: z.enum(['classic', 'signature', 'campaign']).default('classic'),
+  copySource: z.enum(['brand', 'banners']).default('brand'),
   motion: z.enum(['calm', 'lively', 'none']).default('calm'),
   transition: z.enum(['slide', 'fade']).default('slide'),
   autoplay: z.boolean().default(false),

@@ -142,7 +142,7 @@ export function BannerManager({ banners }: { banners: AdminBannerListItem[] }) {
       {formMessage && !editor && <div className="adminAlert isError" role="alert">{formMessage}</div>}
       <div className="adminCardHeader">
         <p className="adminMuted">{banners.length} بنر.</p>
-        <p className="adminMuted">نصوص وأزرار بنرات الواجهة تظهر في الهيرو. بنرات العروض الأخرى تتبع إعدادات الهوية.</p>
+        <p className="adminMuted">لعرض نصوص وأزرار هذه البنرات اختَر «نصوص بنرات الواجهة» في إعدادات التصميم أعلاه. بنرات العروض الأخرى تتبع إعدادات الهوية.</p>
         {!editor && <button type="button" className="adminBtn adminBtnPrimary" onClick={openAdd}>+ إضافة بنر</button>}
       </div>
 

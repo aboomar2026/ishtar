@@ -10,6 +10,11 @@ export type HeroProduct = { image: string; name: string; href: string };
 export type HeroProps = { settings: HeroSettings; banners: CatalogBanner[]; products: HeroProduct[]; preview?: boolean };
 export const FALLBACK_BANNER: CatalogBanner = { id: 'default', title: brand.copy.heroTitle, subtitle: brand.copy.heroSubtitle, eyebrow: brand.copy.heroEyebrow, ctaLabel: brand.copy.heroCta, href: '/category/new-in', placement: 'HOME_HERO' };
 
+export function resolveHeroBanner(banner: CatalogBanner, settings: HeroSettings): CatalogBanner {
+  if (settings.copySource === 'banners') return banner;
+  return { ...banner, title: brand.copy.heroTitle, subtitle: brand.copy.heroSubtitle, eyebrow: brand.copy.heroEyebrow, ctaLabel: brand.copy.heroCta };
+}
+
 export function HeroImage({ src, mobile, focus = 'center', priority = false, alt = '', contain = false, sizes = '(max-width: 700px) 90vw, 45vw' }: { src?: string; mobile?: string; focus?: string; priority?: boolean; alt?: string; contain?: boolean; sizes?: string }) {
   const [failed, setFailed] = useState(false);
   const transform = (url: string, width: number) => getCloudinaryTransformedUrl(url, { width, height: Math.round(width * .9), crop: 'limit' });
@@ -36,7 +41,7 @@ export function HeroCopy({ banner, heading = 'h1', signature = false }: { banner
 
 export function HeroScene({ banner, products, settings }: { banner: CatalogBanner; products: HeroProduct[]; settings: HeroSettings }) {
   const media = settings.media[banner.id];
-  const main = { image: banner.imageUrl || products[0]?.image, name: banner.title, href: heroHref(banner.href) };
+  const main = { image: banner.imageUrl || products[0]?.image, name: resolveHeroBanner(banner, settings).title, href: heroHref(banner.href) };
   const extras = products.filter(product => product.image !== main.image).slice(0, 2);
   return <div className="shopHeroScene">
     <div className="shopHeroHalo" aria-hidden="true" />
@@ -56,9 +61,10 @@ export function HeroScene({ banner, products, settings }: { banner: CatalogBanne
 
 export function HeroCampaignSlide({ banner, settings, first, fallbackImage }: { banner: CatalogBanner; settings: HeroSettings; first: boolean; fallbackImage?: string }) {
   const media = settings.media[banner.id];
+  const copy = resolveHeroBanner(banner, settings);
   return <div className="shopHeroCampaignSlide" style={{ '--hero-focus': media?.focus || 'center' } as CSSProperties}>
-    <HeroCopy banner={banner} heading={first ? 'h1' : 'h2'} />
-    <Link className="shopHeroCampaignImage" href={heroHref(banner.href)} aria-label={banner.title}>
+    <HeroCopy banner={copy} heading={first ? 'h1' : 'h2'} />
+    <Link className="shopHeroCampaignImage" href={heroHref(banner.href)} aria-label={copy.title}>
       <HeroImage key={banner.imageUrl} src={banner.imageUrl || fallbackImage} mobile={media?.mobileImageUrl} focus={media?.focus} priority={first} />
     </Link>
   </div>;

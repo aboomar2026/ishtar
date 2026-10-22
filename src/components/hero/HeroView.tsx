@@ -2,7 +2,7 @@
 import dynamic from 'next/dynamic';
 import { createContext, useContext, useEffect, useRef } from 'react';
 import { useAnimate, useReducedMotion } from 'motion/react';
-import { FALLBACK_BANNER, HeroCampaignSlide, HeroCopy, HeroScene, type HeroProps } from './HeroVisuals';
+import { FALLBACK_BANNER, resolveHeroBanner, HeroCampaignSlide, HeroCopy, HeroScene, type HeroProps } from './HeroVisuals';
 
 const CampaignContext = createContext<HeroProps | null>(null);
 function CampaignFallback() {
@@ -29,7 +29,7 @@ export function HeroView({ settings, banners, products, preview = false }: HeroP
       {settings.layout === 'campaign' ? <CampaignContext.Provider value={{ settings, banners: slides, products }}>
         <HeroCarousel settings={settings} banners={slides} products={products} preview={preview} />
       </CampaignContext.Provider> : <>
-        <HeroCopy banner={banner} signature={settings.layout === 'signature'} />
+        <HeroCopy banner={resolveHeroBanner(banner, settings)} signature={settings.layout === 'signature'} />
         <HeroScene banner={banner} products={products} settings={settings} />
       </>}
     </section>

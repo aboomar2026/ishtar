@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState, useRef } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import Fade from 'embla-carousel-fade';
 import { animate, useReducedMotion } from 'motion/react';
-import { HeroCampaignSlide, type HeroProps } from './HeroVisuals';
+import { HeroCampaignSlide, resolveHeroBanner, type HeroProps } from './HeroVisuals';
 
 export default function HeroCarousel({ banners, settings, products, preview }: HeroProps) {
   const reduceMotion = useReducedMotion();
@@ -53,7 +53,7 @@ export default function HeroCarousel({ banners, settings, products, preview }: H
     </div>
     {banners.length > 1 && <div className="shopHeroNavigation">
       <button type="button" className="shopHeroArrow" aria-label="الحملة السابقة" onClick={() => { setPlaying(false); api?.scrollPrev(); }}>→</button>
-      <div className="shopHeroDots">{banners.map((banner, index) => <button key={banner.id} type="button" aria-label={`عرض الحملة ${index + 1}: ${banner.title}`} aria-current={index === selected ? 'true' : undefined} onClick={() => move(index)}><span /></button>)}</div>
+      <div className="shopHeroDots">{banners.map((banner, index) => <button key={banner.id} type="button" aria-label={`عرض الحملة ${index + 1}: ${resolveHeroBanner(banner, settings).title}`} aria-current={index === selected ? 'true' : undefined} onClick={() => move(index)}><span /></button>)}</div>
       <span className="shopHeroCounter"><bdi>{selected + 1} / {banners.length}</bdi></span>
       <button type="button" className="shopHeroArrow" aria-label="الحملة التالية" onClick={() => { setPlaying(false); api?.scrollNext(); }}>←</button>
     </div>}
