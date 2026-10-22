@@ -28,6 +28,7 @@ export function CheckoutForm() {
   const [fields, setFields] = useState<ShippingFields>(EMPTY_FIELDS);
   const [submitting, setSubmitting] = useState(false);
   const [uncertain, setUncertain] = useState(false);
+  const [recoveredOrder, setRecoveredOrder] = useState<{ orderNumber: string } | null>(null);
   const [recovering, setRecovering] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -54,15 +55,16 @@ export function CheckoutForm() {
         attemptRef.current = { key: attempt.key };
         const receipt = await recoverCheckoutAction(attempt.key);
         if (receipt && active) {
-          sessionStorage.removeItem(`${SHIPPING_KEY}:attempt`);
-          clearCart(); router.push(`/order-success?order=${encodeURIComponent(receipt.orderNumber)}`);
+          // A committed receipt may belong to an older cart. Never discard today's cart.
+          setRecoveredOrder(receipt);
+          setUncertain(true);
         }
       } catch { if (active) setUncertain(true); }
       finally { if (active) setRecovering(false); }
     }
     void recover();
     return () => { active = false; };
-  }, [clearCart, router]);
+  }, []);
 
   async function checkPreviousAttempt() {
     if (!attemptRef.current) { setUncertain(false); return; }
@@ -70,14 +72,24 @@ export function CheckoutForm() {
     try {
       const receipt = await recoverCheckoutAction(attemptRef.current.key);
       if (receipt) {
-        try { sessionStorage.removeItem(`${SHIPPING_KEY}:attempt`); } catch { /* optional */ }
-        clearCart(); router.push(`/order-success?order=${encodeURIComponent(receipt.orderNumber)}`);
+        setRecoveredOrder(receipt);
+        setUncertain(true);
       } else {
         // Retain the key: an in-flight transaction can still finish after this lookup.
         setUncertain(false); setError('لم تظهر نتيجة محفوظة بعد. أعيدي المحاولة بنفس البيانات؛ سنستخدم معرّف المحاولة نفسه.');
       }
     } catch { setError('تعذر التحقق من نتيجة المحاولة. تحققي من الاتصال وأعيدي التحقق.'); }
     finally { setSubmitting(false); }
+  }
+
+  function continueWithNewCart() {
+    // Only a confirmed committed receipt allows retiring the previous attempt.
+    if (!recoveredOrder) return;
+    try { sessionStorage.removeItem(`${SHIPPING_KEY}:attempt`); } catch { /* optional */ }
+    attemptRef.current = null;
+    setRecoveredOrder(null);
+    setUncertain(false);
+    setError(null);
   }
 
   function set<K extends keyof ShippingFields>(key: K, value: string) {
@@ -125,6 +137,7 @@ export function CheckoutForm() {
         createdAt: new Date().toISOString()
       });
       try { sessionStorage.removeItem(`${SHIPPING_KEY}:attempt`); } catch { /* optional */ }
+      attemptRef.current = null;
       clearCart();
       router.push(`/order-success?order=${encodeURIComponent(result.orderNumber)}`);
       return;
@@ -147,8 +160,28 @@ export function CheckoutForm() {
 
   useEffect(() => { if (error) errorRef.current?.focus(); }, [error]);
   if (!isCartLoaded || recovering) return <p role="status">جاري استعادة السلة...</p>;
-  const recoveryPanel = uncertain ? <section className="formCard" role="status"><p>نتيجة المحاولة السابقة غير مؤكدة. تحققي منها قبل محاولة جديدة.</p><button className="primaryButton" type="button" onClick={() => void checkPreviousAttempt()} disabled={submitting}>التحقق من نتيجة المحاولة</button>{error && <p role="alert">{error}</p>}</section> : null;
-  if (uncertain) return recoveryPanel;
+  if (uncertain) {
+    return (
+      <section className="formCard" role="status">
+        {recoveredOrder ? (
+          <>
+            <h2>وجدنا طلباً سابقاً مسجّلاً</h2>
+            <p>رقم الطلب السابق: <bdi>{recoveredOrder.orderNumber}</bdi>. لم نرسل السلة الحالية كطلب جديد، ولم نحذف منتجاتها.</p>
+            <div className="heroActions">
+              <Link className="ghostButton" href={`/order-success?order=${encodeURIComponent(recoveredOrder.orderNumber)}`}>عرض الطلب السابق</Link>
+              <button className="primaryButton" type="button" onClick={continueWithNewCart}>متابعة طلب جديد بالسلة الحالية</button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p>نتيجة المحاولة السابقة غير مؤكدة. تحققي منها قبل محاولة جديدة.</p>
+            <button className="primaryButton" type="button" onClick={() => void checkPreviousAttempt()} disabled={submitting}>التحقق من نتيجة المحاولة</button>
+          </>
+        )}
+        {error && <p role="alert">{error}</p>}
+      </section>
+    );
+  }
   if (!lines.length) {
     return <EmptyState title="لا يوجد طلب لإتمامه" description="أضيفي منتجات للسلة ثم ارجعي للدفع عند الاستلام." actionHref="/" actionLabel="تصفّح المنتجات" />;
   }

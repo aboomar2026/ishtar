@@ -19,8 +19,18 @@ test('real Prisma checkout and HTTP rendering on disposable Postgres', { timeout
   process.env.DATABASE_URL = `${connection}${connection.includes('?') ? '&' : '?'}connection_limit=1&sslmode=disable`;
   process.env.NEXT_PUBLIC_STORE_BRAND = 'ishtar';
   process.env.ADMIN_SESSION_SECRET = randomUUID();
-  delete process.env.TELEGRAM_BOT_TOKEN;
-  delete process.env.TELEGRAM_ADMIN_CHAT_ID;
+  process.env.TELEGRAM_BOT_TOKEN = 'ISHTAR_TEST_ONLY';
+  process.env.TELEGRAM_ADMIN_CHAT_ID = 'ISOLATED_TEST_CHAT';
+  const telegramMessages: string[] = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (url, init) => {
+    if (typeof url === 'string' && url.startsWith('https://api.telegram.org/botISHTAR_TEST_ONLY/')) {
+      telegramMessages.push(String(init?.body));
+      return new Response(JSON.stringify({ ok: true }), { status: 200 });
+    }
+    return originalFetch(url, init);
+  };
+  t.after(() => { globalThis.fetch = originalFetch; });
   const { prisma } = await import('../src/lib/prisma');
   const { createCodOrderAction, recoverCheckoutAction, trackOrderAction } = await import('../src/features/orders/order.actions');
   const { getCartAvailability } = await import('../src/features/orders/cart.actions');
@@ -55,6 +65,14 @@ test('real Prisma checkout and HTTP rendering on disposable Postgres', { timeout
       assert.equal(await prisma.order.count(), 1);
       assert.equal(await prisma.inventoryLog.count(), 1);
       assert.equal((await prisma.productVariant.findUniqueOrThrow({ where: { id: 'qa-variant' } })).quantity, 1);
+    });
+    await t.test('committed receipt exists in admin queries and Telegram was called once', async () => {
+      const { getAdminOrders } = await import('../src/features/admin/orders/order-admin.queries');
+      const { getOrderSuccessSummaryByNumber } = await import('../src/features/orders/order.queries');
+      assert.equal((await getAdminOrders({ q: orderNumber }))[0]?.id, orderId);
+      assert.equal((await getOrderSuccessSummaryByNumber(orderNumber))?.orderNumber, orderNumber);
+      assert.equal(telegramMessages.length, 1);
+      assert.match(telegramMessages[0], new RegExp(orderNumber));
     });
     await t.test('same key with changed payload is rejected and receipt recovery returns no customer data', async () => {
       const result = await createCodOrderAction({ ...input(key), area: 'منطقة مختلفة' });
