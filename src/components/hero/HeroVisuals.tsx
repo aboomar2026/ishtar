@@ -6,10 +6,10 @@ import { useState, type CSSProperties } from 'react';
 import type { CatalogBanner } from '@/features/catalog/catalog.types';
 import { brand } from '@/lib/brand';
 import { getCloudinaryTransformedUrl } from '@/lib/cloudinary-image';
-import { heroHref, type HeroSettings } from '@/features/hero/hero-config';
+import { heroHref, type HeroContent, type HeroSettings } from '@/features/hero/hero-config';
 
 export type HeroProduct = { image: string; name: string; href: string };
-export type HeroProps = { settings: HeroSettings; banners: CatalogBanner[]; products: HeroProduct[]; preview?: boolean };
+export type HeroProps = { settings: HeroSettings; banners: CatalogBanner[]; products: HeroProduct[]; preview?: boolean; content?: HeroContent };
 export const FALLBACK_BANNER: CatalogBanner = { id: 'default', title: brand.copy.heroTitle, subtitle: brand.copy.heroSubtitle, eyebrow: brand.copy.heroEyebrow, ctaLabel: brand.copy.heroCta, href: '/category/new-in', placement: 'HOME_HERO' };
 
 export function resolveHeroBanner(banner: CatalogBanner, settings: HeroSettings): CatalogBanner {
@@ -27,17 +27,17 @@ export function HeroImage({ src, mobile, focus = 'center', priority = false, alt
   </picture>;
 }
 
-export function HeroCopy({ banner, heading = 'h1', signature = false }: { banner: CatalogBanner; heading?: 'h1' | 'h2'; signature?: boolean }) {
+export function HeroCopy({ banner, heading = 'h1', signature = false, content }: { banner: CatalogBanner; heading?: 'h1' | 'h2'; signature?: boolean; content?: HeroContent }) {
   const Heading = heading;
   return <div className="shopHeroCopy">
-    <span className="shopHeroEyebrow" data-hero-reveal>{banner.eyebrow || brand.copy.heroEyebrow}</span>
+    <span className="shopHeroEyebrow" data-hero-reveal>{content ? banner.eyebrow : banner.eyebrow || brand.copy.heroEyebrow}</span>
     <Heading data-hero-reveal>{signature ? <>{banner.title.split(' ').slice(0, -1).join(' ')} <span className="shopHeroTitleAccent">{banner.title.split(' ').at(-1)}</span></> : banner.title}</Heading>
     {banner.subtitle && <p data-hero-reveal>{banner.subtitle}</p>}
     <div className="shopHeroActions" data-hero-reveal>
       <Link className="shopHeroButton" href={heroHref(banner.href)}>{banner.ctaLabel || brand.copy.heroCta}<span aria-hidden="true">←</span></Link>
-      <Link className="shopHeroSecondary" href="/category/all">{brand.copy.heroSecondaryCta}</Link>
+      {(!content || content.secondaryLabel) && <Link className="shopHeroSecondary" href={heroHref(content?.secondaryHref || '/category/all')}>{content?.secondaryLabel ?? brand.copy.heroSecondaryCta}</Link>}
     </div>
-    <div className="shopHeroTags" data-hero-reveal>{brand.copy.heroTrustItems.map(item => <span key={item}>{item}</span>)}</div>
+    <div className="shopHeroTags" data-hero-reveal>{(content?.trustItems ?? brand.copy.heroTrustItems).filter(Boolean).map(item => <span key={item}>{item}</span>)}</div>
   </div>;
 }
 
@@ -62,12 +62,12 @@ export function HeroScene({ banner, products, settings }: { banner: CatalogBanne
   </div>;
 }
 
-export function HeroCampaignSlide({ banner, settings, first, active = first, fallbackImage }: { banner: CatalogBanner; settings: HeroSettings; first: boolean; active?: boolean; fallbackImage?: string }) {
+export function HeroCampaignSlide({ banner, settings, first, active = first, fallbackImage, content }: { banner: CatalogBanner; settings: HeroSettings; first: boolean; active?: boolean; fallbackImage?: string; content?: HeroContent }) {
   const media = settings.media[banner.id];
   const copy = resolveHeroBanner(banner, settings);
   const { ref, enabled, lively } = useHeroMotion(settings);
   return <div className="shopHeroCampaignSlide" style={{ '--hero-focus': media?.focus || 'center' } as CSSProperties}>
-    <HeroCopy banner={copy} heading={first ? 'h1' : 'h2'} />
+    <HeroCopy banner={copy} heading={first ? 'h1' : 'h2'} content={content} />
     <Link className="shopHeroCampaignImage" href={heroHref(banner.href)} aria-label={copy.title}>
       <motion.div ref={ref} className="shopHeroImageMotion" initial={false} animate={enabled && active ? { scale: [1.02, lively ? 1.1 : 1.055], x: [0, lively ? -8 : -3] } : { scale: 1, x: 0 }} transition={enabled && active ? { duration: settings.interval + 1, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' } : { duration: .25 }}>
       <HeroImage key={banner.imageUrl} src={banner.imageUrl || fallbackImage} mobile={media?.mobileImageUrl} focus={media?.focus} priority={first} />

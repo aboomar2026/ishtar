@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import test from 'node:test';
 import { HeroView } from '../src/components/hero/HeroView';
 import HeroCarousel from '../src/components/hero/HeroCarousel';
+import { getHeroContent } from '../src/features/hero/hero-content';
 import { DEFAULT_HERO_SETTINGS } from '../src/features/hero/hero-config';
 import { HeroImage, resolveHeroBanner } from '../src/components/hero/HeroVisuals';
 import type { CatalogBanner } from '../src/features/catalog/catalog.types';
@@ -46,4 +47,19 @@ test('carousel exposes a working play control even when autoplay initially start
   assert.match(html, /aria-label="تشغيل التنقل التلقائي"/);
   assert.match(html, /aria-pressed="false"/);
   assert.match(html, /shopHeroProgress/);
+});
+
+test('stored template content replaces legacy copy, images, links and trust items independently', () => {
+  const content = getHeroContent(DEFAULT_HERO_SETTINGS, 'signature', banners, []);
+  const signature = { ...content, banners: [{ ...content.banners[0], title: 'عنوان مستقل', subtitle: 'وصف مستقل', imageUrl: '/signature.jpg', mobileImageUrl: '/signature-mobile.jpg', href: '/category/gifts' }], secondaryLabel: 'رابط مستقل', secondaryHref: '/category/all', trustItems: ['عبارة مستقلة'] };
+  const settings = { ...DEFAULT_HERO_SETTINGS, layout: 'signature' as const, profiles: { signature } };
+  const html = renderToStaticMarkup(createElement(HeroView, { settings, banners, products: [] }));
+  assert.match(html, /عنوان مستقل/);
+  assert.match(html, /وصف مستقل/);
+  assert.match(html, /signature-mobile.jpg/);
+  assert.match(html, /href="\/category\/gifts"/);
+  assert.match(html, /عبارة مستقلة/);
+  assert.match(html, /رابط مستقل/);
+  const classic = renderToStaticMarkup(createElement(HeroView, { settings: { ...settings, layout: 'classic' }, banners, products: [] }));
+  assert.doesNotMatch(classic, /عنوان مستقل|signature-mobile.jpg|عبارة مستقلة/);
 });

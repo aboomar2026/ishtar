@@ -25,7 +25,7 @@
     "test:checkout-client": "node --import tsx --test tests/checkout-recovery.test.tsx",
     "test:commerce": "node --import tsx --test tests/commerce.test.ts",
     "test:integration": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/checkout.integration.test.ts",
-    "test:hero": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/hero-settings.test.ts tests/hero-render.test.tsx"
+    "test:hero": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/hero-settings.test.ts tests/hero-render.test.tsx tests/hero-rotation.test.tsx tests/hero-editor.test.tsx"
   },
   "dependencies": {
     "@prisma/client": "6.19.0",

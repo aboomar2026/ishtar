@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { PGlite } from '@electric-sql/pglite';
 import { PGLiteSocketServer } from '@electric-sql/pglite-socket';
+import { getHeroContent } from '../src/features/hero/hero-content';
 import { heroSettingsSchema, parseHeroSettings, heroHref } from '../src/features/hero/hero-config';
 
 function mockModule(id: string, exports: unknown) {
@@ -47,13 +48,34 @@ test('admin-only settings persist across database reads and template changes', {
   authorized = true;
   assert.equal((await saveHeroSettingsAction({ layout: 'invalid' })).ok, false);
   assert.equal(await prisma.heroSettings.count(), 0);
+  const classic = getHeroContent(parseHeroSettings({}), 'classic', [], []);
+  const signature = { ...classic, banners: [{ ...classic.banners[0], title: 'محتوى المميز المستقل' }] };
+  const profiles = { classic, signature };
   const media = { 'banner-a': { mobileImageUrl: 'https://example.com/mobile.jpg', focus: 'top' as const } };
   for (const layout of ['signature', 'campaign', 'classic'] as const) {
-    assert.equal((await saveHeroSettingsAction({ layout, media, motion: 'lively', autoplay: true, interval: 7 })).ok, true);
+    assert.equal((await saveHeroSettingsAction({ layout, profiles, mode: 'rotate', media, motion: 'lively', autoplay: true, interval: 7 })).ok, true);
     const saved = await getHeroSettings();
     assert.equal(saved.layout, layout);
     assert.deepEqual(saved.media, media);
+    assert.equal(saved.mode, 'rotate');
+    assert.deepEqual(saved.profiles, profiles);
   }
   assert.equal(await prisma.heroSettings.count(), 1);
   assert.deepEqual([...new Set(paths)].sort(), ['/', '/admin/banners']);
+});
+
+test('template profiles validate all admin URLs and keep separate content', () => {
+  const base = parseHeroSettings({});
+  assert.equal(base.mode, 'fixed');
+  const original = getHeroContent(base, 'classic', [], []);
+  const signature = { ...original, banners: [{ ...original.banners[0], title: 'عنوان خاص بالمميز' }] };
+  const saved = heroSettingsSchema.parse({ profiles: { signature } });
+  assert.equal(getHeroContent(saved, 'signature', [], []).banners[0].title, 'عنوان خاص بالمميز');
+  assert.equal(getHeroContent(saved, 'classic', [], []).banners[0].title, original.banners[0].title);
+  for (const field of ['href', 'imageUrl', 'mobileImageUrl']) {
+    assert.equal(heroSettingsSchema.safeParse({ profiles: { classic: { ...original, banners: [{ ...original.banners[0], [field]: 'javascript:alert(1)' }] } } }).success, false);
+  }
+  assert.equal(heroSettingsSchema.safeParse({ mode: 'random' }).success, false);
+  assert.equal(heroSettingsSchema.safeParse({ profiles: { campaign: { ...original, banners: [] } } }).success, false);
+  assert.equal(heroSettingsSchema.safeParse({ profiles: { campaign: { ...original, banners: Array(5).fill(original.banners[0]) } } }).success, false);
 });
