@@ -39,13 +39,13 @@ export function WishlistPageClient() {
   const current = data?.key === requestKey ? data : undefined;
   return <>
     <p className="fieldHint">محفوظات هذا المتصفح فقط؛ لا تحجز المخزون. تُراجع الأسعار والتوفّر عند فتح الصفحة أو تحديثها.</p>
-    {!persistent && <p role="status" className="wishlistNotice">تخزين المتصفح غير متاح. المحفوظات مؤقتة وتُفقد عند إغلاق الصفحة.</p>}
+    {!persistent && <p role="status" className="wishlistNotice">تخزين المتصفح غير متاح. المحفوظات مؤقتة وتُفقد عند تحديث الصفحة أو إغلاقها.</p>}
     {!ids.length ? <EmptyState title="المفضّلة فارغة" description="اضغطي على القلب بجانب أي منتج ليظهر هنا." actionHref="/category/all" actionLabel="اكتشفي المنتجات" /> : <>
-      <div className="wishlistToolbar"><p>{ids.length} منتجًا محفوظًا</p><button type="button" className="secondaryButton" onClick={() => setRevision(value => value + 1)}>تحديث الأسعار والتوفّر</button></div>
+      <div className="wishlistToolbar"><p>المحفوظات: {ids.length}</p><button type="button" className="ghostButton" onClick={() => setRevision(value => value + 1)}>تحديث الأسعار والتوفّر</button></div>
       {!current ? <p role="status">جارٍ التحقق من المنتجات المحفوظة…</p> : current.error ?
         <div className="emptyState" role="alert"><p>تعذّر تحميل المنتجات. محفوظاتك ما زالت موجودة.</p><button type="button" className="primaryButton" onClick={() => setRevision(value => value + 1)}>إعادة المحاولة</button></div> : <>
           {!!current.unavailableIds.length && <div className="wishlistNotice"><p>{current.unavailableIds.length} من المحفوظات لم تعد منشورة أو متاحة للعرض.</p>
-            <button type="button" className="secondaryButton" onClick={() => remove(current.unavailableIds)}>إزالة هذه المحفوظات</button></div>}
+            <button type="button" className="ghostButton" onClick={() => remove(current.unavailableIds)}>إزالة هذه المحفوظات</button></div>}
           {current.products.length > 0 && <ProductGrid products={current.products} />}
         </>}
     </>}
