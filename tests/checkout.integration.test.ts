@@ -170,6 +170,18 @@ test('real Prisma checkout and HTTP rendering on disposable Postgres', { timeout
       }
     });
 
+    await t.test('dashboard period links and daily table render privately with normalized periods', async () => {
+      const headers = { cookie: `${ADMIN_SESSION_COOKIE}=${token}` };
+      for (const period of ['week', 'month', 'invalid']) {
+        const response = await fetch(`${origin}/admin?period=${period}`, { headers });
+        assert.equal(response.status, 200);
+        const html = await response.text();
+        assert.match(html, /أداء الطلبات/); assert.match(html, /قيمة الطلبات المسلّمة/);
+        assert.match(html, /scope="col"/); assert.match(html, /فترة ملخص الطلبات/);
+        assert.equal((html.match(/<time dateTime="\d{4}-\d{2}-\d{2}"/g) ?? []).length, period === 'week' ? 7 : period === 'month' ? 30 : 1);
+      }
+    });
+
     await t.test('catalog role cannot read orders, exports or prints even with a stale super-admin claim', async () => {
       const headers = { cookie: `${ADMIN_SESSION_COOKIE}=${catalogToken}` };
       for (const path of ['/admin', '/admin/notifications', '/admin/orders', `/admin/orders/${orderId}`, `/admin/orders/${orderId}/invoice`, `/admin/orders/${orderId}/packing-slip`]) {

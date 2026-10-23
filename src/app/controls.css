@@ -102,3 +102,13 @@
 @media (prefers-reduced-motion:no-preference) {
   [data-brand="ishtar"] .cartButton:active { transform:perspective(450px) scale(.92) rotateY(10deg); }
 }
+
+.adminAnalyticsTable { max-width: 100%; overflow-x: auto; margin-top: 20px; border-radius: var(--radius-sm, 8px); }
+.adminAnalyticsTable table { width: 100%; min-width: 540px; }
+.adminAnalyticsTable caption { text-align: start; padding: 12px 0; color: var(--muted); }
+.adminAnalyticsTable th { text-align: start; }
+.adminAnalyticsCount { display: inline-flex; gap: 10px; align-items: center; min-width: 110px; }
+.adminAnalyticsBar { display: inline-block; height: 8px; background: var(--primary, #542b3a); border-radius: 99px; }
+
+.adminAnalyticsTable:focus-visible { outline: 2px solid var(--brand-burgundy, #542b3a); outline-offset: 3px; }
+[aria-label="فترة ملخص الطلبات"] .adminBtn { min-height: 44px; }

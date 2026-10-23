@@ -1,5 +1,15 @@
 # ISHTAR 2.0 — Audit handoff
 
+## B2a — Dashboard periods and stock visibility
+
+Adds today/7-day/30-day order summaries and a zero-filled daily table with proportional decorative bars, keyboard scroll access, Arabic labels and responsive period navigation. Calendar windows use Asia/Hebron dates including 23/25-hour DST days; SQL groups UTC-stored timestamps in that same timezone. All counts use current order status for the creation-date cohort. Noncanceled value excludes canceled orders; delivered value is explicitly not proof of cash collection. Pending delivery-fee counts and explanatory labels disclose incomplete totals. No visitor tracking or invented conversion metrics.
+
+Fixes the dashboard stock query that previously fetched only 100 lowest-quantity variants before applying each variant's threshold. Filtering now happens in SQL before taking six alerts, with full aggregate counts and consistent active variant/product/category scope. Counts no longer fetch all variant rows. Splits confirmed and processing cards so each links to its correct status. Recent orders get a stable ID tiebreaker, and today's queries use an exclusive next-day end.
+
+No schema/config/database/Telegram change or new package. F25 persistent crossing/rearm events and F28 actor audit remain pending; this is a read-only B2 slice, not completion of the entire batch. B1 activation was explicitly approved by the owner but then deferred by the owner until laptop access to Netlify/Supabase; authentication was declined and no live activation occurred. Preserve that deferral.
+
+Validation: dashboard 6/6 (real isolated Prisma/SQL, fixture reconciliation, empty/canceled-only, DST/midnight, and the old 100-row failure); HTTP integration 19/19 includes private dashboard period SSR and role guards; admin safety 4/4; brand 28/28; TypeScript/lint/production build pass. These are server/isolated checks; signed-in interactive/mobile acceptance and production-volume performance remain unverified. Remote CI/deploy results are reported in PR #3 after upload.
+
 ## B1 — Notification reliability and live admin activity
 
 Implemented on the same branch: transactional order event, leased Telegram attempts/retries and safe ambiguous-outcome handling; per-admin read/read-all center; protected compact activity feed and visibility/offline/backoff polling; manual due-attempt processing and optional secret-protected scheduled worker. Files and activation/rollback instructions: [09-NOTIFICATION-ROLLOUT.md](09-NOTIFICATION-ROLLOUT.md).

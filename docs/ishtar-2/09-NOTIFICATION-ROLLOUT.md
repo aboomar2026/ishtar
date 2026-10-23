@@ -52,6 +52,8 @@ The center contains order identifiers and safe status codes, not duplicate conta
 
 ## Verification
 
+Uploaded application head `9f98c6f8b6b0202740943e0cc2bb2cc2eba9f6f6`, tree `dbea6ef8f7ab76cbc85097ee8187c0b7ecccde79`. Netlify Deploy Preview `6adb80a001714c38829c1578` succeeded for that head. [GitHub Actions run 39980725697](https://github.com/aboomar2026/ishtar/actions/runs/39980725697), job `120506992105`, passed admin safety 4/4, notifications 13/13 and all seven independent PostgreSQL race scenarios (8/8 runner tests including parent). Local TypeScript, lint, production build, brand 28/28 and 73 runner tests including parent groups passed. This deployment/CI checkpoint is retained locally for the next batch; PR #3 has the same results, avoiding a documentation-only preview rebuild.
+
 Local targeted tests cover migration repeatability/existing-row preservation, feature-off operation without tables, real order/enqueue atomicity, provider 429/HTTP200-ok:false/migration/missing-config/network/malformed response, retry cap, read isolation, authorization, stale lease/manual acknowledgement, worker-secret gating, polling/backoff/visibility/offline/cleanup/stale responses. Existing HTTP integration now exercises the enabled center/feed and unchanged checkout/print/SEO flows with synthetic data and mocked Telegram.
 
 Conventional PostgreSQL CI additionally runs the additive SQL twice in its random test schema and races independent processes: last-item purchase, checkout replay/conflicting payload, duplicate cancel, cancel/manual-stock ledger, durable-event replay and two dispatcher claims. Actual CI/deploy outcome is recorded in PR #3 after running, not inferred from this plan.
