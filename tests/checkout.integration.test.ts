@@ -130,6 +130,12 @@ test('real Prisma checkout and HTTP rendering on disposable Postgres', { timeout
         assert.equal((await getAdminOrderPage({ page: 999 })).page, 2);
         assert.equal((await getAdminOrderPage({ status: 'DELIVERED' })).total, 0);
       });
+    await prisma.product.createMany({ data: Array.from({ length: 9 }, (_, index) => ({ id: `suggest-${index}`, name: `اقتراح بحث ${index}`, slug: `suggest-${index}`, description: 'Synthetic suggestion', categoryId: 'qa-category', basePrice: 999, status: index === 8 ? 'DRAFT' as const : 'ACTIVE' as const })) });
+    await prisma.productVariant.createMany({ data: [
+      { id: 'suggest-stocked', productId: 'suggest-0', sku: 'SUGGEST-STOCKED', price: 35, quantity: 2 },
+      { id: 'suggest-empty-cheaper', productId: 'suggest-0', sku: 'SUGGEST-EMPTY', price: 1, quantity: 0 },
+      { id: 'suggest-inactive', productId: 'suggest-0', sku: 'SUGGEST-INACTIVE', price: 2, quantity: 50, isActive: false }
+    ] });
     await prisma.$disconnect();
     await db.exec('DEALLOCATE ALL');
     const port = 0;
@@ -152,6 +158,27 @@ test('real Prisma checkout and HTTP rendering on disposable Postgres', { timeout
       const missing = await fetch(`${origin}/product/qa-not-found`);
       assert.match(await missing.text(), /الصفحة غير موجودة|NEXT_HTTP_ERROR_FALLBACK;404/);
     });
+    await t.test('public suggestions are capped, use real available prices and hide unpublished records', async () => {
+      const get = (term: string) => fetch(`${origin}/api/catalog/suggestions?q=${encodeURIComponent(term)}`);
+      const response = await get('اقتراح بحث'); assert.equal(response.status, 200);
+      assert.match(response.headers.get('cache-control') ?? '', /no-store/);
+      const result = await response.json(); assert.equal(result.products.length, 6);
+      assert.ok(result.products.every((p: { id: string }) => p.id !== 'suggest-8'));
+      const exact = (await (await get('اقتراح بحث 0')).json()).products[0];
+      assert.equal(exact.price, 35); assert.equal(exact.available, true);
+      assert.equal((await (await get('اقتراح بحث 8')).json()).products.length, 0);
+      assert.equal((await (await get('%_')).json()).products.length, 0);
+      const unavailable = (await (await get('اقتراح بحث 1')).json()).products[0];
+      assert.equal(unavailable.available, false); assert.equal(unavailable.image, '/mock-products/gift-box.svg');
+      assert.deepEqual(Object.keys(exact).sort(), ['available','id','image','name','price','slug']);
+      assert.equal((await (await get('ع')).json()).products.length, 0);
+      assert.equal((await get('x'.repeat(121))).status, 400);
+      assert.equal((await (await get("%' OR 1=1 --")).json()).products.length, 0);
+      await db.query('UPDATE "Category" SET "isActive"=false WHERE id=$1', ['qa-category']);
+      try { assert.equal((await (await get('اقتراح بحث')).json()).products.length, 0); }
+      finally { await db.query('UPDATE "Category" SET "isActive"=true WHERE id=$1', ['qa-category']); }
+    });
+
     await t.test('homepage keeps overlapping product sections and links to matching collections', async () => {
       const html = await (await fetch(origin + '/')).text();
       assert.equal((html.match(/<article class="productCard /g) ?? []).length, 4);
