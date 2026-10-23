@@ -6,7 +6,7 @@
 .shopHeroCopy h1,.shopHeroCopy h2 { font-family:var(--font-display),serif; font-size:clamp(32px,4.2cqw,60px); line-height:1.35; margin:16px 0; letter-spacing:normal; overflow-wrap:anywhere; }
 .shopHeroCopy p { font-size:16px; line-height:1.9; color:var(--hero-muted); margin:0 0 24px; max-width:42ch; overflow-wrap:anywhere; }
 .shopHeroActions { display:flex; flex-wrap:wrap; align-items:center; gap:16px 20px; }
-.shopHeroButton { display:inline-flex; align-items:center; justify-content:center; gap:20px; min-height:48px; border:1px solid transparent; border-radius:12px; padding:12px 22px; background:#522b3a; color:#fff9f0; font-weight:800; text-decoration:none; transition:transform .2s,box-shadow .2s; }
+.shopHeroButton { display:inline-flex; align-items:center; justify-content:center; gap:20px; line-height:24px; min-height:48px; border:1px solid transparent; border-radius:12px; padding:12px 22px; background:#522b3a; color:#fff9f0; font-weight:800; text-decoration:none; transition:transform .2s,box-shadow .2s; }
 .shopHeroButton > svg { width:24px; height:24px; transition:transform .2s; }
 @media (hover:hover) and (prefers-reduced-motion:no-preference) { .shopHeroButton:hover > svg { transform:translateX(-4px); } }
 .shopHeroSecondary { color:var(--hero-ink); background:transparent; border:1px solid currentColor; font-weight:700; box-shadow:none; }
