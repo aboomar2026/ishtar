@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
   const [catalog, heroSettings] = await Promise.all([getHomeCatalog(), getHeroSettings()]);
-  const heroProducts = [...catalog.newArrivals, ...catalog.featuredProducts].filter((product, index, all) => all.findIndex(other => other.id === product.id) === index).slice(0, 3).map(product => ({ image: product.image, name: product.name, href: `/product/${product.slug}` }));
+  const heroProducts = [...catalog.featuredProducts, ...catalog.newArrivals].filter((product, index, all) => all.findIndex(other => other.id === product.id) === index).slice(0, 8).map(product => ({ image: product.image, name: product.name, href: `/product/${product.slug}` }));
   const promoBanner = catalog.promoBanners[0];
 
   return (

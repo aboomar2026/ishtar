@@ -14,9 +14,10 @@ mockModule('motion/react', {
   useAnimate: () => [createRef(), () => ({ complete() {} })]
 });
 mockModule('../src/components/hero/HeroVisuals', {
-  HeroCopy: () => null, HeroScene: () => null, HeroCampaignSlide: () => null,
+  HeroProductRail: () => null, HeroCopy: () => null, HeroScene: () => null, HeroCampaignSlide: () => null,
   resolveHeroBanner: (banner: unknown) => banner, FALLBACK_BANNER: { title: 'عشتار' }
 });
+mockModule('../src/components/hero/HeroAtmosphere', { HeroAtmosphere: () => null, HeroBenefits: () => null });
 let onVisibility = () => {};
 const doc = { hidden: false, addEventListener: (_: string, fn: () => void) => { onVisibility = fn; }, removeEventListener() {} };
 Object.assign(globalThis, { document: doc, IS_REACT_ACT_ENVIRONMENT: true });
@@ -31,6 +32,11 @@ test('real hero view cycles, resumes from its focused play control and pauses fo
   const root = () => view.root.findByProps({ className: 'shopHeroSwitcher' });
   const play = () => view.root.findAllByType('button').find(node => node.props['aria-pressed'] !== undefined)!;
   assert.match(layout(), /--classic/);
+  const effectsButton = () => view.root.findAllByType('button').find(node => node.children.includes('إيقاف المؤثرات') || node.children.includes('تشغيل المؤثرات'))!;
+  await act(async () => effectsButton().props.onClick());
+  assert.equal(view.root.findAllByType('section')[0].props['data-motion'], 'none');
+  await act(async () => effectsButton().props.onClick());
+  assert.equal(view.root.findAllByType('section')[0].props['data-motion'], 'lively');
   await tick(); assert.match(layout(), /--signature/);
   await act(async () => play().props.onClick());
   await tick(); assert.match(layout(), /--signature/);

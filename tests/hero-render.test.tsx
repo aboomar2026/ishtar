@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import test from 'node:test';
 import { HeroView } from '../src/components/hero/HeroView';
 import HeroCarousel from '../src/components/hero/HeroCarousel';
-import { getHeroContent } from '../src/features/hero/hero-content';
+import { getHeroContent, heroPresentation } from '../src/features/hero/hero-content';
 import { DEFAULT_HERO_SETTINGS } from '../src/features/hero/hero-config';
 import { HeroImage, resolveHeroBanner } from '../src/components/hero/HeroVisuals';
 import type { CatalogBanner } from '../src/features/catalog/catalog.types';
@@ -62,4 +62,31 @@ test('stored template content replaces legacy copy, images, links and trust item
   assert.match(html, /رابط مستقل/);
   const classic = renderToStaticMarkup(createElement(HeroView, { settings: { ...settings, layout: 'classic' }, banners, products: [] }));
   assert.doesNotMatch(classic, /عنوان مستقل|signature-mobile.jpg|عبارة مستقلة/);
+});
+
+test('a single banner produces real product slides with navigation and independent product links', () => {
+  const products = [1, 2, 3, 4].map(id => ({ name: `منتج ${id}`, image: `/product-${id}.jpg`, href: `/product/product-${id}` }));
+  const presentation = heroPresentation(DEFAULT_HERO_SETTINGS, 'campaign', [banners[0]], products);
+  assert.equal(presentation.banners.length, 4);
+  assert.equal(presentation.banners[0].title, getHeroContent(DEFAULT_HERO_SETTINGS, 'campaign', [banners[0]], products).banners[0].title);
+  assert.deepEqual(presentation.banners.slice(1).map(banner => banner.href), products.slice(0, 3).map(product => product.href));
+  const html = renderToStaticMarkup(createElement(HeroCarousel, { ...presentation, products }));
+  assert.match(html, /الحملة التالية/);
+  assert.match(html, /إيقاف التنقل التلقائي/);
+  assert.match(html, /href="\/product\/product-1"/);
+  assert.equal((html.match(/<h1/g) ?? []).length, 1);
+  const disabled = heroPresentation({ ...DEFAULT_HERO_SETTINGS, productSlides: false }, 'campaign', [banners[0]], products);
+  assert.equal(disabled.banners.length, 1);
+  const duplicates = heroPresentation(DEFAULT_HERO_SETTINGS, 'campaign', [banners[0]], [products[0], products[0]]);
+  assert.equal(duplicates.banners.length, 2);
+});
+
+test('hero atmosphere is decorative and product discovery links exist without hydration', () => {
+  const products = [1, 2].map(id => ({ name: `منتج ${id}`, image: `/product-${id}.jpg`, href: `/product/product-${id}` }));
+  const html = renderToStaticMarkup(createElement(HeroView, { settings: DEFAULT_HERO_SETTINGS, banners, products }));
+  assert.match(html, /shopHeroAtmosphere[^>]*aria-hidden="true"/);
+  assert.match(html, /ACCESSORIES/);
+  assert.match(html, /href="\/product\/product-2"/);
+  assert.match(html, /الدفع عند الاستلام/);
+  assert.doesNotMatch(html.replace(/<[^>]*>/g, ''), /توصيل مجاني|5\.0|عملاء سعداء/);
 });

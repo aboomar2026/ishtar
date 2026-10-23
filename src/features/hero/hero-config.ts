@@ -32,8 +32,9 @@ export const heroSettingsSchema = z.object({
   mode: z.enum(['fixed', 'rotate']).default('rotate'),
   profiles: z.object({ classic: heroContentSchema.optional(), signature: heroContentSchema.optional(), campaign: heroContentSchema.optional() }).default({}),
   copySource: z.enum(['brand', 'banners']).default('brand'),
-  motion: z.enum(['calm', 'lively', 'none']).default('calm'),
+  motion: z.enum(['calm', 'lively', 'none']).default('lively'),
   transition: z.enum(['slide', 'fade']).default('slide'),
+  productSlides: z.boolean().default(true),
   autoplay: z.boolean().default(true),
   interval: z.number().int().min(5).max(12).default(5),
   media: z.record(z.string().max(200), z.object({

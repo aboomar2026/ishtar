@@ -38,10 +38,6 @@
 .shopHero--campaign { display:block; padding:0; min-height:0; }
 .shopHeroCampaignSlide { display:grid; grid-template-columns:1fr 1fr; min-height:420px; }
 .shopHeroCampaignSlide .shopHeroCopy { padding:36px; }
-.shopHeroCampaignImage { position:relative; min-height:420px; min-width:0; overflow:hidden; display:block; background:#ead8c6; }
-.shopHeroImageMotion { position:absolute; inset:0; }
-.shopHeroCampaignImage picture { position:absolute; inset:0; height:100%; }
-.shopHeroCampaignImage img { object-fit:cover; }
 .shopHeroViewport { overflow:hidden; }
 .shopHeroTrack { display:flex; align-items:flex-start; touch-action:pan-y pinch-zoom; }
 .shopHeroSlide { flex:0 0 100%; min-width:0; display:flex; }
@@ -89,7 +85,6 @@
   .shopHero--signature .shopHeroTitleAccent { text-underline-offset:8px; }
   .shopHero--campaign { padding:0; }
   .shopHeroCampaignSlide { grid-template-columns:1fr; grid-template-rows:240px 1fr; min-height:0; }
-  .shopHeroCampaignImage { grid-row:1; height:240px; min-height:0; }
   .shopHeroCampaignSlide .shopHeroCopy { padding:22px 20px; min-height:275px; }
   .shopHeroCampaignSlide .shopHeroTags { display:none; }
   .shopHeroNavigation { gap:4px; min-height:112px; padding:9px 8px 56px; }
@@ -139,3 +134,87 @@
 .shopHeroTemplateControls small { flex-basis:100%; text-align:center; }
 
 .shopHeroTemplateControls button { display:inline-flex; align-items:center; justify-content:center; gap:8px; }
+
+/* A layered accessories scene; ornament stays behind readable copy and controls. */
+.shopHero > .shopHeroCopy,.shopHero > .shopHeroScene,.shopHeroCarousel { position:relative; z-index:1; }
+.shopHeroAtmosphere { position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0; color:var(--hero-gold); }
+.shopHeroBackdropWord { position:absolute; bottom:14%; left:-2%; font:900 clamp(65px,12cqw,180px)/1 sans-serif; letter-spacing:.025em; color:transparent; -webkit-text-stroke:1px var(--hero-gold); opacity:.13; rotate:-8deg; white-space:nowrap; }
+.shopHeroGlow { position:absolute; width:72%; height:85%; inset:0 auto auto -10%; border-radius:50%; background:radial-gradient(ellipse,#d3b17128,transparent 65%); }
+.shopHeroOrbit { position:absolute; width:60%; aspect-ratio:1; inset-block-start:-35%; inset-inline-end:-20%; border:1px solid #b78b5030; border-radius:50%; box-shadow:0 0 0 35px #b78b5009,0 0 0 70px #b78b5006; }
+.shopHeroSymbol { position:absolute; display:block; opacity:.24; }
+.shopHeroSymbol--0 { top:5%; left:42%; }
+.shopHeroSymbol--1 { top:7%; right:4%; opacity:.12; }
+.shopHeroSymbol--2 { bottom:28%; right:3%; opacity:.35; }
+.shopHeroSymbol--3 { bottom:31%; left:4%; }
+.shopHeroSymbol--4 { top:6%; left:3%; opacity:.5; }
+.shopHeroSymbol--5 { top:38%; left:47%; opacity:.16; }
+.shopHeroGlint { position:absolute; width:9px; height:9px; border-radius:2px; background:var(--hero-gold); rotate:45deg; }
+.shopHeroGlint--0 { left:37%; top:16%; }
+.shopHeroGlint--1 { right:8%; top:43%; width:5px; height:5px; }
+.shopHeroGlint--2 { left:8%; bottom:30%; width:6px; height:6px; }
+.shopHeroSceneStamp { position:absolute; bottom:12px; inset-inline-start:10%; z-index:3; display:flex; align-items:center; gap:6px; background:#522b3a; color:#fff4df; border:1px solid #d2b47b; box-shadow:0 8px 18px #522b3a20; padding:10px 13px; border-radius:30px; font-size:10px; letter-spacing:.08em; rotate:5deg; }
+.shopHeroSceneSpark { position:absolute; top:10%; inset-inline-end:2%; color:var(--hero-gold); z-index:3; rotate:14deg; pointer-events:none; }
+.shopHeroHalo { background:radial-gradient(ellipse,#d3b17118,transparent 70%); }
+.shopHero--signature .shopHeroBackdropWord { opacity:.2; }
+.shopHero--signature .shopHeroSymbol { opacity:.3; }
+.shopHero--signature .shopHeroSceneStamp { background:#fff1df; color:#522b3a; }
+.shopHero--campaign { background:#f6ece2; }
+.shopHeroCampaignSlide { position:relative; min-height:440px; }
+.shopHeroCampaignSlide .shopHeroCopy { text-align:start; }
+.shopHeroCampaignArtwork { min-width:0; padding:20px 20px 10px; background:radial-gradient(ellipse at 50% 40%,#e5c3b1aa,transparent 68%); }
+.shopHeroCampaignArtwork .shopHeroScene { height:400px; min-height:400px; }
+.shopHeroCampaignArtwork .shopHeroMainMotion { width:72%; height:345px; top:24px; }
+.shopHeroCampaignArtwork .shopHeroProductMain { border-radius:80px 30px 65px 30px; border:4px solid #fff5e9; }
+.shopHeroSlide--1 { background:radial-gradient(ellipse at 80% 0,#e6cfc044,transparent 70%); }
+.shopHeroSlide--2 { background:radial-gradient(ellipse at 80% 0,#e3d6e955,transparent 70%); }
+.shopHeroBenefits { position:relative; z-index:1; grid-column:1/-1; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); list-style:none; margin:0; padding:16px 0 0; border-top:1px solid #bd9a7d40; gap:14px; }
+.shopHeroBenefits li { display:flex; align-items:center; justify-content:center; gap:10px; min-width:0; }
+.shopHeroBenefits li > span { display:grid; place-items:center; flex-shrink:0; width:42px; height:42px; border-radius:14px; background:#fff4e8a0; color:#8e6538; }
+.shopHeroBenefits strong,.shopHeroBenefits small { display:block; }
+.shopHeroBenefits strong { font-size:12px; color:var(--hero-ink); }
+.shopHeroBenefits small { margin-top:4px; font-size:10px; color:var(--hero-muted); }
+.shopHero--signature .shopHeroBenefits li > span { background:#fff4e818; color:#e2c88c; }
+.shopHeroProductRail { position:relative; z-index:1; grid-column:1/-1; min-width:0; padding-top:10px; }
+.shopHeroRailLabel { display:flex; align-items:center; gap:6px; font-size:12px; font-weight:700; color:var(--hero-ink); margin-bottom:10px; }
+.shopHeroProductRail > div { display:flex; gap:10px; overflow-x:auto; padding:3px 3px 10px; scrollbar-width:thin; scrollbar-color:#b8977e transparent; }
+.shopHeroRailCard { flex:1 0 180px; min-width:0; display:flex; align-items:center; gap:10px; text-decoration:none; padding:6px 9px; border:1px solid #b99b7d40; border-radius:16px; background:#fffaf18c; color:#522b3a; transition:background .2s,box-shadow .2s; }
+.shopHeroRailCard > span:nth-child(2) { min-width:0; flex:1; font-size:11px; font-weight:700; line-height:1.6; }
+.shopHeroRailImage { position:relative; flex:0 0 48px; width:48px; height:52px; overflow:hidden; border-radius:11px; background:#fff; }
+.shopHeroRailImage picture { position:absolute; inset:0; }
+.shopHero--signature .shopHeroRailCard { background:#fff5e710; color:#fff4df; border-color:#e2c88c40; }
+.shopHero--campaign .shopHeroProductRail { padding:18px 26px 6px; }
+.shopHero--campaign .shopHeroBenefits { margin:0 26px 20px; }
+@media (hover:hover) and (prefers-reduced-motion:no-preference) {
+  .shopHeroRailCard:hover { background:#f4e5d0; box-shadow:0 5px 16px #522b3a14; }
+  .shopHero--signature .shopHeroRailCard:hover { background:#fff5e725; }
+}
+@container (max-width:700px) {
+  .shopHeroSymbol--0 { left:3%; top:4%; }
+  .shopHeroSymbol--1 { right:3%; top:29%; }
+  .shopHeroSymbol--2 { right:3%; bottom:26%; }
+  .shopHeroSymbol--3 { display:none; }
+  .shopHeroSymbol--4 { left:4%; top:31%; }
+  .shopHeroSymbol--5 { display:none; }
+  .shopHeroBackdropWord { bottom:24%; font-size:80px; }
+  .shopHeroScene { margin-block:18px 8px; }
+  .shopHeroSceneStamp { bottom:0; padding:8px 10px; font-size:8px; }
+  .shopHeroSceneSpark { top:10%; inset-inline-end:0; }
+  .shopHeroSceneSpark svg { width:30px; height:30px; }
+  .shopHeroCampaignSlide { grid-template-rows:310px auto; min-height:0; }
+  .shopHeroCampaignSlide .shopHeroCopy { padding:18px 22px 24px; min-height:0; text-align:center; }
+  .shopHeroCampaignArtwork { grid-row:1; padding:8px 14px 0; }
+  .shopHeroCampaignArtwork .shopHeroScene { height:292px; min-height:292px; margin:0; }
+  .shopHeroCampaignArtwork .shopHeroMainMotion { height:255px; width:76%; inset-inline-start:12%; top:14px; }
+  .shopHeroCampaignArtwork .shopHeroProductMain { border-width:3px; border-radius:55px 22px 45px 22px; }
+  .shopHeroBenefits { padding-top:14px; gap:8px; }
+  .shopHeroBenefits li { flex-direction:column; text-align:center; gap:6px; }
+  .shopHeroBenefits li > span { width:34px; height:34px; border-radius:11px; }
+  .shopHeroBenefits li > span svg { width:21px; height:21px; }
+  .shopHeroBenefits strong { font-size:10px; line-height:1.6; }
+  .shopHeroBenefits small { font-size:9px; line-height:1.6; }
+  .shopHeroProductRail { padding-top:4px; }
+  .shopHeroRailCard { flex-basis:160px; }
+  .shopHeroRailImage { flex-basis:42px; width:42px; height:46px; }
+  .shopHero--campaign .shopHeroProductRail { padding:14px 18px 4px; }
+  .shopHero--campaign .shopHeroBenefits { margin:0 18px 18px; }
+}

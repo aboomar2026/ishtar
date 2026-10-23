@@ -26,9 +26,18 @@ export function getHeroContent(settings: HeroSettings, layout: HeroLayout, banne
 }
 export function heroPresentation(settings: HeroSettings, layout: HeroLayout, banners: CatalogBanner[], products: Product[]) {
   const content = getHeroContent(settings, layout, banners, products);
-  const resolvedBanners: CatalogBanner[] = content.banners.map((banner, index) => ({ ...banner, id: `hero-${layout}-${index}`, placement: 'HOME_HERO' }));
+  const slides = [...content.banners];
+  // A single campaign banner must still become a useful slider when real products exist.
+  if (layout === 'campaign' && settings.productSlides) {
+    for (const product of products) {
+      if (slides.length >= 4) break;
+      if (!product.image || !product.href.startsWith('/product/') || slides.some(slide => slide.imageUrl === product.image || slide.href === product.href)) continue;
+      slides.push({ title: product.name, subtitle: 'تفاصيل مختارة لتكمّل إطلالتك. اكتشفي المنتج واختاري ما يناسبك.', eyebrow: 'ISHTAR · PRODUCT SPOTLIGHT', ctaLabel: 'اكتشفي المنتج', href: product.href, imageUrl: product.image, mobileImageUrl: '', focus: 'center' });
+    }
+  }
+  const resolvedBanners: CatalogBanner[] = slides.map((banner, index) => ({ ...banner, id: `hero-${layout}-${index}`, placement: 'HOME_HERO' }));
   return {
     content, banners: resolvedBanners, products: content.products,
-    settings: { ...settings, layout, copySource: 'banners' as const, media: Object.fromEntries(content.banners.map((banner, index) => [`hero-${layout}-${index}`, { mobileImageUrl: banner.mobileImageUrl, focus: banner.focus }])) }
+    settings: { ...settings, layout, copySource: 'banners' as const, media: Object.fromEntries(slides.map((banner, index) => [`hero-${layout}-${index}`, { mobileImageUrl: banner.mobileImageUrl, focus: banner.focus }])) }
   };
 }
