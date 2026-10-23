@@ -9,6 +9,7 @@ export default function HeroCarousel({ banners, settings, products }: HeroProps)
   const reduceMotion = useReducedMotion();
   const [emblaRef, api] = useEmblaCarousel({ direction: 'rtl', loop: banners.length > 1, duration: settings.motion === 'none' || reduceMotion ? 0 : 30 }, settings.transition === 'fade' ? [Fade()] : []);
   const [selected, setSelected] = useState(0);
+  const [viewportHeight, setViewportHeight] = useState<number>();
   const [playing, setPlaying] = useState(settings.autoplay);
   const [hovered, setHovered] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -29,6 +30,15 @@ export default function HeroCarousel({ banners, settings, products }: HeroProps)
     document.addEventListener('visibilitychange', sync);
     return () => { observer.disconnect(); document.removeEventListener('visibilitychange', sync); };
   }, []);
+  useEffect(() => {
+    if (!api) return;
+    const slide = root.current?.querySelectorAll<HTMLElement>('.shopHeroSlide')[selected];
+    if (!slide) return;
+    // Observe only the active slide: long campaign copy must not leave blank space in every other slide.
+    const observer = new ResizeObserver(() => setViewportHeight(Math.ceil(slide.getBoundingClientRect().height)));
+    observer.observe(slide);
+    return () => observer.disconnect();
+  }, [api, selected, banners.length]);
   const advancing = !!api && playing && !hovered && visible && reduceMotion === false && banners.length > 1;
   useEffect(() => {
     if (!advancing || !api) return;
@@ -48,13 +58,13 @@ export default function HeroCarousel({ banners, settings, products }: HeroProps)
       <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">{playing && !reduceMotion ? <><rect x="6" y="4" width="4" height="16" rx="1" /><rect x="14" y="4" width="4" height="16" rx="1" /></> : <path d="M7 4v16l13-8z" />}</svg>
       <span>{playing && !reduceMotion ? 'إيقاف مؤقت' : 'تشغيل تلقائي'}</span>
     </motion.button>}
-    <div className="shopHeroViewport" ref={emblaRef} onPointerEnter={event => { if (event.pointerType === 'mouse') setHovered(true); }} onPointerLeave={() => setHovered(false)}>
+    <motion.div className="shopHeroViewport" ref={emblaRef} initial={false} animate={viewportHeight ? { height: viewportHeight } : undefined} transition={{ duration: reduceMotion || settings.motion === 'none' ? 0 : .4, ease: [.22, 1, .36, 1] }} onPointerEnter={event => { if (event.pointerType === 'mouse') setHovered(true); }} onPointerLeave={() => setHovered(false)}>
       <div className="shopHeroTrack" aria-live={playing ? 'off' : 'polite'}>
         {banners.map((banner, index) => <div className="shopHeroSlide" key={banner.id} inert={index !== selected} aria-hidden={index !== selected} role="group" aria-roledescription="شريحة" aria-label={`${index + 1} من ${banners.length}`}>
           <HeroCampaignSlide banner={banner} settings={settings} first={index === 0} active={index === selected} fallbackImage={products[0]?.image} />
         </div>)}
       </div>
-    </div>
+    </motion.div>
     {banners.length > 1 && <div className="shopHeroNavigation">
       {settings.motion !== 'none' && !reduceMotion && <div className="shopHeroProgress" aria-hidden="true"><motion.span key={`${selected}-${advancing}`} initial={{ scaleX: 0 }} animate={{ scaleX: advancing ? 1 : 0 }} transition={{ duration: advancing ? settings.interval : 0, ease: 'linear' }} /></div>}
       <button type="button" className="shopHeroArrow" aria-label="الحملة السابقة" onClick={() => { setPlaying(false); api?.scrollPrev(); }}><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="m9 5 7 7-7 7" /></svg></button>

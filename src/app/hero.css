@@ -41,7 +41,7 @@
 .shopHeroCampaignImage picture { position:absolute; inset:0; height:100%; }
 .shopHeroCampaignImage img { object-fit:cover; }
 .shopHeroViewport { overflow:hidden; }
-.shopHeroTrack { display:flex; touch-action:pan-y pinch-zoom; }
+.shopHeroTrack { display:flex; align-items:flex-start; touch-action:pan-y pinch-zoom; }
 .shopHeroSlide { flex:0 0 100%; min-width:0; display:flex; }
 .shopHeroSlide > .shopHeroCampaignSlide { flex:1; }
 .shopHeroCarousel { position:relative; }
