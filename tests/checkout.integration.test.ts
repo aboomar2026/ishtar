@@ -108,6 +108,24 @@ test('real Prisma checkout and HTTP rendering on disposable Postgres', { timeout
       assert.equal(await authenticateAdmin(admin.email, 'wrong-test-password'), null);
       const payload = await authenticateAdmin(admin.email, password); assert.ok(payload);
       const token = createSessionToken(payload);
+      const catalogAdmin = await prisma.adminUser.create({ data: { name: 'كتالوج اختبار', email: 'catalog@example.invalid', passwordHash: await hashPassword(randomUUID()), role: 'CATALOG_MANAGER' } });
+      // A valid old super-admin token must not beat a newly restricted DB role.
+      const catalogToken = createSessionToken({ id: catalogAdmin.id, email: catalogAdmin.email, role: 'SUPER_ADMIN' });
+      await prisma.order.createMany({ data: Array.from({ length: 55 }, (_, index) => ({
+        id: `page-order-${String(index).padStart(3, '0')}`, orderNumber: `PAGE-${index}`,
+        customerName: 'زبونة اختبار صفحات', customerPhone: '0590000000', city: 'مدينة اختبار', area: 'اختبار', address: 'عنوان مصطنع',
+        subtotal: 1, total: 1, createdAt: new Date('2000-01-01T00:00:00Z')
+      })) });
+      const { getAdminOrderPage } = await import('../src/features/admin/orders/order-admin.queries');
+      const firstPage = await getAdminOrderPage({ page: 1 });
+      const secondPage = await getAdminOrderPage({ page: 2 });
+      await t.test('admin order pages are bounded, stable across tied dates and include all matching rows', async () => {
+        assert.equal(firstPage.total, 56); assert.equal(firstPage.orders.length, 50);
+        assert.equal(secondPage.orders.length, 6); assert.equal(secondPage.pageCount, 2);
+        assert.equal(new Set([...firstPage.orders, ...secondPage.orders].map(order => order.id)).size, 56);
+        assert.equal((await getAdminOrderPage({ page: 999 })).page, 2);
+        assert.equal((await getAdminOrderPage({ status: 'DELIVERED' })).total, 0);
+      });
     await prisma.$disconnect();
     await db.exec('DEALLOCATE ALL');
     const port = 0;
@@ -146,6 +164,34 @@ test('real Prisma checkout and HTTP rendering on disposable Postgres', { timeout
         const response = await fetch(origin + path, { headers: { cookie: `${ADMIN_SESSION_COOKIE}=${token}` }, redirect: 'manual' });
         assert.equal(response.status, 200, `${path}: ${output.slice(-800)}`);
       }
+    });
+
+    await t.test('catalog role cannot read orders, exports or prints even with a stale super-admin claim', async () => {
+      const headers = { cookie: `${ADMIN_SESSION_COOKIE}=${catalogToken}` };
+      for (const path of ['/admin', '/admin/orders', `/admin/orders/${orderId}`, `/admin/orders/${orderId}/invoice`, `/admin/orders/${orderId}/packing-slip`]) {
+        const response = await fetch(origin + path, { headers, redirect: 'manual' });
+        assert.equal(response.status, 307, path);
+        assert.equal(response.headers.get('location'), '/admin/products', path);
+        assert.doesNotMatch(await response.text(), /عميلة اختبار معزولة/);
+      }
+      assert.equal((await fetch(origin + '/admin/orders/export', { headers })).status, 403);
+      assert.equal((await fetch(origin + '/admin/orders/export')).status, 401);
+      for (const path of ['/admin/products', '/admin/categories', '/admin/inventory', '/admin/banners']) {
+        const response = await fetch(origin + path, { headers, redirect: 'manual' });
+        assert.equal(response.status, 200, path);
+        assert.doesNotMatch(await response.text(), /href="\/admin\/orders"/);
+      }
+    });
+    await t.test('order pagination renders links with filters and accepts invalid URL enum values safely', async () => {
+      const headers = { cookie: `${ADMIN_SESSION_COOKIE}=${token}` };
+      const first = await fetch(origin + '/admin/orders?status=PENDING', { headers });
+      assert.match(await first.text(), /status=PENDING&amp;page=2/);
+      const second = await fetch(origin + '/admin/orders?status=PENDING&page=2', { headers });
+      const html = await second.text();
+      assert.match(html, new RegExp(secondPage.orders[0].orderNumber));
+      assert.doesNotMatch(html, new RegExp(orderNumber));
+      assert.equal((await fetch(origin + '/admin/orders?status=invalid&delivery=invalid&page=NaN', { headers })).status, 200);
+      assert.equal((await fetch(origin + '/admin/orders/export?status=invalid', { headers })).status, 200);
     });
 
     await t.test('invoice draft, confirmed invoice and packing slip render 50 synthetic rows', async () => {

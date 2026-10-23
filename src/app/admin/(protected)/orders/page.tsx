@@ -1,7 +1,8 @@
+import { requireOrderAdmin } from '@/features/admin/auth/admin-auth';
 import { IconSearch, IconReceipt } from '@/components/Icons';
 import Link from 'next/link';
 import type { DeliveryFeeStatus, OrderStatus } from '@prisma/client';
-import { getAdminOrders, type AdminOrderDateFilter, type AdminDeliveryFeeFilter } from '@/features/admin/orders/order-admin.queries';
+import { getAdminOrderPage, type AdminOrderDateFilter, type AdminDeliveryFeeFilter } from '@/features/admin/orders/order-admin.queries';
 import { formatCurrency, formatDateTime } from '@/features/admin/shared/admin-format';
 import { OrderFilters } from '@/components/admin/OrderFilters';
 import { OrderStatusBadge } from '@/components/admin/OrderStatusBadge';
@@ -10,15 +11,17 @@ import { DELIVERY_FEE_STATUS_LABEL_AR } from '@/features/orders/delivery-fee.lab
 
 export const dynamic = 'force-dynamic';
 
-type SearchParams = Promise<{ q?: string; status?: string; date?: string; delivery?: string }>;
+type SearchParams = Promise<{ q?: string; status?: string; date?: string; delivery?: string; page?: string }>;
 
 export default async function AdminOrdersPage({ searchParams }: { searchParams: SearchParams }) {
+  await requireOrderAdmin();
   const sp = await searchParams;
-  const orders = await getAdminOrders({
+  const { orders, total, page, pageCount } = await getAdminOrderPage({
     q: sp.q,
     status: (sp.status as OrderStatus | 'ALL') ?? 'ALL',
     date: (sp.date as AdminOrderDateFilter) ?? 'all',
-    delivery: (sp.delivery as AdminDeliveryFeeFilter) ?? 'ALL'
+    delivery: (sp.delivery as AdminDeliveryFeeFilter) ?? 'ALL',
+    page: Number(sp.page)
   });
 
   const exportQuery = new URLSearchParams();
@@ -27,6 +30,12 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
   if (sp.date) exportQuery.set('date', sp.date);
   if (sp.delivery) exportQuery.set('delivery', sp.delivery);
   const exportHref = `/admin/orders/export${exportQuery.toString() ? `?${exportQuery.toString()}` : ''}`;
+
+  function pageHref(value: number) {
+    const params = new URLSearchParams(exportQuery);
+    params.set('page', String(value));
+    return `/admin/orders?${params.toString()}`;
+  }
 
   const hasFilters = Boolean(sp.q || (sp.status && sp.status !== 'ALL') || (sp.date && sp.date !== 'all') || (sp.delivery && sp.delivery !== 'ALL'));
 
@@ -45,12 +54,18 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
       <div className="adminPageHeader">
         <div>
           <h1>الطلبات</h1>
-          <p className="adminMuted">عرض {orders.length} طلب · الدفع عند الاستلام فقط · التوصيل يحدد من الأدمن.</p>
+          <p className="adminMuted">عرض {orders.length} من {total} طلب · الدفع عند الاستلام فقط · التوصيل يحدد من الأدمن.</p>
         </div>
         <a href={exportHref} className="adminBtn adminBtnGhost" download>⬇ تصدير CSV</a>
       </div>
 
       <OrderFilters />
+
+      {pageCount > 1 && <nav className="adminBtnRow" aria-label="صفحات الطلبات">
+        {page > 1 && <Link className="adminBtn adminBtnGhost" href={pageHref(page - 1)}>الصفحة السابقة</Link>}
+        <span className="adminMuted" aria-live="polite">الصفحة {page} من {pageCount}</span>
+        {page < pageCount && <Link className="adminBtn adminBtnGhost" href={pageHref(page + 1)}>الصفحة التالية</Link>}
+      </nav>}
 
       {orders.length === 0 ? (
         hasFilters ? (

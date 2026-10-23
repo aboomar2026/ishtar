@@ -1,3 +1,4 @@
+import { requireOrderAdmin } from '@/features/admin/auth/admin-auth';
 import { IconArrowRight, IconArrowLeft } from '@/components/Icons';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -14,6 +15,7 @@ import { OrderWorkflowChecklist } from '@/components/admin/OrderWorkflowChecklis
 export const dynamic = 'force-dynamic';
 
 export default async function AdminOrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  await requireOrderAdmin();
   const { id } = await params;
   const order = await getAdminOrderById(id);
   if (!order) notFound();

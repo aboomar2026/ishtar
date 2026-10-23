@@ -49,6 +49,12 @@ test('real hero view cycles, resumes from its focused play control and pauses fo
   await act(async () => root().props.onFocusCapture({ target: { closest: () => null } }));
   await tick(); assert.match(layout(), /--classic/);
   await act(async () => root().props.onBlurCapture({ currentTarget: { contains: () => false }, relatedTarget: null }));
+  await tick(); assert.match(layout(), /--classic/);
+  assert.equal(play().props['aria-pressed'], false, 'content blur must not restart rotation');
+  await act(async () => {
+    root().props.onFocusCapture({ target: { closest: () => ({}) } });
+    play().props.onClick();
+  });
   await tick(); assert.match(layout(), /--signature/);
   await act(async () => { doc.hidden = true; onVisibility(); });
   await tick(); assert.match(layout(), /--signature/);

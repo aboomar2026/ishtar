@@ -1,3 +1,4 @@
+import { requireOrderAdmin } from '@/features/admin/auth/admin-auth';
 import { IconReceipt, IconTruck, IconPlus, IconPackage, IconBag, IconImages } from '@/components/Icons';
 import Link from 'next/link';
 import { getDashboardOverview } from '@/features/admin/dashboard/dashboard.queries';
@@ -29,6 +30,7 @@ function StatCard({ stat }: { stat: Stat }) {
 }
 
 export default async function AdminDashboardPage() {
+  await requireOrderAdmin();
   const overview = await getDashboardOverview();
 
   const priorityStats: Stat[] = [

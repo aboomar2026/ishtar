@@ -8,6 +8,7 @@ import { usePathname } from 'next/navigation';
 import { logoutAction } from '@/features/admin/auth/admin-actions';
 import { BrandLogo } from '@/components/BrandLogo';
 import { brand } from '@/lib/brand';
+import { hasAdminPermission } from '@/features/admin/auth/admin-permissions';
 
 type NavItem = { href: string; label: string; icon: React.ReactNode; exact?: boolean };
 
@@ -25,11 +26,11 @@ function isActive(pathname: string, item: NavItem): boolean {
   return pathname === item.href || pathname.startsWith(`${item.href}/`);
 }
 
-function NavLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
+function NavLinks({ pathname, role, onNavigate }: { pathname: string; role: string; onNavigate?: () => void }) {
   return (
     <nav className="adminNav">
       <span className="adminNavLabel">الكتالوج</span>
-      {NAV.map((item) => (
+      {NAV.filter(item => hasAdminPermission(role, 'orders') || (item.href !== '/admin' && item.href !== '/admin/orders')).map((item) => (
         <Link key={item.href} href={item.href} className={isActive(pathname, item) ? 'active' : ''} aria-current={isActive(pathname, item) ? "page" : undefined} onClick={onNavigate}>
           {item.icon}
           <span>{item.label}</span>
@@ -63,7 +64,7 @@ export function AdminShell({
         <div className="adminSidebarBrand">
           <BrandLogo variant="sidebar" subtitle="لوحة الإدارة" />
         </div>
-        <NavLinks pathname={pathname} />
+        <NavLinks pathname={pathname} role={admin.role} />
       </aside>
 
       <div className="adminMainCol">
@@ -97,7 +98,7 @@ export function AdminShell({
               <BrandLogo variant="sidebar" subtitle={admin.name} />
             </div>
             <button type="button" className="adminBtn adminBtnGhost" onClick={() => setDrawerOpen(false)}>إغلاق القائمة</button>
-            <NavLinks pathname={pathname} onNavigate={() => setDrawerOpen(false)} />
+            <NavLinks pathname={pathname} role={admin.role} onNavigate={() => setDrawerOpen(false)} />
             <form action={logoutAction} style={{ marginTop: 14 }}>
               <button type="submit" className="adminBtn adminBtnGhost adminBtnFull">تسجيل الخروج</button>
             </form>

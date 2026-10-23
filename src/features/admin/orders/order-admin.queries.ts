@@ -6,15 +6,8 @@ import { normalizePhone } from '@/features/orders/order.validation';
 import { decimalToNumber, mapOrderItem } from '@/features/orders/order.mappers';
 import type { OrderItemView } from '@/features/orders/order.types';
 
-export type AdminOrderDateFilter = 'all' | 'today' | '7d';
-export type AdminDeliveryFeeFilter = 'ALL' | DeliveryFeeStatus;
-
-export type AdminOrderListParams = {
-  q?: string;
-  status?: OrderStatus | 'ALL';
-  date?: AdminOrderDateFilter;
-  delivery?: AdminDeliveryFeeFilter;
-};
+import { ADMIN_ORDER_PAGE_SIZE, normalizeAdminOrderParams, type AdminOrderListParams } from './order-list-params';
+export type { AdminOrderListParams, AdminOrderDateFilter, AdminDeliveryFeeFilter } from './order-list-params';
 
 export type AdminOrderListItem = {
   id: string;
@@ -38,7 +31,7 @@ function startOfToday(): Date {
 }
 
 function buildOrderWhere(params: AdminOrderListParams): Prisma.OrderWhereInput {
-  const { q, status = 'ALL', date = 'all', delivery = 'ALL' } = params;
+  const { q, status, date, delivery } = normalizeAdminOrderParams(params);
   const where: Prisma.OrderWhereInput = {};
   if (status !== 'ALL') where.status = status;
   if (delivery !== 'ALL') where.deliveryFeeStatus = delivery;
@@ -64,14 +57,20 @@ function buildOrderWhere(params: AdminOrderListParams): Prisma.OrderWhereInput {
   return where;
 }
 
-export async function getAdminOrders(params: AdminOrderListParams = {}): Promise<AdminOrderListItem[]> {
+export async function getAdminOrderPage(params: AdminOrderListParams = {}) {
+  const where = buildOrderWhere(params);
+  const total = await prisma.order.count({ where });
+  const pageCount = Math.max(1, Math.ceil(total / ADMIN_ORDER_PAGE_SIZE));
+  const page = Math.min(normalizeAdminOrderParams(params).page, pageCount);
   const orders = await prisma.order.findMany({
-    where: buildOrderWhere(params),
-    orderBy: { createdAt: 'desc' },
+    where,
+    orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    take: ADMIN_ORDER_PAGE_SIZE,
+    skip: (page - 1) * ADMIN_ORDER_PAGE_SIZE,
     include: { _count: { select: { items: true } } }
   });
 
-  return orders.map((order) => ({
+  const rows: AdminOrderListItem[] = orders.map((order) => ({
     id: order.id,
     orderNumber: order.orderNumber,
     customerName: order.customerName,
@@ -87,6 +86,12 @@ export async function getAdminOrders(params: AdminOrderListParams = {}): Promise
     total: decimalToNumber(order.total),
     createdAt: order.createdAt
   }));
+  return { orders: rows, total, page, pageCount };
+}
+
+/** Bounded convenience query; full CSV export has its own explicit path. */
+export async function getAdminOrders(params: AdminOrderListParams = {}): Promise<AdminOrderListItem[]> {
+  return (await getAdminOrderPage(params)).orders;
 }
 
 export type OrderExportRow = {

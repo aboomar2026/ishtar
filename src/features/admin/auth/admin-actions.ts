@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { authenticateAdmin, clearAdminSessionCookie, setAdminSessionCookie } from './admin-auth';
+import { adminLandingPath } from './admin-permissions';
 
 export type LoginState = { error?: string };
 
@@ -25,7 +26,7 @@ export async function loginAction(_prevState: LoginState, formData: FormData): P
     data: { lastLoginAt: new Date() }
   });
 
-  redirect('/admin');
+  redirect(adminLandingPath(payload.role));
 }
 
 export async function logoutAction(): Promise<void> {

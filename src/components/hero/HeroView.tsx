@@ -45,7 +45,12 @@ export function HeroView(props: HeroProps) {
     observer.observe(body.current);
     return () => observer.disconnect();
   }, [rotating, selected]);
-  return <div ref={root} className="shopHeroSwitcher" onFocusCapture={event => setFocused(!(event.target as HTMLElement).closest('[data-template-control]'))} onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setFocused(false); }}>
+  return <div ref={root} className="shopHeroSwitcher" onFocusCapture={event => {
+    const contentFocused = !(event.target as HTMLElement).closest('[data-template-control]');
+    setFocused(contentFocused);
+    // Leaving content must not restart rotation unexpectedly for keyboard users.
+    if (contentFocused) setPlaying(false);
+  }} onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setFocused(false); }}>
     <motion.div initial={false} animate={rotating && height ? { height } : undefined} transition={{ duration: reduced || !effects || settings.motion === 'none' ? 0 : .4 }} style={rotating ? { overflow: 'hidden' } : undefined}>
       <div ref={body} onPointerEnter={event => { if (event.pointerType === 'mouse') setHovered(true); }} onPointerLeave={() => setHovered(false)}><motion.div key={selected} initial={reduced !== false || !effects || settings.motion === 'none' ? false : { opacity: .4 }} animate={{ opacity: 1 }} transition={{ duration: .35 }}><HeroLayoutView {...props} {...presentation} catalogProducts={props.products} /></motion.div></div>
     </motion.div>

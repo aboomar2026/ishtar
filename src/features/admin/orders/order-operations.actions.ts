@@ -2,13 +2,13 @@
 
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
-import { requireAdmin } from '@/features/admin/auth/admin-auth';
+import { requireOrderAdmin } from '@/features/admin/auth/admin-auth';
 import { orderNotesSchema, type OrderNotesInput, type PrintType } from './order-operations.validation';
 
 export type OperationsResult = { ok: true } | { ok: false; message: string };
 
 export async function updateOrderNotesAction(orderId: string, input: OrderNotesInput): Promise<OperationsResult> {
-  await requireAdmin();
+  await requireOrderAdmin();
   const order = await prisma.order.findUnique({ where: { id: orderId }, select: { id: true } });
   if (!order) return { ok: false, message: 'الطلب غير موجود.' };
 
@@ -29,7 +29,7 @@ export async function updateOrderNotesAction(orderId: string, input: OrderNotesI
 
 /** Record a print of the invoice or packing slip (increment count + timestamp). */
 export async function markOrderPrintedAction(orderId: string, type: PrintType): Promise<OperationsResult> {
-  await requireAdmin();
+  await requireOrderAdmin();
   const order = await prisma.order.findUnique({ where: { id: orderId }, select: { id: true, deliveryFeeStatus: true } });
   if (!order) return { ok: false, message: 'الطلب غير موجود.' };
   if (type === 'invoice' && order.deliveryFeeStatus === 'PENDING') {
@@ -48,7 +48,7 @@ export async function markOrderPrintedAction(orderId: string, type: PrintType): 
 }
 
 export async function setOrderPackedAction(orderId: string, isPacked: boolean): Promise<OperationsResult> {
-  await requireAdmin();
+  await requireOrderAdmin();
   const order = await prisma.order.findUnique({ where: { id: orderId }, select: { id: true, status: true } });
   if (!order) return { ok: false, message: 'الطلب غير موجود.' };
   if (order.status === 'CANCELED') return { ok: false, message: 'لا يمكن تعديل حالة التغليف لطلب ملغي.' };
