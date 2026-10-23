@@ -40,3 +40,10 @@ test('existing legacy banner copy stays hidden until admin explicitly selects ba
   assert.equal(resolveHeroBanner(legacy, { ...DEFAULT_HERO_SETTINGS, copySource: 'banners' }).title, legacy.title);
   assert.equal(resolveHeroBanner(legacy, DEFAULT_HERO_SETTINGS).imageUrl, legacy.imageUrl);
 });
+
+test('carousel exposes a working play control even when autoplay initially starts off', () => {
+  const html = renderToStaticMarkup(createElement(HeroCarousel, { settings: { ...DEFAULT_HERO_SETTINGS, autoplay: false }, banners, products: [] }));
+  assert.match(html, /aria-label="تشغيل التنقل التلقائي"/);
+  assert.match(html, /aria-pressed="false"/);
+  assert.match(html, /shopHeroProgress/);
+});

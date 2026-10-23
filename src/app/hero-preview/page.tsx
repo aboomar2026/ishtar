@@ -14,5 +14,5 @@ export default async function HeroPreviewPage() {
   const products = [...catalog.featuredProducts, ...catalog.newArrivals].filter((product, index, all) => all.findIndex(other => other.id === product.id) === index).slice(0, 3).map(product => ({ image: product.image, name: product.name, href: `/product/${product.slug}` }));
   const titles = ['تفاصيل صغيرة، حضور لا يُنسى', 'هدايا تترك أثراً', 'اختيارات أنيقة لكل إطلالة ولكل مناسبة — اكتشفي التفاصيل التي تعبّر عنكِ'];
   const banners = titles.map((title, index) => ({ id: `qa-${index}`, title, subtitle: index === 2 ? 'نص طويل لتجربة التفاف السطور على الشاشات الصغيرة، مع المحافظة على وضوح زر التسوق وثبات ارتفاع الشرائح أثناء التنقل بين الحملات.' : 'إكسسوارات وحقائب وعطور مختارة لتكمّل أسلوبك.', eyebrow: 'ISHTAR · ACCESSORIES', ctaLabel: 'تسوّقي الآن', href: '/category/all', imageUrl: products[index]?.image, placement: 'HOME_HERO' as const }));
-  return <HeroReview settings={{ ...DEFAULT_HERO_SETTINGS, copySource: 'banners' }} banners={banners} products={products} />;
+  return <HeroReview settings={{ ...DEFAULT_HERO_SETTINGS, copySource: 'banners', motion: 'lively', autoplay: true }} banners={banners} products={products} />;
 }

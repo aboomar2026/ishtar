@@ -1,5 +1,7 @@
 'use client';
 import Link from 'next/link';
+import { motion } from 'motion/react';
+import { useHeroMotion } from './useHeroMotion';
 import { useState, type CSSProperties } from 'react';
 import type { CatalogBanner } from '@/features/catalog/catalog.types';
 import { brand } from '@/lib/brand';
@@ -29,7 +31,7 @@ export function HeroCopy({ banner, heading = 'h1', signature = false }: { banner
   const Heading = heading;
   return <div className="shopHeroCopy">
     <span className="shopHeroEyebrow" data-hero-reveal>{banner.eyebrow || brand.copy.heroEyebrow}</span>
-    <Heading data-hero-reveal>{signature ? <span className="shopHeroTitleAccent">{banner.title}</span> : banner.title}</Heading>
+    <Heading data-hero-reveal>{signature ? <>{banner.title.split(' ').slice(0, -1).join(' ')} <span className="shopHeroTitleAccent">{banner.title.split(' ').at(-1)}</span></> : banner.title}</Heading>
     {banner.subtitle && <p data-hero-reveal>{banner.subtitle}</p>}
     <div className="shopHeroActions" data-hero-reveal>
       <Link className="shopHeroButton" href={heroHref(banner.href)}>{banner.ctaLabel || brand.copy.heroCta}<span aria-hidden="true">←</span></Link>
@@ -40,32 +42,36 @@ export function HeroCopy({ banner, heading = 'h1', signature = false }: { banner
 }
 
 export function HeroScene({ banner, products, settings }: { banner: CatalogBanner; products: HeroProduct[]; settings: HeroSettings }) {
+  const { ref, enabled, lively } = useHeroMotion(settings);
   const media = settings.media[banner.id];
   const main = { image: banner.imageUrl || products[0]?.image, name: resolveHeroBanner(banner, settings).title, href: heroHref(banner.href) };
   const extras = products.filter(product => product.image !== main.image).slice(0, 2);
-  return <div className="shopHeroScene">
-    <div className="shopHeroHalo" aria-hidden="true" />
+  return <div className="shopHeroScene" ref={ref}>
+    <motion.div className="shopHeroHalo" aria-hidden="true" initial={false} animate={enabled ? { rotate: [-16, 10, -16], scale: [1, 1.07, 1] } : { rotate: -16, scale: 1 }} transition={enabled ? { duration: 12, repeat: Infinity, ease: 'easeInOut' } : { duration: .2 }} />
+    <motion.div className="shopHeroMainMotion" initial={false} animate={enabled ? { y: [0, lively ? -12 : -6, 0], rotate: [0, lively ? -2 : -1, 0] } : { y: 0, rotate: 0 }} transition={enabled ? { duration: lively ? 4.8 : 6.5, repeat: Infinity, ease: 'easeInOut' } : { duration: .2 }}>
     <Link className="shopHeroProduct shopHeroProductMain" href={main.href} data-hero-reveal aria-label={main.name}>
-      <HeroImage key={main.image} src={main.image} mobile={media?.mobileImageUrl} focus={media?.focus} priority contain={settings.layout === 'signature'} />
-      <span className="shopHeroProductCaption">{brand.copy.heroCollageLabel}</span>
+      <HeroImage key={main.image} src={main.image} mobile={media?.mobileImageUrl} focus={media?.focus} priority />
     </Link>
-    {extras.map((product, index) => <div className={`shopHeroFloat shopHeroFloat${index + 1}`} key={product.href} data-hero-reveal>
+    </motion.div>
+    {extras.map((product, index) => <motion.div className={`shopHeroFloat shopHeroFloat${index + 1}`} key={product.href} initial={false} animate={enabled ? { y: [0, (index ? 1 : -1) * (lively ? 16 : 9), 0], rotate: [0, index ? -3 : 3, 0] } : { y: 0, rotate: 0 }} transition={enabled ? { duration: lively ? 4.2 + index : 6 + index, repeat: Infinity, ease: 'easeInOut', delay: index * .35 } : { duration: .2 }}>
       <Link className="shopHeroProduct" href={product.href} aria-label={product.name}>
         <HeroImage src={product.image} alt="" sizes="(max-width: 700px) 30vw, 15vw" />
         <span className="shopHeroProductCaption">{product.name}</span>
       </Link>
-    </div>)}
-    <span className="shopHeroDetail" aria-hidden="true">ISHTAR · DETAILS MATTER</span>
+    </motion.div>)}
   </div>;
 }
 
-export function HeroCampaignSlide({ banner, settings, first, fallbackImage }: { banner: CatalogBanner; settings: HeroSettings; first: boolean; fallbackImage?: string }) {
+export function HeroCampaignSlide({ banner, settings, first, active = first, fallbackImage }: { banner: CatalogBanner; settings: HeroSettings; first: boolean; active?: boolean; fallbackImage?: string }) {
   const media = settings.media[banner.id];
   const copy = resolveHeroBanner(banner, settings);
+  const { ref, enabled, lively } = useHeroMotion(settings);
   return <div className="shopHeroCampaignSlide" style={{ '--hero-focus': media?.focus || 'center' } as CSSProperties}>
     <HeroCopy banner={copy} heading={first ? 'h1' : 'h2'} />
     <Link className="shopHeroCampaignImage" href={heroHref(banner.href)} aria-label={copy.title}>
+      <motion.div ref={ref} className="shopHeroImageMotion" initial={false} animate={enabled && active ? { scale: [1.02, lively ? 1.1 : 1.055], x: [0, lively ? -8 : -3] } : { scale: 1, x: 0 }} transition={enabled && active ? { duration: settings.interval + 1, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' } : { duration: .25 }}>
       <HeroImage key={banner.imageUrl} src={banner.imageUrl || fallbackImage} mobile={media?.mobileImageUrl} focus={media?.focus} priority={first} />
+      </motion.div>
     </Link>
   </div>;
 }

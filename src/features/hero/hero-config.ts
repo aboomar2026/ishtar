@@ -15,8 +15,8 @@ export const heroSettingsSchema = z.object({
   copySource: z.enum(['brand', 'banners']).default('brand'),
   motion: z.enum(['calm', 'lively', 'none']).default('calm'),
   transition: z.enum(['slide', 'fade']).default('slide'),
-  autoplay: z.boolean().default(false),
-  interval: z.number().int().min(5).max(12).default(7),
+  autoplay: z.boolean().default(true),
+  interval: z.number().int().min(5).max(12).default(5),
   media: z.record(z.string().max(200), z.object({
     mobileImageUrl: imagePath.default(''),
     focus: z.enum(['center', 'top', 'bottom', 'left', 'right']).default('center')

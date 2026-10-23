@@ -21,7 +21,7 @@ export function HeroView({ settings, banners, products, preview = false }: HeroP
   useEffect(() => {
     if (entered.current || reduceMotion !== false || settings.motion === 'none' || settings.layout === 'campaign') return;
     entered.current = true;
-    const controls = animate('[data-hero-reveal]', { opacity: [0, 1], y: [14, 0] }, { duration: .48, delay: (index) => Math.min(index * .065, .4), ease: [.22, 1, .36, 1] });
+    const controls = animate('[data-hero-reveal]', { opacity: [0, 1], y: [26, 0] }, { duration: .7, delay: (index) => Math.min(index * .09, .5), ease: [.22, 1, .36, 1] });
     return () => { controls.complete(); };
   }, [animate, reduceMotion, scope, settings.motion, settings.layout]);
   return <div className="shopHeroHost">
