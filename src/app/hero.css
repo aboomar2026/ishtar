@@ -46,7 +46,16 @@
 .shopHeroSlide > .shopHeroCampaignSlide { flex:1; }
 .shopHeroCarousel { position:relative; }
 .shopHeroNavigation { position:relative; display:flex; gap:12px; justify-content:center; align-items:center; min-height:116px; padding:12px 16px 60px; background:#fff8ee; border-top:1px solid #dfcfcc; }
-.shopHeroArrow,.shopHeroRotation { position:absolute; z-index:3; bottom:10px; inset-inline-start:50%; translate:50% 0; display:flex; align-items:center; justify-content:center; gap:8px; font-size:12px; font-weight:700; padding:9px 18px; min-height:42px; border-radius:30px; color:#522b3a; background:#f1e3d7; border-color:#d8bfa5; white-space:nowrap; }
+.shopHeroArrow,.shopHeroRotation { border:1px solid #d8bfa5; cursor:pointer; }
+.shopHeroArrow { display:grid; place-items:center; flex-shrink:0; width:48px; height:48px; padding:0; color:#fff5e7; background:#522b3a; border:1px solid #c5a464; border-radius:50%; box-shadow:0 5px 12px #522b3a22; transition:transform .2s,background .2s; }
+.shopHeroArrow:hover { background:#744254; transform:translateY(-2px); }
+.shopHeroArrow:active { transform:scale(.93); }
+.shopHeroDots { display:flex; gap:0; }
+.shopHeroDots button { display:grid; place-items:center; border:0; background:none; cursor:pointer; padding:0; width:44px; height:44px; }
+.shopHeroDots span { width:7px; height:7px; background:#c4aa9d; border-radius:50%; transition:width .2s,background .2s; }
+.shopHeroDots [aria-current="true"] span { background:#522b3a; width:22px; border-radius:6px; }
+.shopHeroCounter { font-size:12px; min-width:36px; }
+.shopHeroRotation { position:absolute; z-index:3; bottom:10px; inset-inline-start:50%; translate:50% 0; display:flex; align-items:center; justify-content:center; gap:8px; font-size:12px; font-weight:700; padding:9px 18px; min-height:42px; border-radius:30px; color:#522b3a; background:#f1e3d7; white-space:nowrap; }
 .shopHeroRotation svg { fill:currentColor; }
 .shopHeroProgress { position:absolute; inset-inline:0; top:0; height:3px; overflow:hidden; background:#e9dcd1; }
 .shopHeroProgress span { display:block; height:100%; background:#ad813a; transform-origin:right; }
@@ -81,8 +90,9 @@
   .shopHeroCampaignImage { grid-row:1; height:240px; min-height:0; }
   .shopHeroCampaignSlide .shopHeroCopy { padding:22px 20px; min-height:275px; }
   .shopHeroCampaignSlide .shopHeroTags { display:none; }
-  .shopHeroNavigation { gap:6px; min-height:112px; padding:9px 10px 56px; }
-  .shopHeroDots button { width:36px; }
+  .shopHeroNavigation { gap:4px; min-height:112px; padding:9px 8px 56px; }
+  .shopHeroDots button { width:28px; }
+  .shopHeroCounter { min-width:28px; font-size:11px; }
   .shopHeroRotation { bottom:9px; }
 }
 @media (prefers-reduced-motion:reduce) {
