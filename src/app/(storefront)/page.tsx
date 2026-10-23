@@ -54,8 +54,8 @@ export default async function HomePage() {
       </section>
 
       <section className="boutiqueBand">
-        <div className="logoMedallion small">
-          <BrandLogo variant="compact" />
+        <div className="boutiqueWordmark">
+          <BrandLogo variant="header" />
         </div>
         <div>
           <span className="eyebrow">{brand.copy.boutiqueEyebrow}</span>

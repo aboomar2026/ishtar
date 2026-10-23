@@ -542,3 +542,27 @@
     padding: 18px;
   }
 }
+
+/* Product photos keep their source proportions instead of letterboxing in a fixed frame. */
+[data-brand="ishtar"] .productCard { display: flex; flex-direction: column; min-width: 0; }
+[data-brand="ishtar"] .productCard .productImageWrap { align-self: stretch; flex: 0 0 auto; background: var(--brand-surface); }
+[data-brand="ishtar"] .productCard .productImage { display: block; width: 100%; height: auto; min-height: 0; aspect-ratio: auto 4 / 5; object-fit: contain; background: transparent; }
+[data-brand="ishtar"] .productCard:hover .productImage { transform: none; }
+[data-brand="ishtar"] .productCardBody { flex: 1; min-width: 0; }
+[data-brand="ishtar"] .boutiqueBand { display: flex; flex-direction: row; align-items: center; gap: 24px; padding: 24px 28px; background: var(--brand-section); box-shadow: none; }
+[data-brand="ishtar"] .boutiqueWordmark { flex: 0 0 170px; }
+[data-brand="ishtar"] .boutiqueWordmark .brandLogo { display: block; }
+[data-brand="ishtar"] .boutiqueWordmark img { display: block; width: 170px; max-width: 100%; height: auto; }
+[data-brand="ishtar"] .boutiqueBand h2 { font-size: clamp(24px, 3vw, 34px); line-height: 1.4; }
+[data-brand="ishtar"] .boutiqueBand p { margin: 0; max-width: 58ch; }
+@media screen and (max-width: 599px) {
+  [data-brand="ishtar"] .productGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  [data-brand="ishtar"] .productCardBody { padding: 12px 10px; gap: 10px; }
+  [data-brand="ishtar"] .productTitle { font-size: 16px; line-height: 1.5; }
+  [data-brand="ishtar"] .productBuyRow { flex-wrap: wrap; gap: 10px; }
+  [data-brand="ishtar"] .productBuyRow .quickAddButton { width: 100%; min-height: 44px; }
+  [data-brand="ishtar"] .boutiqueBand { flex-direction: column; align-items: flex-start; gap: 12px; padding: 20px; }
+  [data-brand="ishtar"] .boutiqueWordmark { flex: 0 0 auto; width: 124px; }
+  [data-brand="ishtar"] .boutiqueWordmark img { width: 124px; }
+  [data-brand="ishtar"] .boutiqueBand .eyebrow { font-size: 10px; }
+}

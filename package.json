@@ -29,7 +29,8 @@
     "test:admin-safety": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/admin-permissions.test.ts tests/postgres-target.test.ts",
     "test:concurrency": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/checkout.concurrency.test.ts",
     "test:notifications": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/notifications.test.ts tests/order-activity.test.tsx",
-    "test:dashboard": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/dashboard.test.ts"
+    "test:dashboard": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/dashboard.test.ts",
+    "test:search": "node --import tsx --test tests/search-submit.test.tsx"
   },
   "dependencies": {
     "@phosphor-icons/react": "2.1.7",

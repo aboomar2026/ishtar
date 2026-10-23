@@ -12,7 +12,9 @@ export function SearchBar({ compact = false }: { compact?: boolean }) {
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmed = query.trim();
-    if (trimmed) router.push(`/category/all?q=${encodeURIComponent(trimmed)}`);
+    if (!trimmed) return;
+    inputRef.current?.blur();
+    router.push(`/category/all?q=${encodeURIComponent(trimmed)}`);
   }
 
   return (
@@ -20,6 +22,8 @@ export function SearchBar({ compact = false }: { compact?: boolean }) {
       <IconSearch size={18} />
       <input
         ref={inputRef}
+        type="search"
+        enterKeyHint="search"
         value={query}
         onChange={(event) => setQuery(event.target.value)}
         aria-label="البحث في جميع المنتجات" placeholder="ابحثي عن شنط، عطور، هدايا..."

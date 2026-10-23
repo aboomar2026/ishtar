@@ -1,6 +1,16 @@
 # ISHTAR 2.0 — Audit handoff
 
+## Storefront UI corrections — hero, merchandise, brand strip and search
+
+Owner-reported mobile screenshots and current desktop preview inspected. Hero secondary CTA now shares the primary button's dimensions/radius/type treatment with an outlined style, including readable inverse colors in the signature layout; mobile actions stack. Product photos use natural source proportions instead of fixed-height letterboxes, retain the existing noncropping Cloudinary fit transform, and no longer zoom on hover. Phones use two vertical cards per row so media no longer stretch beside a tall text column. A fallback aspect ratio reserves image space before loading; final dimensions follow intrinsic media, so mixed-ratio rows can vary and image-load layout movement needs device acceptance. No original image content is reconstructed or edited.
+
+The boutique strip replaces the 27px symbol inside a large circular medallion with the existing clear wordmark and tighter responsive spacing. Search uses native search semantics/keyboard hint and explicitly blurs the field before nonempty navigation; clear refocuses the input and blank submission leaves editing available. Physical mobile keyboard dismissal still needs device confirmation.
+
+No catalog deduplication, live content/database/Telegram change, merge or production deployment. Same PR #3, one consolidated preview update after checks. Search lifecycle test added to CI; existing hero, Cloudinary and isolated HTTP regressions run locally. Visual/deployment evidence is recorded after upload, not inferred from CSS.
+
 ## B2a — Dashboard periods and stock visibility
+
+Verified remote head `1fc2ed5529aab762c0b898d278fcfd863862cf92`, shared source tree `5eed4297652324b71ca4d7177d838c077c4bc4cd`. Netlify preview `6adb88614199cc0d387526f4` succeeded. [Actions run 39985423418](https://github.com/aboomar2026/ishtar/actions/runs/39985423418), job `120523211753`, passed admin safety, notifications, dashboard and conventional PostgreSQL concurrency steps. Same PR remains open/unmerged. This post-deploy evidence checkpoint is kept locally until the next batch to avoid a docs-only rebuild; PR description has the same evidence. No new authenticated browser/mobile acceptance claimed.
 
 Adds today/7-day/30-day order summaries and a zero-filled daily table with proportional decorative bars, keyboard scroll access, Arabic labels and responsive period navigation. Calendar windows use Asia/Hebron dates including 23/25-hour DST days; SQL groups UTC-stored timestamps in that same timezone. All counts use current order status for the creation-date cohort. Noncanceled value excludes canceled orders; delivered value is explicitly not proof of cash collection. Pending delivery-fee counts and explanatory labels disclose incomplete totals. No visitor tracking or invented conversion metrics.
 

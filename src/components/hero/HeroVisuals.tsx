@@ -37,7 +37,7 @@ export function HeroCopy({ banner, heading = 'h1', signature = false, content }:
     {banner.subtitle && <p data-hero-reveal>{banner.subtitle}</p>}
     <div className="shopHeroActions" data-hero-reveal>
       <Link className="shopHeroButton" href={heroHref(banner.href)}>{banner.ctaLabel || brand.copy.heroCta}<IconArrowLeft size={24} weight="bold" /></Link>
-      {(!content || content.secondaryLabel) && <Link className="shopHeroSecondary" href={heroHref(content?.secondaryHref || '/category/all')}>{content?.secondaryLabel ?? brand.copy.heroSecondaryCta}</Link>}
+      {(!content || content.secondaryLabel) && <Link className="shopHeroButton shopHeroSecondary" href={heroHref(content?.secondaryHref || '/category/all')}>{content?.secondaryLabel ?? brand.copy.heroSecondaryCta}</Link>}
     </div>
     <div className="shopHeroTags" data-hero-reveal>{(content?.trustItems ?? brand.copy.heroTrustItems).filter(Boolean).map(item => <span key={item}><IconCheck size={15} weight="bold" />{item}</span>)}</div>
   </div>;

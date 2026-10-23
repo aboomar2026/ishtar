@@ -6,10 +6,10 @@
 .shopHeroCopy h1,.shopHeroCopy h2 { font-family:var(--font-display),serif; font-size:clamp(32px,4.2cqw,60px); line-height:1.35; margin:16px 0; letter-spacing:normal; overflow-wrap:anywhere; }
 .shopHeroCopy p { font-size:16px; line-height:1.9; color:var(--hero-muted); margin:0 0 24px; max-width:42ch; overflow-wrap:anywhere; }
 .shopHeroActions { display:flex; flex-wrap:wrap; align-items:center; gap:16px 20px; }
-.shopHeroButton { display:inline-flex; align-items:center; justify-content:center; gap:20px; min-height:48px; border-radius:12px; padding:12px 22px; background:#522b3a; color:#fff9f0; font-weight:800; text-decoration:none; transition:transform .2s,box-shadow .2s; }
+.shopHeroButton { display:inline-flex; align-items:center; justify-content:center; gap:20px; min-height:48px; border:1px solid transparent; border-radius:12px; padding:12px 22px; background:#522b3a; color:#fff9f0; font-weight:800; text-decoration:none; transition:transform .2s,box-shadow .2s; }
 .shopHeroButton > svg { width:24px; height:24px; transition:transform .2s; }
 @media (hover:hover) and (prefers-reduced-motion:no-preference) { .shopHeroButton:hover > svg { transform:translateX(-4px); } }
-.shopHeroSecondary { display:inline-flex; align-items:center; min-height:44px; font-size:13px; color:inherit; text-decoration:underline; text-underline-offset:6px; }
+.shopHeroSecondary { color:var(--hero-ink); background:transparent; border:1px solid currentColor; font-weight:700; box-shadow:none; }
 .shopHeroButton:active { transform:scale(.97); }
 .shopHero :focus-visible { outline:3px solid var(--hero-gold); outline-offset:5px; }
 .shopHeroTags { display:flex; flex-wrap:wrap; gap:8px 14px; margin-top:25px; font-size:11px; line-height:1.7; color:var(--hero-muted); }
@@ -28,6 +28,7 @@
 .shopHeroFloat2 { bottom:0; inset-inline-end:0; rotate:5deg; }
 .shopHero--signature { background:radial-gradient(ellipse at 24% 35%,#754456,#522b3a 48%,#2d1922); --hero-ink:#fff5e7; --hero-muted:#ead7cf; --hero-gold:#d3b171; border-color:#522b3a; }
 .shopHero--signature .shopHeroButton { background:#fff1df; color:#522b3a; }
+.shopHero--signature .shopHeroSecondary { background:transparent; color:var(--hero-ink); }
 .shopHero--signature .shopHeroTitleAccent { text-decoration:underline; text-decoration-color:#c5a464; text-decoration-thickness:2px; text-underline-offset:12px; }
 .shopHero--signature .shopHeroMainMotion { width:82%; height:360px; inset-inline-start:9%; top:10px; }
 .shopHero--signature .shopHeroProductMain { rotate:-2deg; border:0; border-radius:34px 80px 34px 34px; background:transparent; box-shadow:0 22px 45px #160d1245; }
@@ -68,9 +69,9 @@
   .shopHeroCopy { text-align:center; padding:0; }
   .shopHeroCopy h1,.shopHeroCopy h2 { font-size:clamp(28px,8.5cqw,40px); line-height:1.4; margin:12px 0; }
   .shopHeroCopy p { font-size:14px; line-height:1.8; margin:0 auto 16px; }
-  .shopHeroActions { justify-content:center; gap:6px 14px; }
+  .shopHeroActions { display:grid; grid-template-columns:1fr; gap:10px; width:min(100%,360px); margin-inline:auto; }
   .shopHeroButton { min-height:46px; padding:10px 18px; font-size:14px; }
-  .shopHeroSecondary { font-size:12px; }
+  .shopHeroSecondary { font-size:14px; }
   .shopHeroTags { justify-content:center; margin-top:12px; gap:4px 10px; font-size:10px; }
   .shopHeroScene { height:280px; min-height:280px; margin:8px auto 0; width:min(100%,380px); }
   .shopHeroMainMotion { width:74%; height:242px; inset-inline-start:13%; top:14px; }
