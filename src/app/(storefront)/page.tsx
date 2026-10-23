@@ -1,3 +1,4 @@
+import { RecentlyViewed } from '@/components/RecentlyViewed';
 import Link from 'next/link';
 import { CategoryStrip } from '@/components/CategoryStrip';
 import { HeroView } from '@/components/hero/HeroView';
@@ -96,6 +97,7 @@ export default async function HomePage() {
         </div>
         <ProductGrid products={catalog.featuredProducts} />
       </section>
+      <RecentlyViewed />
     </div>
   );
 }

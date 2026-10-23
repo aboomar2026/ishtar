@@ -1,4 +1,5 @@
 'use client';
+import { ShareProductButton } from './ShareProductButton';
 import { WishlistButton } from './WishlistButton';
 import { IconStar, IconCheck } from './Icons';
 import { showCatalogMetrics } from '@/lib/catalog-display';
@@ -27,7 +28,7 @@ function uniqueBy<T>(items: T[], getKey: (item: T) => string) {
   });
 }
 
-export function ProductDetailClient({ product }: { product: Product }) {
+export function ProductDetailClient({ product, shareOrigin }: { product: Product; shareOrigin?: string }) {
   const { addToCart } = useCart();
   const activeVariants = useMemo(() => product.variants.filter((variant) => variant.isActive), [product.variants]);
   const availableVariants = useMemo(() => activeVariants.filter((variant) => variant.quantity > 0), [activeVariants]);
@@ -126,7 +127,10 @@ export function ProductDetailClient({ product }: { product: Product }) {
         <div className="productDetailHeader">
           <span className="eyebrow">{brand.copy.productEyebrow}</span>
           <h1>{product.name}</h1>
-          <WishlistButton id={product.id} name={product.name} label />
+          <div className="productDiscoveryActions">
+            <WishlistButton id={product.id} name={product.name} label />
+            <ShareProductButton name={product.name} path={`/product/${encodeURIComponent(product.slug)}`} canonicalOrigin={shareOrigin} />
+          </div>
           <p>{product.subtitle}</p>
           {showCatalogMetrics && <div className="detailRating">
             {product.rating ? <><IconStar size={16} weight="fill" /> {product.rating} · </> : null}{product.soldCount}+ طلب

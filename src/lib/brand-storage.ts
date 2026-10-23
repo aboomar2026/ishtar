@@ -5,6 +5,7 @@ import { brand } from './brand';
 const namespace = brand.key === 'ishtar' ? 'ishtar' : 'bab-al-hara';
 
 export const brandStorageKeys = {
+  recentProducts: `${brand.key}:recent-products:v1`,
   wishlist: `${brand.key}:wishlist:v1`,
   cart: `${namespace}-cart-v2`,
   shipping: `${namespace}-shipping`,

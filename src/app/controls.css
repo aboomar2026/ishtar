@@ -141,3 +141,11 @@
 .wishlistFeedback { position: fixed; z-index: 80; inset-inline: 20px; bottom: calc(110px + env(safe-area-inset-bottom, 0px)); width: max-content; max-width: min(520px, calc(100% - 40px)); margin-inline: auto; display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1px solid var(--brand-border); border-radius: 14px; color: var(--brand-ink); background: var(--brand-surface, #fff); box-shadow: 0 10px 30px #542b3a25; font-size: 14px; }
 .wishlistFeedback button { border: 0; color: inherit; background: transparent; min-width: 44px; min-height: 44px; flex: 0 0 auto; }
 @media print { .wishlistFeedback { display: none; } }
+
+.productDiscoveryActions { display: flex; flex-wrap: wrap; align-items: start; gap: 12px; margin-block: 12px; }
+.productShare { display: grid; gap: 8px; min-width: 0; max-width: 100%; }
+.productShare .ghostButton { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; }
+.productShare [role="status"]:empty { display: none; }
+.productShare label { display: grid; gap: 6px; max-width: 100%; }
+.productShare input { width: 100%; min-width: 0; }
+.recentProducts .sectionHeader { flex-wrap: wrap; gap: 12px; }

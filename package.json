@@ -31,7 +31,8 @@
     "test:notifications": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/notifications.test.ts tests/order-activity.test.tsx",
     "test:dashboard": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/dashboard.test.ts",
     "test:search": "node --import tsx --test tests/search-submit.test.tsx",
-    "test:wishlist": "node --import tsx --test tests/wishlist.test.tsx tests/wishlist-page.test.tsx"
+    "test:wishlist": "node --import tsx --test tests/wishlist.test.tsx tests/wishlist-page.test.tsx",
+    "test:discovery": "node --import tsx --test tests/recent-products.test.tsx tests/share-product.test.ts"
   },
   "dependencies": {
     "@phosphor-icons/react": "2.1.7",

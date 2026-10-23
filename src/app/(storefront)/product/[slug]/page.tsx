@@ -1,3 +1,4 @@
+import { RecentlyViewed, RecordProductView } from '@/components/RecentlyViewed';
 import type { Metadata } from 'next';
 import { brand } from '@/lib/brand';
 import { publicSiteUrl } from '@/lib/site-url';
@@ -25,7 +26,8 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
   return (
     <div className="productPage">
-      <ProductDetailClient product={product} />
+      <RecordProductView id={product.id} />
+      <ProductDetailClient product={product} shareOrigin={publicSiteUrl()?.origin} />
       <section className="contentSection">
         <div className="sectionHeader">
           <div>
@@ -35,6 +37,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         </div>
         <ProductGrid products={related} />
       </section>
+      <RecentlyViewed excludeId={product.id} />
     </div>
   );
 }
