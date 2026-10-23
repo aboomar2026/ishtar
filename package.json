@@ -25,9 +25,10 @@
     "test:checkout-client": "node --import tsx --test tests/checkout-recovery.test.tsx",
     "test:commerce": "node --import tsx --test tests/commerce.test.ts",
     "test:integration": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/checkout.integration.test.ts",
-    "test:hero": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/hero-settings.test.ts tests/hero-render.test.tsx tests/hero-rotation.test.tsx tests/hero-editor.test.tsx"
+    "test:hero": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/hero-settings.test.ts tests/hero-render.test.tsx tests/hero-rotation.test.tsx tests/hero-editor.test.tsx tests/hero-view-rotation.test.tsx"
   },
   "dependencies": {
+    "@phosphor-icons/react": "2.1.7",
     "@prisma/client": "6.19.0",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.10.0",

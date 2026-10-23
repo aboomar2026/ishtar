@@ -1,3 +1,4 @@
+import { IconReceipt, IconTruck, IconPlus, IconPackage, IconBag, IconImages } from '@/components/Icons';
 import Link from 'next/link';
 import { getDashboardOverview } from '@/features/admin/dashboard/dashboard.queries';
 import { formatCurrency, formatDateTime } from '@/features/admin/shared/admin-format';
@@ -60,12 +61,12 @@ export default async function AdminDashboardPage() {
   ];
 
   const quickLinks = [
-    { href: '/admin/orders?status=PENDING', label: 'مراجعة الطلبات الجديدة', icon: '🧾' },
-    { href: '/admin/orders?delivery=PENDING', label: 'تحديد أسعار التوصيل', icon: '🚚' },
-    { href: '/admin/products/new', label: 'إضافة منتج', icon: '➕' },
-    { href: '/admin/inventory', label: 'فحص المخزون', icon: '📦' },
-    { href: '/admin/products', label: 'إدارة المنتجات', icon: '🛍️' },
-    { href: '/admin/banners', label: 'إدارة البنرات', icon: '🏷️' }
+    { href: '/admin/orders?status=PENDING', label: 'مراجعة الطلبات الجديدة', icon: <IconReceipt size={28} /> },
+    { href: '/admin/orders?delivery=PENDING', label: 'تحديد أسعار التوصيل', icon: <IconTruck size={28} /> },
+    { href: '/admin/products/new', label: 'إضافة منتج', icon: <IconPlus size={28} /> },
+    { href: '/admin/inventory', label: 'فحص المخزون', icon: <IconPackage size={28} /> },
+    { href: '/admin/products', label: 'إدارة المنتجات', icon: <IconBag size={28} /> },
+    { href: '/admin/banners', label: 'إدارة البنرات', icon: <IconImages size={28} /> }
   ];
 
   return (

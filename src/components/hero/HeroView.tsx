@@ -1,4 +1,5 @@
 'use client';
+import { IconPlay, IconPause, IconArrowLeft } from '@/components/Icons';
 import dynamic from 'next/dynamic';
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { motion, useAnimate, useInView, useReducedMotion } from 'motion/react';
@@ -42,15 +43,15 @@ export function HeroView(props: HeroProps) {
     observer.observe(body.current);
     return () => observer.disconnect();
   }, [rotating, selected]);
-  return <div ref={root} className="shopHeroSwitcher" onPointerEnter={event => { if (event.pointerType === 'mouse') setHovered(true); }} onPointerLeave={() => setHovered(false)} onFocusCapture={() => setFocused(true)} onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setFocused(false); }}>
+  return <div ref={root} className="shopHeroSwitcher" onFocusCapture={event => setFocused(!(event.target as HTMLElement).closest('[data-template-control]'))} onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setFocused(false); }}>
     <motion.div initial={false} animate={rotating && height ? { height } : undefined} transition={{ duration: reduced || settings.motion === 'none' ? 0 : .4 }} style={rotating ? { overflow: 'hidden' } : undefined}>
-      <div ref={body}><motion.div key={selected} initial={reduced !== false || settings.motion === 'none' ? false : { opacity: .4 }} animate={{ opacity: 1 }} transition={{ duration: .35 }}><HeroLayoutView {...props} {...presentation} /></motion.div></div>
+      <div ref={body} onPointerEnter={event => { if (event.pointerType === 'mouse') setHovered(true); }} onPointerLeave={() => setHovered(false)}><motion.div key={selected} initial={reduced !== false || settings.motion === 'none' ? false : { opacity: .4 }} animate={{ opacity: 1 }} transition={{ duration: .35 }}><HeroLayoutView {...props} {...presentation} /></motion.div></div>
     </motion.div>
     {rotating && <div className="shopHeroTemplateControls" role="group" aria-label="تبديل تصميم الواجهة">
       <span>{HERO_LAYOUTS.find(item => item.value === selected)?.title}</span>
-      <button type="button" onClick={() => setPlaying(value => !value)} disabled={!!reduced} aria-pressed={playing && !reduced}>{playing && !reduced ? 'إيقاف تبديل التصميم' : 'تشغيل تبديل التصميم'}</button>
-      <button type="button" onClick={next}>التصميم التالي</button>
-      <small>{reduced ? 'التبديل التلقائي متوقف حسب تفضيل تقليل الحركة' : 'يتغير التصميم كل دقيقة أثناء المشاهدة'}</small>
+      <button data-template-control type="button" onClick={() => setPlaying(value => !value)} disabled={!!reduced} aria-pressed={playing && !reduced}>{playing && !reduced ? <IconPause size={18} weight="fill" /> : <IconPlay size={18} weight="fill" />}{playing && !reduced ? 'إيقاف تبديل التصميم' : 'تشغيل تبديل التصميم'}</button>
+      <button data-template-control type="button" onClick={next}>التصميم التالي <IconArrowLeft size={20} /></button>
+      <small>{reduced ? 'التبديل التلقائي متوقف حسب تفضيل تقليل الحركة' : !playing ? 'التبديل التلقائي متوقف مؤقتاً' : focused || hovered ? 'التبديل متوقف أثناء التفاعل مع الواجهة' : 'يتغير التصميم كل دقيقة أثناء المشاهدة'}</small>
     </div>}
   </div>;
 }

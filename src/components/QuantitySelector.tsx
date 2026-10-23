@@ -1,4 +1,5 @@
 'use client';
+import { IconMinus, IconPlus } from './Icons';
 
 import { normalizeDigits } from '@/lib/numbers';
 import { ChangeEvent, useEffect, useState } from 'react';
@@ -58,7 +59,7 @@ export function QuantitySelector({
         aria-label="تقليل الكمية"
         disabled={!canDecrease}
       >
-        −
+        <IconMinus size={18} weight="bold" />
       </button>
       <input
         type="text"
@@ -77,7 +78,7 @@ export function QuantitySelector({
         aria-label="زيادة الكمية"
         disabled={!canIncrease}
       >
-        +
+        <IconPlus size={18} weight="bold" />
       </button>
     </div>
   );

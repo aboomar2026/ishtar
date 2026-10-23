@@ -66,7 +66,8 @@ test('admin-only settings persist across database reads and template changes', {
 
 test('template profiles validate all admin URLs and keep separate content', () => {
   const base = parseHeroSettings({});
-  assert.equal(base.mode, 'fixed');
+  assert.equal(base.mode, 'rotate');
+  assert.equal(parseHeroSettings({ mode: 'fixed' }).mode, 'fixed');
   const original = getHeroContent(base, 'classic', [], []);
   const signature = { ...original, banners: [{ ...original.banners[0], title: 'عنوان خاص بالمميز' }] };
   const saved = heroSettingsSchema.parse({ profiles: { signature } });

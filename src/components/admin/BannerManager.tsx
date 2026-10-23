@@ -1,4 +1,5 @@
 'use client';
+import { IconImages } from '@/components/Icons';
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
@@ -234,7 +235,7 @@ export function BannerManager({ banners }: { banners: AdminBannerListItem[] }) {
 
       {banners.length === 0 ? (
         <AdminEmptyState
-          icon="🖼️"
+          icon={<IconImages size={40} />}
           title="لا توجد بنرات بعد"
           description="أضيفي بنرات الواجهة والعروض لتظهر في الصفحة الرئيسية وصفحات التصنيفات."
         />

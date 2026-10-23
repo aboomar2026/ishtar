@@ -1,4 +1,5 @@
 'use client';
+import { IconPlay, IconPause, IconChevronLeft, IconChevronRight } from '@/components/Icons';
 import { useCallback, useEffect, useState, useRef } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import Fade from 'embla-carousel-fade';
@@ -55,7 +56,7 @@ export default function HeroCarousel({ banners, settings, products, content }: H
   const move = (index: number) => { setPlaying(false); api?.scrollTo(index); };
   return <div className="shopHeroCarousel" ref={root} onFocusCapture={event => { if (!(event.target as HTMLElement).closest('[data-rotation-control]')) setPlaying(false); }} onPointerDown={event => { if (!(event.target as HTMLElement).closest('[data-rotation-control]')) setPlaying(false); }} role="group" aria-roledescription="عارض شرائح" aria-label="حملات المتجر">
     {banners.length > 1 && <motion.button data-rotation-control type="button" className="shopHeroRotation" whileTap={reduceMotion ? undefined : { scale: .94 }} onClick={() => setPlaying(value => !value)} disabled={!!reduceMotion} aria-pressed={playing && !reduceMotion} aria-label={playing && !reduceMotion ? 'إيقاف التنقل التلقائي' : 'تشغيل التنقل التلقائي'}>
-      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">{playing && !reduceMotion ? <><rect x="6" y="4" width="4" height="16" rx="1" /><rect x="14" y="4" width="4" height="16" rx="1" /></> : <path d="M7 4v16l13-8z" />}</svg>
+      {playing && !reduceMotion ? <IconPause size={20} weight="fill" /> : <IconPlay size={20} weight="fill" />}
       <span>{playing && !reduceMotion ? 'إيقاف مؤقت' : 'تشغيل تلقائي'}</span>
     </motion.button>}
     <motion.div className="shopHeroViewport" ref={emblaRef} initial={false} animate={viewportHeight ? { height: viewportHeight } : undefined} transition={{ duration: reduceMotion || settings.motion === 'none' ? 0 : .4, ease: [.22, 1, .36, 1] }} onPointerEnter={event => { if (event.pointerType === 'mouse') setHovered(true); }} onPointerLeave={() => setHovered(false)}>
@@ -67,10 +68,10 @@ export default function HeroCarousel({ banners, settings, products, content }: H
     </motion.div>
     {banners.length > 1 && <div className="shopHeroNavigation">
       {settings.motion !== 'none' && !reduceMotion && <div className="shopHeroProgress" aria-hidden="true"><motion.span key={`${selected}-${advancing}`} initial={{ scaleX: 0 }} animate={{ scaleX: advancing ? 1 : 0 }} transition={{ duration: advancing ? settings.interval : 0, ease: 'linear' }} /></div>}
-      <button type="button" className="shopHeroArrow" aria-label="الحملة السابقة" onClick={() => { setPlaying(false); api?.scrollPrev(); }}><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="m9 5 7 7-7 7" /></svg></button>
+      <button type="button" className="shopHeroArrow" aria-label="الحملة السابقة" onClick={() => { setPlaying(false); api?.scrollPrev(); }}><IconChevronRight size={24} weight="bold" /></button>
       <div className="shopHeroDots">{banners.map((banner, index) => <button key={banner.id} type="button" aria-label={`عرض الحملة ${index + 1}: ${resolveHeroBanner(banner, settings).title}`} aria-current={index === selected ? 'true' : undefined} onClick={() => move(index)}><span /></button>)}</div>
       <span className="shopHeroCounter"><bdi>{selected + 1} / {banners.length}</bdi></span>
-      <button type="button" className="shopHeroArrow" aria-label="الحملة التالية" onClick={() => { setPlaying(false); api?.scrollNext(); }}><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="m15 5-7 7 7 7" /></svg></button>
+      <button type="button" className="shopHeroArrow" aria-label="الحملة التالية" onClick={() => { setPlaying(false); api?.scrollNext(); }}><IconChevronLeft size={24} weight="bold" /></button>
     </div>}
   </div>;
 }

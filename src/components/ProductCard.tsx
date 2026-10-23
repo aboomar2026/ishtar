@@ -1,4 +1,5 @@
 'use client';
+import { IconStar } from './Icons';
 import { showCatalogMetrics } from '@/lib/catalog-display';
 import { brand } from '@/lib/brand';
 
@@ -75,7 +76,7 @@ export function ProductCard({ product }: { product: Product }) {
           <Link href={`/product/${product.slug}`} className="productTitle">{product.name}</Link>
           <p className="productSubtitle">{product.subtitle}</p>
           {showCatalogMetrics && <div className="productMeta">
-            {product.rating ? <span>★ {product.rating}</span> : null}
+            {product.rating ? <span className="iconLabel"><IconStar size={15} weight="fill" />{product.rating}</span> : null}
             <span>{product.soldCount}+ طلب</span>
           </div>}
         </div>

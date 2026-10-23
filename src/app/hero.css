@@ -7,12 +7,14 @@
 .shopHeroCopy p { font-size:16px; line-height:1.9; color:var(--hero-muted); margin:0 0 24px; max-width:42ch; overflow-wrap:anywhere; }
 .shopHeroActions { display:flex; flex-wrap:wrap; align-items:center; gap:16px 20px; }
 .shopHeroButton { display:inline-flex; align-items:center; justify-content:center; gap:20px; min-height:48px; border-radius:12px; padding:12px 22px; background:#522b3a; color:#fff9f0; font-weight:800; text-decoration:none; transition:transform .2s,box-shadow .2s; }
-.shopHeroButton span { transition:transform .2s; }
+.shopHeroButton > svg { width:24px; height:24px; transition:transform .2s; }
+@media (hover:hover) and (prefers-reduced-motion:no-preference) { .shopHeroButton:hover > svg { transform:translateX(-4px); } }
 .shopHeroSecondary { display:inline-flex; align-items:center; min-height:44px; font-size:13px; color:inherit; text-decoration:underline; text-underline-offset:6px; }
 .shopHeroButton:active { transform:scale(.97); }
 .shopHero :focus-visible { outline:3px solid var(--hero-gold); outline-offset:5px; }
 .shopHeroTags { display:flex; flex-wrap:wrap; gap:8px 14px; margin-top:25px; font-size:11px; line-height:1.7; color:var(--hero-muted); }
-.shopHeroTags span::before { content:'✓'; margin-inline-end:5px; color:var(--hero-gold); }
+.shopHeroTags span { display:inline-flex; align-items:center; gap:5px; }
+.shopHeroTags svg { color:var(--hero-gold); }
 .shopHeroScene { position:relative; min-width:0; min-height:390px; align-self:center; }
 .shopHeroHalo { position:absolute; inset:8% 0; border:1px solid #c5a57b70; border-radius:50%; transform:rotate(-18deg); }
 .shopHeroProduct { display:block; height:100%; overflow:hidden; position:relative; background:#fff7ef; border:2px solid #fff9f2; box-shadow:0 20px 40px #522b3a18; border-radius:18px; transition:box-shadow .25s,translate .25s; }
@@ -135,3 +137,5 @@
 .shopHeroTemplateControls button { min-height:44px; padding:8px 14px; border:1px solid #d8c6c2; border-radius:24px; background:#fff9ef; color:#522b3a; font:inherit; cursor:pointer; }
 .shopHeroTemplateControls button:focus-visible { outline:3px solid #a67c3d; outline-offset:3px; }
 .shopHeroTemplateControls small { flex-basis:100%; text-align:center; }
+
+.shopHeroTemplateControls button { display:inline-flex; align-items:center; justify-content:center; gap:8px; }

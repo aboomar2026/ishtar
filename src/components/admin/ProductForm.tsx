@@ -1,4 +1,5 @@
 'use client';
+import { IconPackage } from '@/components/Icons';
 
 import { useUnsavedChanges } from './useUnsavedChanges';
 import { useDialog } from '@/components/useDialog';
@@ -706,7 +707,7 @@ export function ProductForm({ mode, productId, categories, initial }: {
 
         {variants.length === 0 ? (
           <div className="adminEmptyState">
-            <span className="adminEmptyIcon">📦</span>
+            <span className="adminEmptyIcon"><IconPackage size={40} /></span>
             <strong className="adminEmptyTitle">لا توجد خيارات بعد</strong>
             <p className="adminEmptyDesc">استخدم منشئ الخيارات أعلاه لتوليد مجموعة ألوان ومقاسات، أو أضف خياراً يدوياً.</p>
           </div>

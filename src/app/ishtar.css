@@ -56,19 +56,11 @@
 [data-brand="ishtar"] :is(input[type="checkbox"], input[type="radio"]) {
   accent-color: var(--brand-burgundy);
 }
-[data-brand="ishtar"] :is(.formGrid, .adminField) :is(input, textarea, select):focus,
-[data-brand="ishtar"] .adminInput:focus {
-  border-color: var(--brand-burgundy);
-  box-shadow: 0 0 0 3px rgba(var(--brand-primary-rgb), 0.12);
-}
-[data-brand="ishtar"] :is(input, textarea, select):is([aria-invalid="true"], .hasError) {
-  border-color: var(--danger);
-}
 /* The native select arrow is at inline-end; reserve space on the same side. */
 [data-brand="ishtar"] :is(.filterRow select, .formGrid select, .adminField select, .adminFilters select, select.adminInput) {
   padding-inline: 14px 38px;
   background-position: left 12px center;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23522B3A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>");
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%23522b3a%22%20viewBox%3D%220%200%20256%20256%22%3E%3Cpath%20d%3D%22M216.49%2C104.49l-80%2C80a12%2C12%2C0%2C0%2C1-17%2C0l-80-80a12%2C12%2C0%2C0%2C1%2C17-17L128%2C159l71.51-71.52a12%2C12%2C0%2C0%2C1%2C17%2C17Z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E");
 }
 [data-brand="ishtar"][dir="ltr"] :is(.filterRow select, .formGrid select, .adminField select, .adminFilters select, select.adminInput) {
   background-position: right 12px center;

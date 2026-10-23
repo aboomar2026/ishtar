@@ -29,7 +29,7 @@ export function nextHeroLayout(layout: HeroLayout): HeroLayout {
 }
 export const heroSettingsSchema = z.object({
   layout: z.enum(['classic', 'signature', 'campaign']).default('classic'),
-  mode: z.enum(['fixed', 'rotate']).default('fixed'),
+  mode: z.enum(['fixed', 'rotate']).default('rotate'),
   profiles: z.object({ classic: heroContentSchema.optional(), signature: heroContentSchema.optional(), campaign: heroContentSchema.optional() }).default({}),
   copySource: z.enum(['brand', 'banners']).default('brand'),
   motion: z.enum(['calm', 'lively', 'none']).default('calm'),

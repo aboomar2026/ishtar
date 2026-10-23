@@ -1,0 +1,99 @@
+/* Shared field states. Composite controls own their focus ring, never the inner input. */
+[data-brand="ishtar"] :is(input, textarea, select):not(:where([type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"], [type="hidden"], [type="submit"], [type="button"])) {
+  --field-border: var(--brand-border);
+  --field-active: var(--brand-burgundy);
+  --field-halo: rgba(var(--brand-primary-rgb), .14);
+  border-color: var(--field-border);
+  border-radius: 12px;
+  color: var(--brand-ink);
+  caret-color: var(--brand-burgundy);
+  transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
+}
+@media (hover: hover) {
+  [data-brand="ishtar"] :is(input, textarea, select):not(:where([type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"], [type="hidden"])):hover:not(:disabled):not([readonly]) {
+    border-color: var(--field-active, var(--brand-burgundy));
+  }
+}
+[data-brand="ishtar"] :is(input, textarea, select):focus:not(:where([type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"])) {
+  outline: none;
+  border-color: var(--field-active, var(--brand-burgundy));
+  box-shadow: 0 0 0 3px var(--field-halo, rgba(var(--brand-primary-rgb), .14));
+}
+[data-brand="ishtar"] :is(input, textarea, select):is([aria-invalid="true"], .hasError, :user-invalid) {
+  --field-border: var(--danger);
+  --field-active: var(--danger);
+  --field-halo: color-mix(in srgb, var(--danger) 18%, transparent);
+  border-color: var(--field-border);
+}
+[data-brand="ishtar"] :is(input, textarea, select):disabled {
+  background-color: var(--brand-section);
+  color: var(--brand-muted);
+  border-color: var(--brand-border);
+  box-shadow: none;
+  opacity: .65;
+  cursor: not-allowed;
+}
+[data-brand="ishtar"] :is(input, textarea)[readonly] {
+  background-color: var(--brand-section);
+  color: var(--brand-muted);
+}
+[data-brand="ishtar"] input:autofill {
+  -webkit-text-fill-color: var(--brand-ink);
+  caret-color: var(--brand-burgundy);
+  box-shadow: 0 0 0 1000px var(--brand-surface) inset;
+}
+[data-brand="ishtar"] input:autofill:focus {
+  box-shadow: 0 0 0 1000px var(--brand-surface) inset, 0 0 0 3px var(--field-halo);
+}
+[data-brand="ishtar"] :is(input[type="checkbox"], input[type="radio"], input[type="range"], input[type="color"], input[type="file"]):focus-visible {
+  outline: 2px solid var(--brand-burgundy);
+  outline-offset: 3px;
+}
+[data-brand="ishtar"] :is(input[type="checkbox"], input[type="radio"], input[type="range"]) { accent-color: var(--brand-burgundy); }
+[data-brand="ishtar"] .searchBar {
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+[data-brand="ishtar"] .searchBar:focus-within {
+  border-color: var(--brand-burgundy);
+  box-shadow: 0 0 0 3px rgba(var(--brand-primary-rgb), .14), 0 8px 20px rgba(var(--brand-primary-rgb), .06);
+}
+[data-brand="ishtar"] .searchBar input,
+[data-brand="ishtar"] .searchBar input:is(:focus, :focus-visible, :hover) {
+  border: 0;
+  border-radius: 999px;
+  outline: none;
+  box-shadow: none;
+  background: transparent;
+}
+[data-brand="ishtar"] .searchBar:has(input:is([aria-invalid="true"], :user-invalid)) {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 18%, transparent);
+}
+[data-brand="ishtar"] .searchBar:has(input:disabled) { opacity: .65; }
+[data-brand="ishtar"] .quantitySelector input { border-radius: 0; }
+[data-brand="ishtar"] .quantitySelector input:focus { box-shadow: inset 0 0 0 2px var(--brand-burgundy); }
+[data-brand="ishtar"] .footerNewsletterInput { border-radius: 999px; }
+.uiIcon { display:inline-block; flex-shrink:0; vertical-align:middle; }
+.iconLabel { display:inline-flex; align-items:center; gap:8px; }
+@media (forced-colors: active) {
+  [data-brand="ishtar"] :is(input, textarea, select):focus-visible,
+  [data-brand="ishtar"] .searchBar:focus-within { outline:2px solid Highlight; outline-offset:3px; }
+  [data-brand="ishtar"] .searchBar input:is(:focus, :focus-visible) { outline:none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-brand="ishtar"] :is(input, textarea, select, .searchBar) { transition:none; }
+}
+/* A small dimensional accent for the cart, with no canvas or render loop. */
+[data-brand="ishtar"] .cartButton {
+  background: linear-gradient(145deg, #805064, var(--brand-burgundy) 58%, #3b1e2b);
+  border-color: #865569;
+  box-shadow: inset 0 1px 0 #ffffff30, inset 0 -3px 0 #21101b40, 0 8px 18px rgba(var(--brand-primary-rgb), .23);
+  transform-style: preserve-3d;
+}
+[data-brand="ishtar"] .cartButton > svg { filter:drop-shadow(0 2px 1px #21101b50); }
+@media (hover:hover) and (prefers-reduced-motion:no-preference) {
+  [data-brand="ishtar"] .cartButton:hover { transform:perspective(450px) translateY(-3px) rotateY(-12deg) rotateX(6deg); }
+}
+@media (prefers-reduced-motion:no-preference) {
+  [data-brand="ishtar"] .cartButton:active { transform:perspective(450px) scale(.92) rotateY(10deg); }
+}

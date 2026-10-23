@@ -1,4 +1,5 @@
 'use client';
+import { IconArrowLeft, IconCheck } from '@/components/Icons';
 import Link from 'next/link';
 import { motion } from 'motion/react';
 import { useHeroMotion } from './useHeroMotion';
@@ -34,10 +35,10 @@ export function HeroCopy({ banner, heading = 'h1', signature = false, content }:
     <Heading data-hero-reveal>{signature ? <>{banner.title.split(' ').slice(0, -1).join(' ')} <span className="shopHeroTitleAccent">{banner.title.split(' ').at(-1)}</span></> : banner.title}</Heading>
     {banner.subtitle && <p data-hero-reveal>{banner.subtitle}</p>}
     <div className="shopHeroActions" data-hero-reveal>
-      <Link className="shopHeroButton" href={heroHref(banner.href)}>{banner.ctaLabel || brand.copy.heroCta}<span aria-hidden="true">←</span></Link>
+      <Link className="shopHeroButton" href={heroHref(banner.href)}>{banner.ctaLabel || brand.copy.heroCta}<IconArrowLeft size={24} weight="bold" /></Link>
       {(!content || content.secondaryLabel) && <Link className="shopHeroSecondary" href={heroHref(content?.secondaryHref || '/category/all')}>{content?.secondaryLabel ?? brand.copy.heroSecondaryCta}</Link>}
     </div>
-    <div className="shopHeroTags" data-hero-reveal>{(content?.trustItems ?? brand.copy.heroTrustItems).filter(Boolean).map(item => <span key={item}>{item}</span>)}</div>
+    <div className="shopHeroTags" data-hero-reveal>{(content?.trustItems ?? brand.copy.heroTrustItems).filter(Boolean).map(item => <span key={item}><IconCheck size={15} weight="bold" />{item}</span>)}</div>
   </div>;
 }
 

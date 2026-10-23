@@ -5,6 +5,7 @@ import { activeBrandKey, brand, getBrandCssVariables } from '@/lib/brand';
 import './globals.css';
 import './ishtar.css';
 import './hero.css';
+import './controls.css';
 
 const tajawal = Tajawal({
   subsets: ['arabic', 'latin'],

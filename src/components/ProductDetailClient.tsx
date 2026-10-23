@@ -1,4 +1,5 @@
 'use client';
+import { IconStar, IconCheck } from './Icons';
 import { showCatalogMetrics } from '@/lib/catalog-display';
 
 import { useMemo, useState } from 'react';
@@ -126,7 +127,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
           <h1>{product.name}</h1>
           <p>{product.subtitle}</p>
           {showCatalogMetrics && <div className="detailRating">
-            {product.rating ? `★ ${product.rating} · ` : ''}{product.soldCount}+ طلب
+            {product.rating ? <><IconStar size={16} weight="fill" /> {product.rating} · </> : null}{product.soldCount}+ طلب
           </div>}
           {product.isOutOfStock ? <div className="stockNotice">هذا المنتج غير متوفر حالياً. يمكنك مشاهدة التفاصيل والرجوع لاحقاً.</div> : null}
           {showLowStock ? <div className="stockNotice lowStockNotice">المتبقي {selectedVariant.quantity} فقط — باقي كمية محدودة</div> : null}
@@ -144,7 +145,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
         </div>
 
         <button type="button" className="stickyAddButton" onClick={onAddToCart} disabled={isOutOfStock}>
-          {isOutOfStock ? 'نفدت الكمية' : added ? 'تمت الإضافة للسلة ✓' : 'أضيفي للسلة'}
+          {isOutOfStock ? 'نفدت الكمية' : added ? <><IconCheck size={20} /> تمت الإضافة للسلة</> : 'أضيفي للسلة'}
         </button>
 
         <p role="alert">{addFailed ? "وصلتِ للكمية المتاحة في السلة." : ""}</p>

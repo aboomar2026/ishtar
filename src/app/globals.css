@@ -5332,7 +5332,7 @@ select.adminInput {
 [data-brand="ishtar"] .brandLogoMark { background:transparent; box-shadow:none; border:0; }
 [data-brand="ishtar"] .brandLogoMark::after { display:none; }
 [data-brand="ishtar"] .brandLogo--print img { max-width:140px; }
-[data-brand="ishtar"] :is(button, a, input, select, textarea, [tabindex]):focus-visible { outline: 3px solid var(--brand-gold-dark); outline-offset: 3px; }
+[data-brand="ishtar"] :is(button, a, [tabindex]):not(:where(input, select, textarea)):focus-visible { outline: 3px solid var(--brand-gold-dark); outline-offset: 3px; }
 @media(max-width:600px){ [data-brand="ishtar"] .brandLogo--header img.ishtarHeaderLogo { width:126px; max-height:50px; } }
 @media print { [data-brand="ishtar"] .brandLogo--print img { max-width:140px; } }
 

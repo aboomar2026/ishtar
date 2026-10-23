@@ -1,3 +1,4 @@
+import { IconSearch, IconReceipt } from '@/components/Icons';
 import Link from 'next/link';
 import type { DeliveryFeeStatus, OrderStatus } from '@prisma/client';
 import { getAdminOrders, type AdminOrderDateFilter, type AdminDeliveryFeeFilter } from '@/features/admin/orders/order-admin.queries';
@@ -54,7 +55,7 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
       {orders.length === 0 ? (
         hasFilters ? (
           <AdminEmptyState
-            icon="🔍"
+            icon={<IconSearch size={40} />}
             title="لا توجد نتائج مطابقة"
             description="لا توجد طلبات تطابق عوامل التصفية الحالية. جرّب تعديل البحث أو الفلاتر."
             actionHref="/admin/orders"
@@ -62,7 +63,7 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
           />
         ) : (
           <AdminEmptyState
-            icon="🧾"
+            icon={<IconReceipt size={40} />}
             title="لا توجد طلبات بعد"
             description="ستظهر هنا الطلبات الجديدة فور إتمام العملاء للشراء بالدفع عند الاستلام."
           />
