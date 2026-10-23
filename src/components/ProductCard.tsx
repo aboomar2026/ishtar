@@ -1,4 +1,5 @@
 'use client';
+import { WishlistButton } from './WishlistButton';
 import { IconStar } from './Icons';
 import { showCatalogMetrics } from '@/lib/catalog-display';
 import { brand } from '@/lib/brand';
@@ -73,7 +74,7 @@ export function ProductCard({ product }: { product: Product }) {
       <div className="productCardBody">
         {addFailed && <p role="alert">وصلتِ للكمية المتاحة في السلة.</p>}
         <div className="productInfoBlock">
-          <Link href={`/product/${product.slug}`} className="productTitle">{product.name}</Link>
+          <div className="productTitleRow"><Link href={`/product/${product.slug}`} className="productTitle">{product.name}</Link><WishlistButton id={product.id} name={product.name} /></div>
           <p className="productSubtitle">{product.subtitle}</p>
           {showCatalogMetrics && <div className="productMeta">
             {product.rating ? <span className="iconLabel"><IconStar size={15} weight="fill" />{product.rating}</span> : null}

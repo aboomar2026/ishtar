@@ -127,3 +127,17 @@
 .searchSuggestion small { display: block; color: var(--brand-muted); margin-top: 3px; }
 .searchAllResults { display: block; padding: 12px; margin-top: 6px; border-top: 1px solid var(--brand-border); color: var(--brand-burgundy); font-weight: 700; text-align: center; min-height: 44px; }
 @media (max-width: 599px) { .searchSuggestionStatus { font-size: 11px; } .searchSuggestion { min-height: 58px; } }
+
+.productTitleRow { display: flex; align-items: flex-start; gap: 8px; }
+.productTitleRow .productTitle { flex: 1; min-width: 0; }
+.wishlistButton { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; gap: 8px; min-width: 44px; min-height: 44px; padding: 9px; border: 1px solid var(--brand-border); border-radius: 12px; color: var(--brand-burgundy); background: var(--brand-surface, #fff); cursor: pointer; }
+.wishlistButton.isSaved { background: var(--brand-section); border-color: var(--brand-burgundy); }
+.wishlistButton:disabled { opacity: .5; cursor: default; }
+.wishlistButton.hasLabel { padding-inline: 14px; margin-bottom: 12px; font-weight: 700; }
+.wishlistToolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+.wishlistNotice { padding: 16px; background: var(--brand-section); border: 1px solid var(--brand-border); border-radius: 14px; margin-block: 12px; }
+.wishlistNotice p { margin-top: 0; }
+.wishlistFeedback:empty { display: none; }
+.wishlistFeedback { position: fixed; z-index: 80; inset-inline: 20px; bottom: calc(110px + env(safe-area-inset-bottom, 0px)); width: max-content; max-width: min(520px, calc(100% - 40px)); margin-inline: auto; display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1px solid var(--brand-border); border-radius: 14px; color: var(--brand-ink); background: var(--brand-surface, #fff); box-shadow: 0 10px 30px #542b3a25; font-size: 14px; }
+.wishlistFeedback button { border: 0; color: inherit; background: transparent; min-width: 44px; min-height: 44px; flex: 0 0 auto; }
+@media print { .wishlistFeedback { display: none; } }

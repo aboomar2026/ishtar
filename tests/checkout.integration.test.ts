@@ -179,6 +179,24 @@ test('real Prisma checkout and HTTP rendering on disposable Postgres', { timeout
       finally { await db.query('UPDATE "Category" SET "isActive"=true WHERE id=$1', ['qa-category']); }
     });
 
+    await t.test('saved-products revalidates published IDs without exposing hidden products or mutating orders', async () => {
+      const read = (ids: unknown) => fetch(origin + '/api/catalog/saved-products', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids }) });
+      const response = await read(['suggest-0', 'suggest-8', 'missing', 'suggest-0']);
+      assert.equal(response.status, 200); assert.match(response.headers.get('cache-control') ?? '', /no-store/);
+      const body = await response.json(); assert.equal(body.products.length, 1);
+      assert.equal(body.products[0].id, 'suggest-0'); assert.equal(body.products[0].price, 35);
+      assert.deepEqual(body.unavailableIds, ['suggest-8', 'missing']);
+      assert.equal((await read(Array(51).fill('suggest-0'))).status, 400);
+      assert.equal((await read(['<invalid>'])).status, 400);
+      assert.equal((await read('invalid')).status, 400);
+      assert.deepEqual(await (await read([])).json(), { products: [], unavailableIds: [] });
+      await db.query('UPDATE "Category" SET "isActive"=false WHERE id=$1', ['qa-category']);
+      try { assert.equal((await (await read(['suggest-0'])).json()).products.length, 0); }
+      finally { await db.query('UPDATE "Category" SET "isActive"=true WHERE id=$1', ['qa-category']); }
+      const page = await fetch(origin + '/wishlist'); assert.equal(page.status, 200);
+      const html = await page.text(); assert.match(html, /noindex/); assert.match(html, /المفضّلة/);
+    });
+
     await t.test('homepage keeps overlapping product sections and links to matching collections', async () => {
       const html = await (await fetch(origin + '/')).text();
       assert.equal((html.match(/<article class="productCard /g) ?? []).length, 4);

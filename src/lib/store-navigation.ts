@@ -5,5 +5,6 @@ export const storeLinks = [
   { href: '/category/creams-makeup', label: 'مكياج' },
   { href: '/category/accessories', label: 'إكسسوارات' },
   { href: '/category/sale', label: 'العروض' },
+  { href: '/wishlist', label: 'المفضّلة' },
   { href: '/track-order', label: 'تتبع الطلب' }
 ];

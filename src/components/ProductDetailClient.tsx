@@ -1,4 +1,5 @@
 'use client';
+import { WishlistButton } from './WishlistButton';
 import { IconStar, IconCheck } from './Icons';
 import { showCatalogMetrics } from '@/lib/catalog-display';
 
@@ -125,6 +126,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
         <div className="productDetailHeader">
           <span className="eyebrow">{brand.copy.productEyebrow}</span>
           <h1>{product.name}</h1>
+          <WishlistButton id={product.id} name={product.name} label />
           <p>{product.subtitle}</p>
           {showCatalogMetrics && <div className="detailRating">
             {product.rating ? <><IconStar size={16} weight="fill" /> {product.rating} · </> : null}{product.soldCount}+ طلب

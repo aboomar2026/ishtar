@@ -36,6 +36,7 @@ jobs:
       - run: npm run test:notifications
       - run: npm run test:dashboard
       - run: npm run test:search
+      - run: npm run test:wishlist
       - run: npm run test:concurrency
       - name: Remove isolated PostgreSQL
         if: always()
