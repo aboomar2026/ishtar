@@ -1,6 +1,6 @@
 # ISHTAR 2.0 — Release readiness and blocker ledger
 
-23 October 2026. **GO for continued local/preview development; NO-GO for certifying a new production launch.** No production release/merge was requested or performed. Existing production operation is not being changed by this report.
+23 October 2026. Initial audit snapshot; see 08 for subsequent B0 fixes and passing conventional PostgreSQL CI evidence. Outbox, live feed, mobile and business acceptance still remain. **GO for continued local/preview development; NO-GO for certifying a new production launch.** No production release/merge was requested or performed. Existing production operation is not being changed by this report.
 
 The historical 76% estimate is not evidence. The table below uses explicit weighted dimensions and checklist numerators; no overall readiness percentage is assigned while critical gates are unverified. A missing competitive enhancement and a critical correctness failure are not equivalent.
 

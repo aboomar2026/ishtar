@@ -5,10 +5,10 @@ type SendTelegramMessageInput = {
   chatId?: string;
 };
 
-type TelegramSendResult =
-  | { ok: true; skipped: false }
+export type TelegramSendResult =
+  | { ok: true; skipped: false; messageId?: number }
   | { ok: false; skipped: true; reason: 'missing_env' }
-  | { ok: false; skipped: false; status: number };
+  | { ok: false; skipped: false; status: number; code: 'REJECTED' | 'RETRYABLE' | 'UNCERTAIN' | 'CHAT_MIGRATED' | 'ORDER_MISSING'; retryAfter?: number };
 
 const TELEGRAM_SEND_TIMEOUT_MS = 5_000;
 
@@ -38,16 +38,26 @@ export async function sendTelegramMessage({ text, chatId }: SendTelegramMessageI
       signal: controller.signal
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Telegram notification failed:', errorText);
-      return { ok: false, skipped: false, status: response.status };
+    const body = await response.json().catch(() => null) as {
+      ok?: boolean; error_code?: number; result?: { message_id?: number };
+      parameters?: { retry_after?: number; migrate_to_chat_id?: number };
+    } | null;
+    if (response.ok && body?.ok === true && Number.isInteger(body.result?.message_id)) {
+      return { ok: true, skipped: false, messageId: body.result?.message_id };
     }
-
-    return { ok: true, skipped: false };
-  } catch (error) {
-    console.error('Telegram notification request failed:', error);
-    return { ok: false, skipped: false, status: 0 };
+    // Log safe codes only: raw responses/errors can contain order data or bot URLs.
+    if (body?.ok !== false) return { ok: false, skipped: false, status: response.status, code: 'UNCERTAIN' };
+    const status = Number.isInteger(body.error_code) ? body.error_code! : response.status;
+    if (body.parameters?.migrate_to_chat_id) return { ok: false, skipped: false, status, code: 'CHAT_MIGRATED' };
+    const retryAfter = body.parameters?.retry_after;
+    // Never silently shorten a provider's requested delay. Unusable/extreme delays need review.
+    if (retryAfter !== undefined && (!Number.isInteger(retryAfter) || retryAfter < 0 || retryAfter > 604800)) {
+      return { ok: false, skipped: false, status, code: 'REJECTED' };
+    }
+    return { ok: false, skipped: false, status, code: status === 429 || status >= 500 ? 'RETRYABLE' : 'REJECTED', retryAfter };
+  } catch {
+    // A timeout can happen after Telegram accepted the message. Never claim a definite failure.
+    return { ok: false, skipped: false, status: 0, code: 'UNCERTAIN' };
   } finally {
     clearTimeout(timeout);
   }

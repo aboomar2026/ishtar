@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync, fork } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { PrismaClient, Prisma } from '@prisma/client';
 import { concurrencyDatabaseUrl } from './runtime/postgres-target';
@@ -11,6 +12,7 @@ type Result = Extract<WorkerMessage, { type: 'result' }>;
 
 // Deliberately fail, not skip, when the conventional PostgreSQL target is absent.
 test('independent PostgreSQL checkout and stock races', { timeout: 90000 }, async t => {
+  process.env.ORDER_OUTBOX_ENABLED = 'false';
   const schema = `qa_${randomUUID().replaceAll('-', '')}`;
   const url = concurrencyDatabaseUrl(process.env.ISHTAR_TEST_POSTGRES_URL, schema);
   const db = new PrismaClient({ datasources: { db: { url } } });
@@ -21,6 +23,10 @@ test('independent PostgreSQL checkout and stock races', { timeout: 90000 }, asyn
     schemaCreated = true;
     const ddl = execFileSync(process.execPath, ['node_modules/prisma/build/index.js', 'migrate', 'diff', '--from-empty', '--to-schema-datamodel', 'prisma/schema.prisma', '--script'], { encoding: 'utf8' });
     execFileSync(process.execPath, ['node_modules/prisma/build/index.js', 'db', 'execute', '--url', url, '--stdin'], { input: ddl, stdio: ['pipe', 'pipe', 'pipe'] });
+    // Exercise the reviewed additive SQL on conventional PostgreSQL, not only generated DDL.
+    await db.$executeRawUnsafe('DROP TABLE "OrderNotificationAttempt", "OrderNotificationRead", "OrderNotification"');
+    const additive = readFileSync('prisma/additive/order-notifications.sql', 'utf8');
+    for (let index = 0; index < 2; index++) execFileSync(process.execPath, ['node_modules/prisma/build/index.js', 'db', 'execute', '--url', url, '--stdin'], { input: additive, stdio: ['pipe', 'pipe', 'pipe'] });
     await db.adminUser.create({ data: { id: 'qa-admin', name: 'مدير اختبار', email: 'qa@example.invalid', passwordHash: 'unused-test-only', role: 'SUPER_ADMIN' } });
     await db.category.create({ data: { id: 'qa-category', name: 'اختبار', slug: 'qa' } });
     await db.product.create({ data: { id: 'qa-product', name: 'منتج اختبار', description: 'بيانات مصطنعة ومعزولة', slug: 'qa-product', categoryId: 'qa-category', status: 'ACTIVE', basePrice: 99,
@@ -28,6 +34,7 @@ test('independent PostgreSQL checkout and stock races', { timeout: 90000 }, asyn
 
     async function reset(quantity: number) {
       // These deletes can only reach this run's newly created random schema.
+      await db.orderNotification.deleteMany();
       await db.inventoryLog.deleteMany(); await db.order.deleteMany();
       await db.productVariant.update({ where: { id: 'qa-variant' }, data: { quantity } });
       await db.product.update({ where: { id: 'qa-product' }, data: { soldCount: 0 } });
@@ -69,6 +76,7 @@ test('independent PostgreSQL checkout and stock races', { timeout: 90000 }, asyn
         const released = new Promise<void>(resolve => { release = resolve; });
         held = locker.$transaction(async tx => {
           if (lock === 'variant') await tx.$queryRaw`SELECT id FROM "ProductVariant" WHERE id = 'qa-variant' FOR UPDATE`;
+          else if (lock.startsWith('notification:')) await tx.$queryRaw`SELECT id FROM "OrderNotification" WHERE id = ${lock.slice('notification:'.length)} FOR UPDATE`;
           else await tx.$queryRaw`SELECT id FROM "Order" WHERE id = ${lock} FOR UPDATE`;
           acquired(); await released;
         }, { timeout: 15000 });
@@ -134,6 +142,24 @@ test('independent PostgreSQL checkout and stock races', { timeout: 90000 }, asyn
       const ledger = await db.inventoryLog.aggregate({ _sum: { quantityChange: true } });
       assert.ok(quantity === 5 || quantity === 6);
       assert.equal(1 + (ledger._sum.quantityChange ?? 0), quantity);
+    });
+    await t.test('simultaneous checkout replay enqueues and sends only one durable notification', async () => {
+      process.env.ORDER_OUTBOX_ENABLED = 'true';
+      await reset(2); const key = randomUUID();
+      const results = await race([{ kind: 'checkout', key }, { kind: 'checkout', key }]);
+      assert.ok(results.every(row => row.result.ok));
+      assert.equal(await db.orderNotification.count(), 1);
+      assert.equal(await db.orderNotificationAttempt.count(), 1);
+      assert.equal(results.reduce((count, row) => count + row.messages, 0), 1);
+    });
+    await t.test('two independent dispatchers cannot claim the same due event', async () => {
+      const event = await db.orderNotification.findFirstOrThrow();
+      await db.orderNotification.update({ where: { id: event.id }, data: { deliveryStatus: 'RETRY', nextAttemptAt: new Date(0), sentAt: null } });
+      const results = await race([{ kind: 'dispatch', orderId: event.orderId }, { kind: 'dispatch', orderId: event.orderId }], `notification:${event.id}`);
+      assert.equal(results.filter(row => row.result.ok).length, 1);
+      assert.equal(results.reduce((count, row) => count + row.messages, 0), 1);
+      assert.equal((await db.orderNotification.findUniqueOrThrow({ where: { id: event.id } })).deliveryStatus, 'SENT');
+      assert.equal(await db.orderNotificationAttempt.count(), 2);
     });
   } finally {
     await locker.$disconnect();

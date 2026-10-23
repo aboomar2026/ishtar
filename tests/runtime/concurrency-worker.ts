@@ -4,7 +4,8 @@ import { concurrencyDatabaseUrl } from './postgres-target';
 export type RaceOperation =
   | { kind: 'checkout'; key: string; address?: string }
   | { kind: 'cancel'; orderId: string }
-  | { kind: 'stock'; quantity: number };
+  | { kind: 'stock'; quantity: number }
+  | { kind: 'dispatch'; orderId: string };
 
 // Verify the test target in every process before importing any database client.
 process.env.DATABASE_URL = concurrencyDatabaseUrl(process.env.ISHTAR_TEST_POSTGRES_URL, process.env.ISHTAR_TEST_SCHEMA ?? '');
@@ -22,7 +23,7 @@ let messages = 0;
 globalThis.fetch = async url => {
   if (String(url) !== 'https://api.telegram.org/botISHTAR_CONCURRENCY_TEST_ONLY/sendMessage') throw new Error('External network forbidden in race worker');
   messages++;
-  return new Response('{"ok":true}', { status: 200 });
+  return new Response('{"ok":true,"result":{"message_id":1}}', { status: 200 });
 };
 
 async function main() {
@@ -39,6 +40,9 @@ async function main() {
       } else if (operation.kind === 'cancel') {
         const { updateOrderStatusAction } = await import('../../src/features/admin/orders/order-admin.actions');
         result = await updateOrderStatusAction(operation.orderId, 'CANCELED');
+      } else if (operation.kind === 'dispatch') {
+        const { dispatchOrderNotification } = await import('../../src/features/notifications/notification-dispatcher');
+        result = { ok: await dispatchOrderNotification(operation.orderId) };
       } else {
         const { adjustVariantQuantityAction } = await import('../../src/features/admin/inventory/inventory-admin.actions');
         result = await adjustVariantQuantityAction('qa-variant', operation.quantity);

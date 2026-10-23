@@ -18,6 +18,8 @@ test('real Prisma checkout and HTTP rendering on disposable Postgres', { timeout
   const connection = address.startsWith('postgres') ? address : `postgresql://postgres:test@${address}/postgres`;
   process.env.DATABASE_URL = `${connection}${connection.includes('?') ? '&' : '?'}connection_limit=1&sslmode=disable`;
   process.env.NEXT_PUBLIC_STORE_BRAND = 'ishtar';
+  process.env.ORDER_OUTBOX_ENABLED = 'true';
+  process.env.ORDER_OUTBOX_WORKER_ENABLED = 'false';
   process.env.ADMIN_SESSION_SECRET = randomUUID();
   process.env.TELEGRAM_BOT_TOKEN = 'ISHTAR_TEST_ONLY';
   process.env.TELEGRAM_ADMIN_CHAT_ID = 'ISOLATED_TEST_CHAT';
@@ -26,7 +28,7 @@ test('real Prisma checkout and HTTP rendering on disposable Postgres', { timeout
   globalThis.fetch = async (url, init) => {
     if (typeof url === 'string' && url.startsWith('https://api.telegram.org/botISHTAR_TEST_ONLY/')) {
       telegramMessages.push(String(init?.body));
-      return new Response(JSON.stringify({ ok: true }), { status: 200 });
+      return new Response(JSON.stringify({ ok: true, result: { message_id: 1 } }), { status: 200 });
     }
     return originalFetch(url, init);
   };
@@ -72,6 +74,8 @@ test('real Prisma checkout and HTTP rendering on disposable Postgres', { timeout
       assert.equal((await getAdminOrders({ q: orderNumber }))[0]?.id, orderId);
       assert.equal((await getOrderSuccessSummaryByNumber(orderNumber))?.orderNumber, orderNumber);
       assert.equal(telegramMessages.length, 1);
+      assert.equal(await prisma.orderNotification.count(), 1);
+      assert.equal((await prisma.orderNotification.findUniqueOrThrow({ where: { orderId } })).deliveryStatus, 'SENT');
       assert.match(telegramMessages[0], new RegExp(orderNumber));
     });
     await t.test('same key with changed payload is rejected and receipt recovery returns no customer data', async () => {
@@ -168,7 +172,7 @@ test('real Prisma checkout and HTTP rendering on disposable Postgres', { timeout
 
     await t.test('catalog role cannot read orders, exports or prints even with a stale super-admin claim', async () => {
       const headers = { cookie: `${ADMIN_SESSION_COOKIE}=${catalogToken}` };
-      for (const path of ['/admin', '/admin/orders', `/admin/orders/${orderId}`, `/admin/orders/${orderId}/invoice`, `/admin/orders/${orderId}/packing-slip`]) {
+      for (const path of ['/admin', '/admin/notifications', '/admin/orders', `/admin/orders/${orderId}`, `/admin/orders/${orderId}/invoice`, `/admin/orders/${orderId}/packing-slip`]) {
         const response = await fetch(origin + path, { headers, redirect: 'manual' });
         assert.equal(response.status, 307, path);
         assert.equal(response.headers.get('location'), '/admin/products', path);
@@ -176,6 +180,8 @@ test('real Prisma checkout and HTTP rendering on disposable Postgres', { timeout
       }
       assert.equal((await fetch(origin + '/admin/orders/export', { headers })).status, 403);
       assert.equal((await fetch(origin + '/admin/orders/export')).status, 401);
+      assert.equal((await fetch(origin + '/admin/api/order-activity')).status, 401);
+      assert.equal((await fetch(origin + '/admin/api/order-activity', { headers })).status, 403);
       for (const path of ['/admin/products', '/admin/categories', '/admin/inventory', '/admin/banners']) {
         const response = await fetch(origin + path, { headers, redirect: 'manual' });
         assert.equal(response.status, 200, path);
@@ -194,6 +200,25 @@ test('real Prisma checkout and HTTP rendering on disposable Postgres', { timeout
       assert.equal((await fetch(origin + '/admin/orders/export?status=invalid', { headers })).status, 200);
     });
 
+    await t.test('live activity is private, compact and changes after a committed order update', async () => {
+      const headers = { cookie: `${ADMIN_SESSION_COOKIE}=${token}` };
+      const response = await fetch(origin + '/admin/api/order-activity', { headers });
+      assert.equal(response.status, 200); assert.match(response.headers.get('cache-control') ?? '', /no-store/);
+      const before = await response.json();
+      assert.equal(before.pendingOrders, 56); assert.equal(before.outboxEnabled, true); assert.equal(before.unread, 1);
+      assert.doesNotMatch(JSON.stringify(before), /customerName|customerPhone|address|عميلة اختبار/);
+      await db.query(`UPDATE "Order" SET status='CONFIRMED', "updatedAt"=CURRENT_TIMESTAMP WHERE id=$1`, [orderId]);
+      const after = await (await fetch(origin + '/admin/api/order-activity', { headers })).json();
+      assert.equal(after.pendingOrders, 55); assert.notEqual(before.revision, after.revision);
+      const center = await fetch(origin + '/admin/notifications', { headers });
+      assert.equal(center.status, 200);
+      const centerHtml = await center.text();
+      assert.match(centerHtml, new RegExp(orderNumber));
+      assert.match(centerHtml, /أُرسل إلى تيليجرام/);
+      assert.match(centerHtml, /المعالجة المجدولة غير مفعّلة/);
+      assert.equal((await fetch(origin + '/api/internal/order-notifications/dispatch', { method: 'POST' })).status, 404);
+    });
+
     await t.test('invoice draft, confirmed invoice and packing slip render 50 synthetic rows', async () => {
       const headers = { cookie: `${ADMIN_SESSION_COOKIE}=${token}` };
       const invoiceUrl = `${origin}/admin/orders/${orderId}/invoice`;
@@ -206,6 +231,7 @@ test('real Prisma checkout and HTTP rendering on disposable Postgres', { timeout
       const confirmed = await fetch(invoiceUrl, { headers });
       assert.equal(confirmed.status, 200);
       const invoice = await confirmed.text();
+      assert.doesNotMatch(invoice, /aria-label="متابعة الطلبات"/);
       assert.doesNotMatch(invoice, /مسودة — رسوم التوصيل غير مؤكدة/);
       assert.match(invoice, /1,250/);
       assert.ok((invoice.match(/<tr>/g) ?? []).length >= 51);

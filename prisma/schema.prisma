@@ -334,3 +334,47 @@ model HeroSettings {
   config    Json
   updatedAt DateTime @updatedAt
 }
+
+// Additive notification storage. Deploy the SQL before enabling ORDER_OUTBOX_ENABLED.
+model OrderNotification {
+  id              String   @id @default(cuid())
+  orderId         String   @unique
+  deliveryStatus  String   @default("PENDING")
+  attempts        Int      @default(0)
+  nextAttemptAt   DateTime @default(now())
+  leaseToken      String?
+  leaseUntil      DateTime?
+  lastErrorCode   String?
+  sentAt          DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  reads           OrderNotificationRead[]
+  deliveryAttempts OrderNotificationAttempt[]
+
+  @@index([deliveryStatus, nextAttemptAt])
+  @@index([createdAt, id])
+  @@index([updatedAt, id])
+}
+
+model OrderNotificationRead {
+  notificationId String
+  adminId        String
+  readAt         DateTime @default(now())
+  notification   OrderNotification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@id([notificationId, adminId])
+  @@index([adminId])
+}
+
+model OrderNotificationAttempt {
+  id             String   @id @default(cuid())
+  notificationId String
+  attempt        Int
+  outcome        String   @default("PROCESSING")
+  errorCode      String?
+  createdAt      DateTime @default(now())
+  finishedAt     DateTime?
+  notification   OrderNotification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@unique([notificationId, attempt])
+}

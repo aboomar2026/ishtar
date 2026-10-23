@@ -9,12 +9,14 @@ import { logoutAction } from '@/features/admin/auth/admin-actions';
 import { BrandLogo } from '@/components/BrandLogo';
 import { brand } from '@/lib/brand';
 import { hasAdminPermission } from '@/features/admin/auth/admin-permissions';
+import { AdminOrderActivity } from './AdminOrderActivity';
 
-type NavItem = { href: string; label: string; icon: React.ReactNode; exact?: boolean };
+type NavItem = { href: string; label: string; icon: React.ReactNode; exact?: boolean; orderOnly?: boolean };
 
 const NAV: NavItem[] = [
-  { href: '/admin', label: 'لوحة التحكم', exact: true, icon: <IconHome className="adminNavIcon" size={20} /> },
-  { href: '/admin/orders', label: 'الطلبات', icon: <IconReceipt className="adminNavIcon" size={20} /> },
+  { href: '/admin', label: 'لوحة التحكم', exact: true, orderOnly: true, icon: <IconHome className="adminNavIcon" size={20} /> },
+  { href: '/admin/orders', label: 'الطلبات', orderOnly: true, icon: <IconReceipt className="adminNavIcon" size={20} /> },
+  { href: '/admin/notifications', label: 'التنبيهات', orderOnly: true, icon: <IconReceipt className="adminNavIcon" size={20} /> },
   { href: '/admin/products', label: 'المنتجات', icon: <IconPackage className="adminNavIcon" size={20} /> },
   { href: '/admin/categories', label: 'التصنيفات', icon: <IconGrid className="adminNavIcon" size={20} /> },
   { href: '/admin/inventory', label: 'المخزون', icon: <IconArchive className="adminNavIcon" size={20} /> },
@@ -30,7 +32,7 @@ function NavLinks({ pathname, role, onNavigate }: { pathname: string; role: stri
   return (
     <nav className="adminNav">
       <span className="adminNavLabel">الكتالوج</span>
-      {NAV.filter(item => hasAdminPermission(role, 'orders') || (item.href !== '/admin' && item.href !== '/admin/orders')).map((item) => (
+      {NAV.filter(item => !item.orderOnly || hasAdminPermission(role, 'orders')).map((item) => (
         <Link key={item.href} href={item.href} className={isActive(pathname, item) ? 'active' : ''} aria-current={isActive(pathname, item) ? "page" : undefined} onClick={onNavigate}>
           {item.icon}
           <span>{item.label}</span>
@@ -57,6 +59,7 @@ export function AdminShell({
   const drawerRef = useDialog(drawerOpen, () => setDrawerOpen(false));
   const current = NAV.find((item) => isActive(pathname, item));
   const title = current?.label ?? 'لوحة التحكم';
+  const printing = /\/(invoice|packing-slip)$/.test(pathname);
 
   return (
     <div className="adminRoot" dir="rtl">
@@ -86,6 +89,8 @@ export function AdminShell({
             </form>
           </div>
         </header>
+
+        {hasAdminPermission(admin.role, 'orders') && !printing && <AdminOrderActivity />}
 
         <main className="adminContent">{children}</main>
       </div>

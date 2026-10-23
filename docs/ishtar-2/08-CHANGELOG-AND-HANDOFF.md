@@ -1,5 +1,15 @@
 # ISHTAR 2.0 — Audit handoff
 
+## B1 — Notification reliability and live admin activity
+
+Implemented on the same branch: transactional order event, leased Telegram attempts/retries and safe ambiguous-outcome handling; per-admin read/read-all center; protected compact activity feed and visibility/offline/backoff polling; manual due-attempt processing and optional secret-protected scheduled worker. Files and activation/rollback instructions: [09-NOTIFICATION-ROLLOUT.md](09-NOTIFICATION-ROLLOUT.md).
+
+Application/schema code is prepared, but no live SQL, environment flag, worker secret, existing DB/Telegram setting, historical event backfill, real order or external message was applied. Default OFF preserves the current order notification path. Live counts/refresh use existing order tables independently. Durable-center activation requires explicit reviewed additive SQL and flag approval; preview cron does not run automatically.
+
+Local validation: Prisma client generation, typecheck, lint, brand 28/28, commerce 10/10, checkout-client 6/6, hero 14/14, Cloudinary/site URL 8/8, admin safety 4/4, notification/polling 13/13 and real Prisma/HTTP integration 18/18. Total 73 runner tests including parent groups. Negative tests intentionally emit synthetic DB enqueue/receipt-failure logs; no live channel is contacted. SQL repeatability/old-table compatibility, after-commit failures, retry/read isolation, worker auth, enabled-center SSR/private-feed revision, polling cleanup and print-toolbar exclusion are covered. Independent dispatcher/replay races are prepared for actual PostgreSQL CI; inspect its resulting run before claiming PASS.
+
+No mobile/signed-in interactive browser, real scheduled worker, real Telegram delivery or live-schema acceptance is claimed. New data tables are additive and require review before activation; disabling flags/worker preserves existing tables/events for reconciliation.
+
 ## B0 — Safety implementation follow-up, 23 October 2026
 
 Application changes on the same PR branch:
@@ -13,6 +23,18 @@ Application changes on the same PR branch:
 Fresh B0 checks: typecheck/lint/build PASS; brand 28/28; commerce 10/10; checkout-client 6/6; hero 14/14; Cloudinary/site URL 8/8; admin/target safety 4/4; isolated Prisma/HTTP integration 17/17. Total 59 runner tests including parent groups. New HTTP assertions cover catalog-role denial for every private order page/print/export, retained catalog access, stale super-admin cookie claims, and 56-order pagination fixtures. This is server/HTTP validation, not interactive browser/mobile acceptance.
 
 Local `test:concurrency` is **BLOCKED / did not pass**: no conventional PostgreSQL executable/service is available, and package-manager setup failed on OS setuid/setgroups restrictions. The command intentionally fails on missing `ISHTAR_TEST_POSTGRES_URL` instead of accepting ambient `DATABASE_URL` or silently skipping. Target-validation tests pass; actual races require the new CI service or an explicitly provisioned local disposable DB. Do not mark concurrency cleared from typecheck or PGlite results. CI/deploy status must be verified against the resulting remote head before acceptance.
+
+### Verified remote follow-up
+
+Remote head `1db6459fcea24dc64405a95922cc4f2bbdaf45e6` contains application/documentation tree `3a1268e5a1d2b3cb68dd833579feb71be2c119b8`, verified identical to the locally tested source tree. PR #3 remains open/unmerged. One consolidated branch update triggered one preview build.
+
+GitHub [run 39954772424](https://github.com/aboomar2026/ishtar/actions/runs/39954772424), job `postgres-races`, **PASS**: PostgreSQL setup, clean npm install, Prisma generation, admin safety 4/4 and conventional concurrency 6/6 runner tests (five scenarios + parent), cleanup all successful. This clears the five tested conventional concurrency cases; it does not prove arbitrary load/multi-SKU deadlock handling or production database compatibility. Local conventional PostgreSQL remains unavailable; remote CI supplied the independent server.
+
+Netlify deploy `6adb551d88b5ed364cb47ead` **SUCCESS** for that head. Fresh desktop Chromium preview smoke verified persistent keyboard-content pause after blur, explicit play/resume and subsequent pause, zero broken completed homepage images and no horizontal document overflow at the sampled viewport. No signed-in live admin changes, real orders or Telegram sends were made. Device/mobile and other release gates remain.
+
+Desktop visual sample: [B0 preview](evidence/preview-b0-2026-10-23.jpg). Keyboard pause/resume was verified from the live controls/DOM; a static photo alone does not prove timing.
+
+PR title/description updated with actual CI and deployment evidence. This small post-deploy documentation checkpoint is kept locally for the next batch to avoid a documentation-only Netlify rebuild; the PR description contains the same current verification results.
 
 ### Running the race suite safely
 

@@ -75,6 +75,11 @@
 [data-brand="ishtar"] .footerNewsletterInput { border-radius: 999px; }
 .uiIcon { display:inline-block; flex-shrink:0; vertical-align:middle; }
 .iconLabel { display:inline-flex; align-items:center; gap:8px; }
+.adminOrderActivity { display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:12px 24px; border-bottom:1px solid var(--brand-border); background:var(--brand-surface); }
+.adminOrderActivity .adminBtn { min-height:44px; }
+.adminOrderActivity [role="status"] { flex:1 1 220px; font-size:12px; }
+@media (max-width:640px) { .adminOrderActivity { padding:12px; } }
+@media print { .adminOrderActivity { display:none !important; } }
 @media (forced-colors: active) {
   [data-brand="ishtar"] :is(input, textarea, select):focus-visible,
   [data-brand="ishtar"] .searchBar:focus-within { outline:2px solid Highlight; outline-offset:3px; }
