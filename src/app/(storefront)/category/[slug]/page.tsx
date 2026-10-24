@@ -1,3 +1,5 @@
+import { getCollections } from '@/features/collections/collections.queries';
+import { CollectionCard } from '@/components/CollectionCard';
 import type { Metadata } from 'next';
 import { publicSiteUrl } from '@/lib/site-url';
 import { getCategoryBySlug } from '@/features/catalog/catalog.queries';
@@ -44,6 +46,7 @@ export default async function CategoryPage({
   if (!result) notFound();
 
   const query = filters.q ?? '';
+  const matchingGroups = query.length >= 2 ? await getCollections({ q: query, limit: 3 }) : [];
   function pageHref(page: number) {
     const values = new URLSearchParams();
     for (const [key, value] of Object.entries(resolvedSearchParams)) if (value && key !== 'page') values.set(key, value);
@@ -65,6 +68,7 @@ export default async function CategoryPage({
         <h1>{query ? `نتائج البحث: ${query}` : result.category.name}</h1>
         <p>{query ? brand.copy.categorySearchDescription : result.category.description}</p>
       </section>
+      {matchingGroups.length > 0 && <section className="contentSection"><h2>مجموعات تناسب بحثك</h2><div className="collectionGrid">{matchingGroups.map(collection => <CollectionCard key={collection.id} collection={collection} />)}</div></section>}
       <CategoryStrip categories={result.categories} activeSlug={slug} />
       <form className="filterRow" action={`/category/${slug}`}>
         <ClearableSearchInput name="q" defaultValue={query} placeholder="بحث داخل التصنيف" ariaLabel="بحث داخل التصنيف" submitOnClear />

@@ -18,6 +18,7 @@ const NAV: NavItem[] = [
   { href: '/admin/orders', label: 'الطلبات', orderOnly: true, icon: <IconReceipt className="adminNavIcon" size={20} /> },
   { href: '/admin/notifications', label: 'التنبيهات', orderOnly: true, icon: <IconReceipt className="adminNavIcon" size={20} /> },
   { href: '/admin/products', label: 'المنتجات', icon: <IconPackage className="adminNavIcon" size={20} /> },
+  { href: '/admin/collections', label: 'المجموعات', icon: <IconGrid className="adminNavIcon" size={20} /> },
   { href: '/admin/categories', label: 'التصنيفات', icon: <IconGrid className="adminNavIcon" size={20} /> },
   { href: '/admin/inventory', label: 'المخزون', icon: <IconArchive className="adminNavIcon" size={20} /> },
   { href: '/admin/banners', label: 'البنرات', icon: <IconImages className="adminNavIcon" size={20} /> }

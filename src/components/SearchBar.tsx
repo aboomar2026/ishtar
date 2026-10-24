@@ -13,14 +13,15 @@ export function SearchBar({ compact = false }: { compact?: boolean }) {
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
-  const [response, setResponse] = useState<{ query: string; products: SearchSuggestion[]; failed?: boolean }>();
+  const [response, setResponse] = useState<{ query: string; products: SearchSuggestion[]; collections?: Pick<SearchSuggestion, 'id' | 'name' | 'slug' | 'image'>[]; failed?: boolean }>();
   const inputRef = useRef<HTMLInputElement>(null);
   const optionRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const id = useId();
   const term = normalizeSuggestionQuery(query);
   const visible = open && term.length >= 2;
   const current = response?.query === term ? response : undefined;
-  const products = current?.products ?? [];
+  const products = [...(current?.collections ?? []).map(c => ({ ...c, price: 0, available: true, kind: 'collection' })), ...(current?.products ?? []).map(p => ({ ...p, kind: 'product' }))];
+  const resultHref = (p: typeof products[number]) => `/${p.kind === 'collection' ? 'collections' : 'product'}/${encodeURIComponent(p.slug)}`;
   const loading = visible && !current;
 
   useEffect(() => {
@@ -36,7 +37,8 @@ export function SearchBar({ compact = false }: { compact?: boolean }) {
         const body = await result.json();
         if (!Array.isArray(body.products) || body.products.length > 6 || body.products.some((p: SearchSuggestion) =>
           !p || typeof p.id !== 'string' || typeof p.slug !== 'string' || typeof p.name !== 'string' || typeof p.image !== 'string' || !Number.isFinite(p.price) || typeof p.available !== 'boolean')) throw new Error('invalid');
-        if (!disposed) setResponse({ query: term, products: body.products });
+        if (body.collections !== undefined && (!Array.isArray(body.collections) || body.collections.length > 2 || body.collections.some((c: Pick<SearchSuggestion, 'id' | 'name' | 'slug' | 'image'>) => !c || ['id','name','slug','image'].some(key => typeof c[key as keyof typeof c] !== 'string')))) throw new Error('invalid');
+        if (!disposed) setResponse({ query: term, products: body.products, collections: body.collections ?? [] });
       } catch { if (!disposed) setResponse({ query: term, products: [], failed: true }); }
       finally { clearTimeout(timeout); }
     }, 300);
@@ -62,7 +64,7 @@ export function SearchBar({ compact = false }: { compact?: boolean }) {
       onChange={event => { setQuery(event.target.value); setActive(-1); setOpen(true); }}
       onKeyDown={event => {
         if (event.nativeEvent.isComposing) return;
-        if (event.key === 'Enter' && visible && products[active]) { event.preventDefault(); navigate(`/product/${products[active].slug}`); }
+        if (event.key === 'Enter' && visible && products[active]) { event.preventDefault(); navigate(resultHref(products[active])); }
         else if (event.key === 'Escape') { event.preventDefault(); dismiss(); }
         else if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && products.length && term.length >= 2) {
           event.preventDefault(); setOpen(true);
@@ -74,15 +76,15 @@ export function SearchBar({ compact = false }: { compact?: boolean }) {
     }}><IconX size={16} /></button>}
     <button type="submit" className="searchSubmit">بحث</button>
     {visible && <div className="searchSuggestions">
-      <p className="searchSuggestionStatus" role="status">{loading ? 'جارٍ البحث…' : current?.failed ? 'تعذّر تحميل الاقتراحات؛ يمكنك البحث في جميع المنتجات.' : products.length ? `${products.length} اقتراحات — استخدمي الأسهم ثم Enter لفتح المنتج.` : 'لا توجد اقتراحات مطابقة. جرّبي كلمة أخرى.'}</p>
+      <p className="searchSuggestionStatus" role="status">{loading ? 'جارٍ البحث…' : current?.failed ? 'تعذّر تحميل الاقتراحات؛ يمكنك البحث في جميع المنتجات.' : products.length ? `${products.length} اقتراحات — استخدمي الأسهم ثم Enter لفتح النتيجة.` : 'لا توجد اقتراحات مطابقة. جرّبي كلمة أخرى.'}</p>
       <ul id={id} role="listbox" aria-label="اقتراحات المنتجات" aria-busy={loading}>
-        {products.map((product, index) => <li role="presentation" key={product.id}>
+        {products.map((product, index) => <li role="presentation" key={`${product.kind}-${product.id}`}>
           <Link ref={node => { optionRefs.current[index] = node; }} id={`${id}-${index}`} role="option" aria-selected={active === index}
-            href={`/product/${product.slug}`} tabIndex={-1} className="searchSuggestion"
+            href={resultHref(product)} tabIndex={-1} className="searchSuggestion"
             onMouseDown={event => event.preventDefault()} onClick={() => { dismiss(); inputRef.current?.blur(); }}>
             <img src={getCloudinaryTransformedUrl(product.image, { width: 96, height: 96, crop: 'fit' })} alt="" width={48} height={48}
               onError={event => { if (!event.currentTarget.src.endsWith(FALLBACK_PRODUCT_IMAGE)) event.currentTarget.src = FALLBACK_PRODUCT_IMAGE; }} />
-            <span><strong>{product.name}</strong><small>{product.available ? `₪${product.price.toLocaleString('en-US')}` : 'غير متوفر حاليًا'}</small></span>
+            <span><strong>{product.name}</strong><small>{product.kind === 'collection' ? 'مجموعة · اكتشفي المنتجات' : product.available ? `₪${product.price.toLocaleString('en-US')}` : 'غير متوفر حاليًا'}</small></span>
           </Link>
         </li>)}
       </ul>

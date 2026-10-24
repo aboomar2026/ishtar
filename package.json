@@ -36,7 +36,8 @@
     "test:quick-view": "node --import tsx --test tests/quick-view.test.tsx",
     "db:test-products:sql": "node --import tsx scripts/generate-test-products-sql.ts",
     "test:order-reset": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/order-reset.integration.test.ts",
-    "test:test-products": "node --import tsx --test tests/test-products.integration.test.ts"
+    "test:test-products": "node --import tsx --test tests/test-products.integration.test.ts",
+    "test:collections": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/collections.integration.test.ts tests/collections-auth.test.ts"
   },
   "dependencies": {
     "@phosphor-icons/react": "2.1.7",

@@ -1,10 +1,11 @@
+import { collectionsReady } from '@/features/collections/collections.storage';
 import { Prisma, type BannerPlacement } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import type { CatalogProductFilters, CategoryProductsResult, HomeCatalogResult } from './catalog.types';
 import { mapBanner, mapCategory, mapProductCard, mapProductDetail } from './catalog.mappers';
 import { getVirtualCategory } from './catalog.utils';
 
-const productListInclude = {
+export const productListInclude = {
   category: true,
   images: { orderBy: [{ isPrimary: 'desc' }, { sortOrder: 'asc' }] },
   variants: { where: { isActive: true }, orderBy: [{ colorName: 'asc' }, { size: 'asc' }] }
@@ -102,7 +103,8 @@ async function getProductPage(filters: CatalogProductFilters = {}) {
   else if (filters.categorySlug && !['all', 'sale'].includes(filters.categorySlug)) conditions.push(Prisma.sql`c.slug = ${filters.categorySlug}`);
   if (filters.q) {
     const pattern = `%${filters.q.replace(/[\\%_]/g, (char) => `\\${char}`)}%`;
-    conditions.push(Prisma.sql`(p.name ILIKE ${pattern} OR p.subtitle ILIKE ${pattern} OR p.description ILIKE ${pattern} OR p.brand ILIKE ${pattern} OR ${filters.q} = ANY(p.tags))`);
+    const collectionMatch = await collectionsReady() ? Prisma.sql`OR EXISTS (SELECT 1 FROM "CollectionProduct" cp JOIN "Collection" co ON co.id = cp."collectionId" WHERE cp."productId" = p.id AND co."isActive" AND (co.name ILIKE ${pattern} OR ${filters.q} = ANY(co.keywords)))` : Prisma.empty;
+    conditions.push(Prisma.sql`(p.name ILIKE ${pattern} OR p.subtitle ILIKE ${pattern} OR p.description ILIKE ${pattern} OR p.brand ILIKE ${pattern} OR ${filters.q} = ANY(p.tags) ${collectionMatch})`);
   }
   if (filters.availability === 'in-stock') conditions.push(Prisma.sql`v.stock > 0`);
   if (filters.minPrice != null) conditions.push(Prisma.sql`v.price >= ${filters.minPrice}`);

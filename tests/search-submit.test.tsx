@@ -68,3 +68,21 @@ test('suggestions debounce, cancel stale replies, navigate by keyboard and recov
     await act(async () => view.unmount()); assert.equal(pending[4].signal.aborted, true);
   } finally { globalThis.fetch = originalFetch; }
 });
+
+test('collection suggestions are distinguished and keyboard navigation opens the collection', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => Response.json({ products: [], collections: [{ id: 'gift', name: 'هدية بمحبة', slug: 'with-love', image: '/mock-products/gift-box.svg' }] });
+  events.length = 0;
+  const { SearchBar } = await import('../src/components/SearchBar');
+  let view!: ReactTestRenderer;
+  try {
+    await act(async () => { view = create(createElement(SearchBar), { createNodeMock: element => element.type === 'input' ? { blur: () => events.push('blur'), focus() {} } : { scrollIntoView() {} } }); });
+    await act(async () => view.root.findByType('input').props.onChange({ target: { value: 'هدية' } }));
+    await act(async () => t.mock.timers.tick(300));
+    assert.equal(view.root.findByProps({ href: '/collections/with-love' }).props.role, 'option');
+    assert.match(view.root.findByType('small').children.join(''), /مجموعة/);
+    for (const key of ['ArrowDown', 'Enter']) await act(async () => view.root.findByType('input').props.onKeyDown({ key, nativeEvent: {}, preventDefault() {} }));
+    assert.deepEqual(events, ['blur', '/collections/with-love']);
+  } finally { if (view) await act(async () => view.unmount()); globalThis.fetch = originalFetch; }
+});

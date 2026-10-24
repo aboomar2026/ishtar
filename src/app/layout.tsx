@@ -6,6 +6,7 @@ import './globals.css';
 import './ishtar.css';
 import './hero.css';
 import './controls.css';
+import './collections.css';
 
 const tajawal = Tajawal({
   subsets: ['arabic', 'latin'],

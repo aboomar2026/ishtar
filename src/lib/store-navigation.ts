@@ -1,4 +1,5 @@
 export const storeLinks = [
+  { href: '/collections', label: 'المجموعات' },
   { href: '/category/new-in', label: 'وصل حديثاً' },
   { href: '/category/bags', label: 'شنط' },
   { href: '/category/perfumes', label: 'عطور' },
