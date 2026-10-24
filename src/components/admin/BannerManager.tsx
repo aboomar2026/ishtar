@@ -1,6 +1,6 @@
 'use client';
+import { IconImages } from '@/components/Icons';
 
-import { brand } from '@/lib/brand';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -143,7 +143,7 @@ export function BannerManager({ banners }: { banners: AdminBannerListItem[] }) {
       {formMessage && !editor && <div className="adminAlert isError" role="alert">{formMessage}</div>}
       <div className="adminCardHeader">
         <p className="adminMuted">{banners.length} بنر.</p>
-        {!brand.behavior.useDatabaseBannerCopy && <p className="adminAlert isInfo">النصوص والأزرار تتبع الهوية المعتمدة؛ تعديل نص البنر هنا لا يغير نص المتجر. الصورة والرابط فقط يؤثران حسب موضع البنر.</p>}
+        <p className="adminMuted">لعرض نصوص وأزرار هذه البنرات اختَر «نصوص بنرات الواجهة» في إعدادات التصميم أعلاه. بنرات العروض الأخرى تتبع إعدادات الهوية.</p>
         {!editor && <button type="button" className="adminBtn adminBtnPrimary" onClick={openAdd}>+ إضافة بنر</button>}
       </div>
 
@@ -235,7 +235,7 @@ export function BannerManager({ banners }: { banners: AdminBannerListItem[] }) {
 
       {banners.length === 0 ? (
         <AdminEmptyState
-          icon="🖼️"
+          icon={<IconImages size={40} />}
           title="لا توجد بنرات بعد"
           description="أضيفي بنرات الواجهة والعروض لتظهر في الصفحة الرئيسية وصفحات التصنيفات."
         />

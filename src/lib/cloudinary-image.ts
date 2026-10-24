@@ -24,10 +24,12 @@ export function getCloudinaryTransformedUrl(
   const height = options.height ?? 1000;
   const crop = options.crop ?? 'fill';
   const gravity = options.gravity ?? 'auto';
+  // Fit/limit resize the whole image; Cloudinary rejects auto gravity with them.
+  const gravityTransform = crop === 'fill' ? `,g_${gravity}` : '';
 
   return url.replace(
     '/upload/',
-    `/upload/f_auto,q_auto,w_${width},h_${height},c_${crop},g_${gravity}/`
+    `/upload/f_auto,q_auto,w_${width},h_${height},c_${crop}${gravityTransform}/`
   );
 }
 

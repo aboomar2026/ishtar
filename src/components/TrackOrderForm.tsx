@@ -1,4 +1,5 @@
 'use client';
+import { IconX } from './Icons';
 
 import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { trackOrderSchema } from '@/features/orders/order.validation';
@@ -273,7 +274,7 @@ export function TrackOrderForm({ initialOrderNumber = '' }: { initialOrderNumber
                     onClick={() => hideSavedOrder(savedOrder)}
                     aria-label={`إخفاء الطلب ${savedOrder.orderNumber} من هذا الجهاز`}
                   >
-                    ×
+                    <IconX size={20} />
                   </button>
                   <div className="recentOrderMain">
                     <span className="recentOrderLabel">رقم الطلب</span>

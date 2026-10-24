@@ -1,4 +1,5 @@
 'use client';
+import { IconCheck, IconReceipt, IconPackage } from '@/components/Icons';
 
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
@@ -56,18 +57,18 @@ export function OrderOperations({
       )}
       <div className="adminBtnRow">
         {canPrintInvoice ? (
-          <Link href={`/admin/orders/${orderId}/invoice`} className="adminBtn adminBtnPrimary">🧾 طباعة الفاتورة</Link>
+          <Link href={`/admin/orders/${orderId}/invoice`} className="adminBtn adminBtnPrimary"><IconReceipt size={20} /> طباعة الفاتورة</Link>
         ) : (
-          <button type="button" className="adminBtn adminBtnPrimary" disabled title="حدد التوصيل أولاً">🧾 طباعة الفاتورة</button>
+          <button type="button" className="adminBtn adminBtnPrimary" disabled title="حدد التوصيل أولاً"><IconReceipt size={20} /> طباعة الفاتورة</button>
         )}
-        <Link href={`/admin/orders/${orderId}/packing-slip`} className="adminBtn">📦 طباعة قائمة التغليف</Link>
+        <Link href={`/admin/orders/${orderId}/packing-slip`} className="adminBtn"><IconPackage size={20} /> طباعة قائمة التغليف</Link>
         <button type="button" className="adminBtn adminBtnGhost" onClick={copySummary}>{copied ? 'تم النسخ!' : 'نسخ الملخص'}</button>
         <button type="button" className={`adminBtn ${isPacked ? 'adminBtnGhost' : 'adminBtnPrimary'}`} onClick={togglePacked} disabled={pending || status === 'CANCELED'}>
           {isPacked ? 'تحديد كغير مُغلَّف' : 'تحديد كمُغلَّف'}
         </button>
       </div>
       <p className="adminMuted" style={{ marginTop: 10 }}>
-        {isPacked ? 'مُغلَّف ✓ · ' : ''}فُتحت طباعة الفاتورة {invoicePrintCount}× · فُتحت طباعة التجهيز {packingSlipPrintCount}× (لا يؤكد اكتمال الطباعة)
+        {isPacked ? <><IconCheck size={16} /> مُغلَّف · </> : null}فُتحت طباعة الفاتورة {invoicePrintCount}× · فُتحت طباعة التجهيز {packingSlipPrintCount}× (لا يؤكد اكتمال الطباعة)
       </p>
     </div>
   );

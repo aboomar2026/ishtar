@@ -1,3 +1,4 @@
+import { IconCheck } from '@/components/Icons';
 import { BrandLogo, BrandMark } from '@/components/BrandLogo';
 import type { AdminOrderDetail } from '@/features/admin/orders/order-admin.queries';
 import { formatDateTime } from '@/features/admin/shared/admin-format';
@@ -52,7 +53,7 @@ export function PrintablePackingSlip({
       <table className="printTable">
         <thead>
           <tr>
-            <th className="checkCol">✓</th>
+            <th className="checkCol" aria-label="تأكيد التجهيز"><IconCheck size={18} /></th>
             <th>المنتج</th>
             <th>SKU</th>
             <th>اللون</th>

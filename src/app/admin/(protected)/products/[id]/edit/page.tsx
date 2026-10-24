@@ -1,3 +1,4 @@
+import { IconArrowRight } from '@/components/Icons';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getAdminProductById, getCategoryOptions } from '@/features/admin/products/product-admin.queries';
@@ -52,7 +53,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
         </div>
         <div className="adminBtnRow">
           <Link href={`/product/${product.slug}`} className="adminBtn adminBtnGhost" target="_blank">عرض في المتجر</Link>
-          <Link href="/admin/products" className="adminBtn adminBtnGhost">→ رجوع</Link>
+          <Link href="/admin/products" className="adminBtn adminBtnGhost"><IconArrowRight size={20} /> رجوع</Link>
         </div>
       </div>
       <ProductForm mode="edit" productId={product.id} categories={categories} initial={initial} />

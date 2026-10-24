@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import bcrypt from 'bcryptjs';
 import type { AdminRole } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
+import { hasAdminPermission } from './admin-permissions';
 import {
   ADMIN_SESSION_COOKIE,
   ADMIN_SESSION_MAX_AGE_SECONDS,
@@ -69,7 +70,14 @@ export async function getAdminSession(): Promise<AdminSession | null> {
 /** Guard for protected admin pages/actions: redirects to login when unauthenticated. */
 export async function requireAdmin(): Promise<AdminSession> {
   const session = await getAdminSession();
-  if (!session) redirect('/admin/login');
+  if (!session || !hasAdminPermission(session.role, 'catalog')) redirect('/admin/login');
+  return session;
+}
+
+/** Guard each order page/action before reading or changing private order data. */
+export async function requireOrderAdmin(): Promise<AdminSession> {
+  const session = await requireAdmin();
+  if (!hasAdminPermission(session.role, 'orders')) redirect('/admin/products');
   return session;
 }
 

@@ -1,0 +1,45 @@
+name: Commerce concurrency safety
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  postgres-races:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Start isolated PostgreSQL
+        shell: bash
+        run: |
+          test_password="$(openssl rand -hex 24)"
+          echo "::add-mask::$test_password"
+          echo "ISHTAR_TEST_POSTGRES_URL=postgresql://ishtar_test:${test_password}@127.0.0.1:5432/ishtar_qa_concurrency" >> "$GITHUB_ENV"
+          docker run --detach --name ishtar-test-postgres --publish 127.0.0.1:5432:5432 \
+            --env POSTGRES_USER=ishtar_test --env POSTGRES_PASSWORD="$test_password" \
+            --env POSTGRES_DB=ishtar_qa_concurrency postgres:16
+          for attempt in {1..30}; do
+            if docker exec ishtar-test-postgres pg_isready -U ishtar_test -d ishtar_qa_concurrency; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - run: npm ci
+      - run: npm run db:generate
+      - run: npm run test:admin-safety
+      - run: npm run test:notifications
+      - run: npm run test:dashboard
+      - run: npm run test:search
+      - run: npm run test:wishlist
+      - run: npm run test:discovery
+      - run: npm run test:quick-view
+      - run: npm run test:concurrency
+      - name: Remove isolated PostgreSQL
+        if: always()
+        run: docker rm --force ishtar-test-postgres || true

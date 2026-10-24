@@ -1,9 +1,11 @@
 'use client';
+import { WishlistButton } from './WishlistButton';
+import { IconEye, IconStar } from './Icons';
 import { showCatalogMetrics } from '@/lib/catalog-display';
 import { brand } from '@/lib/brand';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useQuickView } from './QuickViewProvider';
 import { useState } from 'react';
 import type { Product } from '@/lib/types';
 import { FALLBACK_PRODUCT_IMAGE } from '@/features/catalog/catalog.utils';
@@ -14,21 +16,22 @@ import { SaleBadge } from './SaleBadge';
 import { IconCheck, IconPlus } from './Icons';
 
 export function ProductCard({ product }: { product: Product }) {
-  const router = useRouter();
+  const { openQuickView } = useQuickView();
   const { addToCart } = useCart();
   const [added, setAdded] = useState(false);
   const [addFailed, setAddFailed] = useState(false);
   const availableVariants = product.variants.filter((variant) => variant.isActive && variant.quantity > 0);
   const canQuickAdd = availableVariants.length === 1;
   const quickVariant = availableVariants[0];
+  const imageUrl = getCloudinaryTransformedUrl(product.image, brand.key === 'ishtar' ? { ...PRODUCT_CARD_IMAGE, crop: 'fit' } : PRODUCT_CARD_IMAGE);
+  const handleImageError = (event: React.SyntheticEvent<HTMLImageElement>) => {
+    if (!event.currentTarget.src.endsWith(FALLBACK_PRODUCT_IMAGE)) event.currentTarget.src = FALLBACK_PRODUCT_IMAGE;
+  };
 
   function handleQuickAdd() {
     if (product.isOutOfStock) return;
 
-    if (!canQuickAdd || !quickVariant) {
-      router.push(`/product/${product.slug}`);
-      return;
-    }
+    if (!canQuickAdd || !quickVariant) return;
 
     const accepted = addToCart({
       productId: product.id,
@@ -53,34 +56,43 @@ export function ProductCard({ product }: { product: Product }) {
 
   return (
     <article className={`productCard ${product.isOutOfStock ? 'isOutOfStock' : ''}`}>
+      <div className="productCardMedia">
       <Link href={`/product/${product.slug}`} className="productImageWrap" aria-label={product.name}>
+        {brand.key === 'ishtar' && <img className="productImageBackdrop" src={imageUrl} alt="" aria-hidden="true" loading="lazy" onError={handleImageError} />}
         <img
-          src={getCloudinaryTransformedUrl(product.image, brand.key === 'ishtar' ? { ...PRODUCT_CARD_IMAGE, crop: 'fit' } : PRODUCT_CARD_IMAGE)}
+          src={imageUrl}
           alt={product.name}
           className="productImage"
           loading="lazy"
-          onError={(event) => {
-            if (event.currentTarget.src.endsWith(FALLBACK_PRODUCT_IMAGE)) return;
-            event.currentTarget.src = FALLBACK_PRODUCT_IMAGE;
-          }}
+          onError={handleImageError}
         />
         <SaleBadge oldPrice={product.compareAtPrice} price={product.price} discountPercent={product.discountPercent} />
         {product.isNewArrival ? <span className="newBadge">جديد</span> : null}
         {showCatalogMetrics && product.isBestSeller ? <span className="sellerBadge">الأكثر مبيعاً</span> : null}
         {product.isOutOfStock ? <span className="stockOverlay"><span>غير متوفر حالياً</span></span> : null}
       </Link>
+        <div className="productCardActions">
+          <WishlistButton id={product.id} name={product.name} />
+          <button type="button" className="quickViewButton" aria-haspopup="dialog" aria-label={`عرض سريع: ${product.name}`} title="عرض سريع" onClick={() => openQuickView(product)}><IconEye size={22} /></button>
+        </div>
+      </div>
       <div className="productCardBody">
         {addFailed && <p role="alert">وصلتِ للكمية المتاحة في السلة.</p>}
         <div className="productInfoBlock">
           <Link href={`/product/${product.slug}`} className="productTitle">{product.name}</Link>
           <p className="productSubtitle">{product.subtitle}</p>
           {showCatalogMetrics && <div className="productMeta">
-            {product.rating ? <span>★ {product.rating}</span> : null}
+            {product.rating ? <span className="iconLabel"><IconStar size={15} weight="fill" />{product.rating}</span> : null}
             <span>{product.soldCount}+ طلب</span>
           </div>}
         </div>
         <div className="productBuyRow">
           <Price price={product.price} oldPrice={product.compareAtPrice} currency={product.currency} />
+          {!canQuickAdd && !product.isOutOfStock ? (
+            <Link className="quickAddButton isChoose" href={`/product/${product.slug}`} aria-label={`عرض تفاصيل ${product.name}`}>
+              <span>عرض المنتج</span>
+            </Link>
+          ) : (
           <button
             type="button"
             className={`quickAddButton${added ? ' isAdded' : ''}${!canQuickAdd && !product.isOutOfStock ? ' isChoose' : ''}`}
@@ -104,6 +116,7 @@ export function ProductCard({ product }: { product: Product }) {
               <span>الخيارات</span>
             )}
           </button>
+          )}
         </div>
       </div>
     </article>

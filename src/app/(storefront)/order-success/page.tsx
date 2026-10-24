@@ -1,3 +1,4 @@
+import { IconCheck } from '@/components/Icons';
 import Link from 'next/link';
 import { getOrderSuccessSummaryByNumber } from '@/features/orders/order.queries';
 import { ORDER_STATUS_LABEL_AR } from '@/features/orders/order-status.labels';
@@ -33,7 +34,7 @@ export default async function OrderSuccessPage({ searchParams }: { searchParams?
   return (
     <div className="plainPage orderSuccessPage">
       <div className="successCard orderSuccessCard">
-        <div className="successIcon">✓</div>
+        <div className="successIcon"><IconCheck size={32} weight="bold" /></div>
         <span className="eyebrow">Order received</span>
         <h1>تم استلام طلبك</h1>
         <p>

@@ -18,6 +18,8 @@ test('real Prisma checkout and HTTP rendering on disposable Postgres', { timeout
   const connection = address.startsWith('postgres') ? address : `postgresql://postgres:test@${address}/postgres`;
   process.env.DATABASE_URL = `${connection}${connection.includes('?') ? '&' : '?'}connection_limit=1&sslmode=disable`;
   process.env.NEXT_PUBLIC_STORE_BRAND = 'ishtar';
+  process.env.ORDER_OUTBOX_ENABLED = 'true';
+  process.env.ORDER_OUTBOX_WORKER_ENABLED = 'false';
   process.env.ADMIN_SESSION_SECRET = randomUUID();
   process.env.TELEGRAM_BOT_TOKEN = 'ISHTAR_TEST_ONLY';
   process.env.TELEGRAM_ADMIN_CHAT_ID = 'ISOLATED_TEST_CHAT';
@@ -26,7 +28,7 @@ test('real Prisma checkout and HTTP rendering on disposable Postgres', { timeout
   globalThis.fetch = async (url, init) => {
     if (typeof url === 'string' && url.startsWith('https://api.telegram.org/botISHTAR_TEST_ONLY/')) {
       telegramMessages.push(String(init?.body));
-      return new Response(JSON.stringify({ ok: true }), { status: 200 });
+      return new Response(JSON.stringify({ ok: true, result: { message_id: 1 } }), { status: 200 });
     }
     return originalFetch(url, init);
   };
@@ -72,6 +74,8 @@ test('real Prisma checkout and HTTP rendering on disposable Postgres', { timeout
       assert.equal((await getAdminOrders({ q: orderNumber }))[0]?.id, orderId);
       assert.equal((await getOrderSuccessSummaryByNumber(orderNumber))?.orderNumber, orderNumber);
       assert.equal(telegramMessages.length, 1);
+      assert.equal(await prisma.orderNotification.count(), 1);
+      assert.equal((await prisma.orderNotification.findUniqueOrThrow({ where: { orderId } })).deliveryStatus, 'SENT');
       assert.match(telegramMessages[0], new RegExp(orderNumber));
     });
     await t.test('same key with changed payload is rejected and receipt recovery returns no customer data', async () => {
@@ -108,6 +112,30 @@ test('real Prisma checkout and HTTP rendering on disposable Postgres', { timeout
       assert.equal(await authenticateAdmin(admin.email, 'wrong-test-password'), null);
       const payload = await authenticateAdmin(admin.email, password); assert.ok(payload);
       const token = createSessionToken(payload);
+      const catalogAdmin = await prisma.adminUser.create({ data: { name: 'كتالوج اختبار', email: 'catalog@example.invalid', passwordHash: await hashPassword(randomUUID()), role: 'CATALOG_MANAGER' } });
+      // A valid old super-admin token must not beat a newly restricted DB role.
+      const catalogToken = createSessionToken({ id: catalogAdmin.id, email: catalogAdmin.email, role: 'SUPER_ADMIN' });
+      await prisma.order.createMany({ data: Array.from({ length: 55 }, (_, index) => ({
+        id: `page-order-${String(index).padStart(3, '0')}`, orderNumber: `PAGE-${index}`,
+        customerName: 'زبونة اختبار صفحات', customerPhone: '0590000000', city: 'مدينة اختبار', area: 'اختبار', address: 'عنوان مصطنع',
+        subtotal: 1, total: 1, createdAt: new Date('2000-01-01T00:00:00Z')
+      })) });
+      const { getAdminOrderPage } = await import('../src/features/admin/orders/order-admin.queries');
+      const firstPage = await getAdminOrderPage({ page: 1 });
+      const secondPage = await getAdminOrderPage({ page: 2 });
+      await t.test('admin order pages are bounded, stable across tied dates and include all matching rows', async () => {
+        assert.equal(firstPage.total, 56); assert.equal(firstPage.orders.length, 50);
+        assert.equal(secondPage.orders.length, 6); assert.equal(secondPage.pageCount, 2);
+        assert.equal(new Set([...firstPage.orders, ...secondPage.orders].map(order => order.id)).size, 56);
+        assert.equal((await getAdminOrderPage({ page: 999 })).page, 2);
+        assert.equal((await getAdminOrderPage({ status: 'DELIVERED' })).total, 0);
+      });
+    await prisma.product.createMany({ data: Array.from({ length: 9 }, (_, index) => ({ id: `suggest-${index}`, name: `اقتراح بحث ${index}`, slug: `suggest-${index}`, description: 'Synthetic suggestion', categoryId: 'qa-category', basePrice: 999, status: index === 8 ? 'DRAFT' as const : 'ACTIVE' as const })) });
+    await prisma.productVariant.createMany({ data: [
+      { id: 'suggest-stocked', productId: 'suggest-0', sku: 'SUGGEST-STOCKED', price: 35, quantity: 2 },
+      { id: 'suggest-empty-cheaper', productId: 'suggest-0', sku: 'SUGGEST-EMPTY', price: 1, quantity: 0 },
+      { id: 'suggest-inactive', productId: 'suggest-0', sku: 'SUGGEST-INACTIVE', price: 2, quantity: 50, isActive: false }
+    ] });
     await prisma.$disconnect();
     await db.exec('DEALLOCATE ALL');
     const port = 0;
@@ -130,6 +158,45 @@ test('real Prisma checkout and HTTP rendering on disposable Postgres', { timeout
       const missing = await fetch(`${origin}/product/qa-not-found`);
       assert.match(await missing.text(), /الصفحة غير موجودة|NEXT_HTTP_ERROR_FALLBACK;404/);
     });
+    await t.test('public suggestions are capped, use real available prices and hide unpublished records', async () => {
+      const get = (term: string) => fetch(`${origin}/api/catalog/suggestions?q=${encodeURIComponent(term)}`);
+      const response = await get('اقتراح بحث'); assert.equal(response.status, 200);
+      assert.match(response.headers.get('cache-control') ?? '', /no-store/);
+      const result = await response.json(); assert.equal(result.products.length, 6);
+      assert.ok(result.products.every((p: { id: string }) => p.id !== 'suggest-8'));
+      const exact = (await (await get('اقتراح بحث 0')).json()).products[0];
+      assert.equal(exact.price, 35); assert.equal(exact.available, true);
+      assert.equal((await (await get('اقتراح بحث 8')).json()).products.length, 0);
+      assert.equal((await (await get('%_')).json()).products.length, 0);
+      const unavailable = (await (await get('اقتراح بحث 1')).json()).products[0];
+      assert.equal(unavailable.available, false); assert.equal(unavailable.image, '/mock-products/gift-box.svg');
+      assert.deepEqual(Object.keys(exact).sort(), ['available','id','image','name','price','slug']);
+      assert.equal((await (await get('ع')).json()).products.length, 0);
+      assert.equal((await get('x'.repeat(121))).status, 400);
+      assert.equal((await (await get("%' OR 1=1 --")).json()).products.length, 0);
+      await db.query('UPDATE "Category" SET "isActive"=false WHERE id=$1', ['qa-category']);
+      try { assert.equal((await (await get('اقتراح بحث')).json()).products.length, 0); }
+      finally { await db.query('UPDATE "Category" SET "isActive"=true WHERE id=$1', ['qa-category']); }
+    });
+
+    await t.test('saved-products revalidates published IDs without exposing hidden products or mutating orders', async () => {
+      const read = (ids: unknown) => fetch(origin + '/api/catalog/saved-products', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids }) });
+      const response = await read(['suggest-0', 'suggest-8', 'missing', 'suggest-0']);
+      assert.equal(response.status, 200); assert.match(response.headers.get('cache-control') ?? '', /no-store/);
+      const body = await response.json(); assert.equal(body.products.length, 1);
+      assert.equal(body.products[0].id, 'suggest-0'); assert.equal(body.products[0].price, 35);
+      assert.deepEqual(body.unavailableIds, ['suggest-8', 'missing']);
+      assert.equal((await read(Array(51).fill('suggest-0'))).status, 400);
+      assert.equal((await read(['<invalid>'])).status, 400);
+      assert.equal((await read('invalid')).status, 400);
+      assert.deepEqual(await (await read([])).json(), { products: [], unavailableIds: [] });
+      await db.query('UPDATE "Category" SET "isActive"=false WHERE id=$1', ['qa-category']);
+      try { assert.equal((await (await read(['suggest-0'])).json()).products.length, 0); }
+      finally { await db.query('UPDATE "Category" SET "isActive"=true WHERE id=$1', ['qa-category']); }
+      const page = await fetch(origin + '/wishlist'); assert.equal(page.status, 200);
+      const html = await page.text(); assert.match(html, /noindex/); assert.match(html, /المفضّلة/);
+    });
+
     await t.test('homepage keeps overlapping product sections and links to matching collections', async () => {
       const html = await (await fetch(origin + '/')).text();
       assert.equal((html.match(/<article class="productCard /g) ?? []).length, 4);
@@ -148,6 +215,67 @@ test('real Prisma checkout and HTTP rendering on disposable Postgres', { timeout
       }
     });
 
+    await t.test('dashboard period links and daily table render privately with normalized periods', async () => {
+      const headers = { cookie: `${ADMIN_SESSION_COOKIE}=${token}` };
+      for (const period of ['week', 'month', 'invalid']) {
+        const response = await fetch(`${origin}/admin?period=${period}`, { headers });
+        assert.equal(response.status, 200);
+        const html = await response.text();
+        assert.match(html, /أداء الطلبات/); assert.match(html, /قيمة الطلبات المسلّمة/);
+        assert.match(html, /scope="col"/); assert.match(html, /فترة ملخص الطلبات/);
+        assert.equal((html.match(/<time dateTime="\d{4}-\d{2}-\d{2}"/g) ?? []).length, period === 'week' ? 7 : period === 'month' ? 30 : 1);
+      }
+    });
+
+    await t.test('catalog role cannot read orders, exports or prints even with a stale super-admin claim', async () => {
+      const headers = { cookie: `${ADMIN_SESSION_COOKIE}=${catalogToken}` };
+      for (const path of ['/admin', '/admin/notifications', '/admin/orders', `/admin/orders/${orderId}`, `/admin/orders/${orderId}/invoice`, `/admin/orders/${orderId}/packing-slip`]) {
+        const response = await fetch(origin + path, { headers, redirect: 'manual' });
+        assert.equal(response.status, 307, path);
+        assert.equal(response.headers.get('location'), '/admin/products', path);
+        assert.doesNotMatch(await response.text(), /عميلة اختبار معزولة/);
+      }
+      assert.equal((await fetch(origin + '/admin/orders/export', { headers })).status, 403);
+      assert.equal((await fetch(origin + '/admin/orders/export')).status, 401);
+      assert.equal((await fetch(origin + '/admin/api/order-activity')).status, 401);
+      assert.equal((await fetch(origin + '/admin/api/order-activity', { headers })).status, 403);
+      for (const path of ['/admin/products', '/admin/categories', '/admin/inventory', '/admin/banners']) {
+        const response = await fetch(origin + path, { headers, redirect: 'manual' });
+        assert.equal(response.status, 200, path);
+        assert.doesNotMatch(await response.text(), /href="\/admin\/orders"/);
+      }
+    });
+    await t.test('order pagination renders links with filters and accepts invalid URL enum values safely', async () => {
+      const headers = { cookie: `${ADMIN_SESSION_COOKIE}=${token}` };
+      const first = await fetch(origin + '/admin/orders?status=PENDING', { headers });
+      assert.match(await first.text(), /status=PENDING&amp;page=2/);
+      const second = await fetch(origin + '/admin/orders?status=PENDING&page=2', { headers });
+      const html = await second.text();
+      assert.match(html, new RegExp(secondPage.orders[0].orderNumber));
+      assert.doesNotMatch(html, new RegExp(orderNumber));
+      assert.equal((await fetch(origin + '/admin/orders?status=invalid&delivery=invalid&page=NaN', { headers })).status, 200);
+      assert.equal((await fetch(origin + '/admin/orders/export?status=invalid', { headers })).status, 200);
+    });
+
+    await t.test('live activity is private, compact and changes after a committed order update', async () => {
+      const headers = { cookie: `${ADMIN_SESSION_COOKIE}=${token}` };
+      const response = await fetch(origin + '/admin/api/order-activity', { headers });
+      assert.equal(response.status, 200); assert.match(response.headers.get('cache-control') ?? '', /no-store/);
+      const before = await response.json();
+      assert.equal(before.pendingOrders, 56); assert.equal(before.outboxEnabled, true); assert.equal(before.unread, 1);
+      assert.doesNotMatch(JSON.stringify(before), /customerName|customerPhone|address|عميلة اختبار/);
+      await db.query(`UPDATE "Order" SET status='CONFIRMED', "updatedAt"=CURRENT_TIMESTAMP WHERE id=$1`, [orderId]);
+      const after = await (await fetch(origin + '/admin/api/order-activity', { headers })).json();
+      assert.equal(after.pendingOrders, 55); assert.notEqual(before.revision, after.revision);
+      const center = await fetch(origin + '/admin/notifications', { headers });
+      assert.equal(center.status, 200);
+      const centerHtml = await center.text();
+      assert.match(centerHtml, new RegExp(orderNumber));
+      assert.match(centerHtml, /أُرسل إلى تيليجرام/);
+      assert.match(centerHtml, /المعالجة المجدولة غير مفعّلة/);
+      assert.equal((await fetch(origin + '/api/internal/order-notifications/dispatch', { method: 'POST' })).status, 404);
+    });
+
     await t.test('invoice draft, confirmed invoice and packing slip render 50 synthetic rows', async () => {
       const headers = { cookie: `${ADMIN_SESSION_COOKIE}=${token}` };
       const invoiceUrl = `${origin}/admin/orders/${orderId}/invoice`;
@@ -160,6 +288,7 @@ test('real Prisma checkout and HTTP rendering on disposable Postgres', { timeout
       const confirmed = await fetch(invoiceUrl, { headers });
       assert.equal(confirmed.status, 200);
       const invoice = await confirmed.text();
+      assert.doesNotMatch(invoice, /aria-label="متابعة الطلبات"/);
       assert.doesNotMatch(invoice, /مسودة — رسوم التوصيل غير مؤكدة/);
       assert.match(invoice, /1,250/);
       assert.ok((invoice.match(/<tr>/g) ?? []).length >= 51);
