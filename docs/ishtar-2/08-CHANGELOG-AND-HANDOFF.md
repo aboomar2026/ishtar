@@ -1,3 +1,19 @@
+## B3d — Product quick view and rollout alignment (2026-10-24)
+
+- One lazily loaded native modal for all storefront product cards (including saved/recent lists); explicit quick-view action and multi-option card button open it without route navigation. Existing one-variant quick add remains. Closing returns focus to its opener, releases scroll lock and aborts outstanding reads; route changes clear selection.
+- Reuses compact ProductDetailClient and thumbnail gallery: current price, stock, color/size/quantity and existing cart validation, with a full PDP link. No nested image zoom, duplicate share controls, fake stock/ratings or data writes on opening. Loading/error/retry/unpublished/out-of-stock states are explicit; only one bounded no-store public catalog request per opening/retry.
+- Desktop two-column modal, phone bottom-sheet CSS, reduced-motion handling. Native showModal supplies inert background and modal focus behavior; explicit close/Escape/backdrop support. Actual desktop browser and device acceptance are recorded separately; renderer tests do not establish browser focus behavior.
+- Shared selector normalizes unspecified size to default, removes the unsafe fallback to another variant for a mismatched selection, resets feedback/quantity on option changes, waits for cart hydration and clears its feedback timer on unmount.
+- Owner-applied rollout evidence: screenshots confirm all three tables have RLS enabled, preview rebuilt after configuration, and notification center displays one SENT event with one attempt. Actual channel receipt remains owner verification; scheduled worker is still disabled on preview. SQL source now includes the same RLS activation, with a repeatable-migration protection check. No live SQL, configuration change, order or Telegram message was performed by this batch. The requested admin display-name SQL was provided for owner execution; its result is not independently verified.
+- Local validation passed: ESLint, production build/TypeScript, quick-view 2/2, notifications 13/13 (including additive RLS check), discovery 4/4, wishlist 4/4, hero 14/14, search 2/2, brand 28/28 and isolated integration 21/21. CI/preview and browser acceptance are pending this source upload.
+- Source remains on PR #3; no merge/production deployment. The local previous UI screenshot remains local and is omitted from this source upload.
+
+## B3c verification checkpoint (2026-10-23)
+
+Remote head `cc71f9af3c6b9d73dbe2a1e9973c3a4839f8bb4c`, local source tree `22e22444a6ec5ff3cf55d046520033010320b661`. GitHub Actions run 40020991898 succeeded, including discovery and PostgreSQL race checks. Netlify deployment 6adbc6278fe03e32f301546b succeeded. Local typecheck/lint/build, discovery 4, wishlist 4, search 2, brand 28 and isolated integration 21 passed.
+
+Desktop preview: opened abiaa, used share (UI reported copied), visited tttttt and observed abiaa only in the recent rail at current price 80. Returned home: tttttt then abiaa at 100/80; reload preserved the order; explicit clear removed the rail. Test history cleaned. No external sharing recipient or real order. Native phone share and screen reader remain unverified. Screenshot ui-recent-2026-10-23.jpg is local QA evidence, not yet uploaded to GitHub; avoid an evidence-only Netlify rebuild.
+
 ## B3c — Recently viewed and product sharing (2026-10-23)
 
 - Brand-scoped browser IDs only, most recent first, deduplicated and capped at 12. Successful published PDP visits record views; home/PDP show up to four currently published products, excluding the current PDP. Existing bounded no-store catalog endpoint revalidates prices/availability; hidden products are filtered before the display limit.

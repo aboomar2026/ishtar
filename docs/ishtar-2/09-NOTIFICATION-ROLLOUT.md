@@ -30,7 +30,7 @@ Creates only these new tables/indexes/constraints:
 
 No existing order/customer/catalogue row, column or counter is updated, seeded, deleted or backfilled. Logical order/admin IDs avoid altering existing tables; a deleted/missing order becomes a visible failed delivery rather than a fabricated notification. New-table foreign keys cascade only read/attempt records with their notification.
 
-The script is transactional and repeatable. Test it against the intended isolated database and take the normal backup/checkpoint before any approved live application. `prisma generate` only generates code; it does not apply this SQL. Netlify builds intentionally do not execute migrations.
+The script enables RLS on all three server-only tables without public policies. The Prisma runtime must use the table owner or an appropriate server role; browser Data API roles are not granted access by this script. The script is transactional and repeatable. Test it against the intended isolated database and take the normal backup/checkpoint before any approved live application. `prisma generate` only generates code; it does not apply this SQL. Netlify builds intentionally do not execute migrations.
 
 ## Activation sequence requiring owner approval
 

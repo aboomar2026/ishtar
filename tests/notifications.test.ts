@@ -63,6 +63,9 @@ test('durable order notifications on an isolated database with mocked transport'
       assert.equal((await getNotifications('one', 1)).enabled, false);
       const sql = readFileSync('prisma/additive/order-notifications.sql', 'utf8');
       await db.exec(sql); await db.exec(sql);
+      const protections = await db.query<{ tablename: string; rowsecurity: boolean }>(`SELECT tablename, rowsecurity FROM pg_tables WHERE schemaname = 'public' AND tablename IN ('OrderNotification', 'OrderNotificationRead', 'OrderNotificationAttempt')`);
+      assert.equal(protections.rows.length, 3);
+      assert.ok(protections.rows.every(row => row.rowsecurity), 'notification tables must deny browser access by default');
       assert.equal(await prisma.order.count(), 1);
       assert.equal(await prisma.orderNotification.count(), 0, 'no historical notifications or messages are backfilled');
     });

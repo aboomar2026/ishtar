@@ -41,4 +41,9 @@ CREATE TABLE IF NOT EXISTS "OrderNotificationAttempt" (
   CONSTRAINT "OrderNotificationAttempt_notificationId_fkey" FOREIGN KEY ("notificationId") REFERENCES "OrderNotification"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 CREATE UNIQUE INDEX IF NOT EXISTS "OrderNotificationAttempt_notificationId_attempt_key" ON "OrderNotificationAttempt"("notificationId","attempt");
+-- Server-only tables: deny browser Data API access without explicit policies.
+-- Prisma connects as the table owner or an appropriately privileged server role.
+ALTER TABLE "OrderNotification" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "OrderNotificationRead" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "OrderNotificationAttempt" ENABLE ROW LEVEL SECURITY;
 COMMIT;

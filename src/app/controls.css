@@ -149,3 +149,33 @@
 .productShare label { display: grid; gap: 6px; max-width: 100%; }
 .productShare input { width: 100%; min-width: 0; }
 .recentProducts .sectionHeader { flex-wrap: wrap; gap: 12px; }
+
+.quickViewButton { border: 0; background: transparent; color: var(--brand-burgundy); min-height: 44px; padding: 8px 4px; text-decoration: underline; text-underline-offset: 5px; font-weight: 700; align-self: start; }
+.quickViewDialog { width: min(960px, calc(100% - 40px)); max-width: none; max-height: calc(100dvh - 40px); padding: 0; border: 1px solid var(--line); border-radius: 24px; background: var(--brand-bg, #fbf5ed); color: var(--ink); overflow: auto; overscroll-behavior: contain; box-shadow: 0 24px 80px #2d24284d; }
+.quickViewDialog::backdrop { background: #2d2428b8; }
+.quickViewSurface { padding: 20px; }
+.quickViewHeader { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.quickViewClose { width: 44px; height: 44px; padding: 0; display: grid; place-items: center; flex-shrink: 0; }
+.quickViewMessage { min-height: 160px; padding: 20px; }
+.quickViewFooter { display: flex; justify-content: center; margin-top: 18px; }
+.quickViewDialog .productDetailLayout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
+.quickViewDialog .productDetailPanel { padding: 16px; min-width: 0; }
+.quickViewDialog .productDetailHeader h2 { font-size: clamp(24px, 3vw, 36px); margin-block: 8px; }
+.quickViewDialog .mediaGallery { min-width: 0; }
+.quickViewDialog .mediaMain { display: block; }
+.quickViewDialog .mediaMain img { width: 100%; height: auto; max-height: 340px; object-fit: contain; aspect-ratio: auto; }
+.quickViewDialog .mediaThumbs { display: flex; overflow-x: auto; }
+.quickViewDialog .mediaThumbs button { flex: 0 0 64px; height: 72px; }
+.quickViewDialog .mediaThumbs img { width: 100%; height: 100%; object-fit: contain; }
+.quickViewDialog .stickyAddButton { position: static; min-height: 48px; }
+.quickViewFallback { position: fixed; inset-inline: 16px; bottom: 100px; z-index: 100; background: var(--brand-bg, #fbf5ed); padding: 20px; border: 1px solid var(--line); border-radius: 16px; }
+@media (max-width: 640px) {
+  .quickViewDialog { width: 100%; max-height: 92dvh; margin: auto 0 0; border-radius: 24px 24px 0 0; }
+  .quickViewSurface { padding: 14px 14px calc(18px + env(safe-area-inset-bottom, 0px)); }
+  [data-brand] .quickViewDialog .productDetailLayout { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .quickViewDialog .mediaMain img { max-height: 230px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .quickViewDialog[open] { animation: quickViewEnter 180ms ease-out; }
+  @keyframes quickViewEnter { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+}

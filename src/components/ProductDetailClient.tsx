@@ -4,7 +4,7 @@ import { WishlistButton } from './WishlistButton';
 import { IconStar, IconCheck } from './Icons';
 import { showCatalogMetrics } from '@/lib/catalog-display';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Product } from '@/lib/types';
 import type { CatalogProductVariant } from '@/features/catalog/catalog.types';
 import { useCart } from './CartProvider';
@@ -28,8 +28,10 @@ function uniqueBy<T>(items: T[], getKey: (item: T) => string) {
   });
 }
 
-export function ProductDetailClient({ product, shareOrigin }: { product: Product; shareOrigin?: string }) {
-  const { addToCart } = useCart();
+export function ProductDetailClient({ product, shareOrigin, compact = false }: { product: Product; shareOrigin?: string; compact?: boolean }) {
+  const { addToCart, isCartLoaded } = useCart();
+  const addedTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useEffect(() => () => { if (addedTimer.current) clearTimeout(addedTimer.current); }, []);
   const activeVariants = useMemo(() => product.variants.filter((variant) => variant.isActive), [product.variants]);
   const availableVariants = useMemo(() => activeVariants.filter((variant) => variant.quantity > 0), [activeVariants]);
   const firstAvailableVariant = availableVariants[0] ?? activeVariants[0];
@@ -37,7 +39,7 @@ export function ProductDetailClient({ product, shareOrigin }: { product: Product
   const hasSizeOptions = activeVariants.some((variant) => variant.size);
 
   const [selectedColor, setSelectedColor] = useState(firstAvailableVariant ? colorKey(firstAvailableVariant) : undefined);
-  const [selectedSize, setSelectedSize] = useState(firstAvailableVariant?.size);
+  const [selectedSize, setSelectedSize] = useState(firstAvailableVariant?.size ?? 'default');
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
   const [addFailed, setAddFailed] = useState(false);
@@ -76,10 +78,11 @@ export function ProductDetailClient({ product, shareOrigin }: { product: Product
       const colorMatches = !hasColorOptions || colorKey(variant) === selectedColor;
       const sizeMatches = !hasSizeOptions || (variant.size ?? 'default') === selectedSize;
       return colorMatches && sizeMatches;
-    }) ?? firstAvailableVariant;
-  }, [activeVariants, firstAvailableVariant, hasColorOptions, hasSizeOptions, selectedColor, selectedSize]);
+    });
+  }, [activeVariants, hasColorOptions, hasSizeOptions, selectedColor, selectedSize]);
 
   function handleColorChange(value: string) {
+    setAdded(false); setAddFailed(false);
     setSelectedColor(value);
     const scopedVariants = activeVariants.filter((variant) => colorKey(variant) === value);
     const nextSize = scopedVariants.find((variant) => variant.quantity > 0)?.size ?? scopedVariants[0]?.size;
@@ -88,6 +91,7 @@ export function ProductDetailClient({ product, shareOrigin }: { product: Product
   }
 
   function handleSizeChange(value: string) {
+    setAdded(false); setAddFailed(false);
     setSelectedSize(value);
     setQuantity(1);
   }
@@ -98,7 +102,7 @@ export function ProductDetailClient({ product, shareOrigin }: { product: Product
   const displayCompareAtPrice = selectedVariant?.compareAtPrice ?? product.compareAtPrice;
 
   function onAddToCart() {
-    if (isOutOfStock || !selectedVariant) return;
+    if (!isCartLoaded || isOutOfStock || !selectedVariant) return;
     const accepted = addToCart({
       productId: product.id,
       variantId: selectedVariant.id,
@@ -117,20 +121,21 @@ export function ProductDetailClient({ product, shareOrigin }: { product: Product
     setAddFailed(!accepted);
     if (!accepted) return;
     setAdded(true);
-    window.setTimeout(() => setAdded(false), 1600);
+    if (addedTimer.current) clearTimeout(addedTimer.current);
+    addedTimer.current = setTimeout(() => setAdded(false), 1600);
   }
 
   return (
     <div className="productDetailLayout">
-      <ProductMediaGallery images={product.images} title={product.name} />
+      <ProductMediaGallery images={product.images} title={product.name} allowZoom={!compact} />
       <section className="productDetailPanel">
         <div className="productDetailHeader">
           <span className="eyebrow">{brand.copy.productEyebrow}</span>
-          <h1>{product.name}</h1>
-          <div className="productDiscoveryActions">
+          {compact ? <h2>{product.name}</h2> : <h1>{product.name}</h1>}
+          {!compact && <div className="productDiscoveryActions">
             <WishlistButton id={product.id} name={product.name} label />
             <ShareProductButton name={product.name} path={`/product/${encodeURIComponent(product.slug)}`} canonicalOrigin={shareOrigin} />
-          </div>
+          </div>}
           <p>{product.subtitle}</p>
           {showCatalogMetrics && <div className="detailRating">
             {product.rating ? <><IconStar size={16} weight="fill" /> {product.rating} · </> : null}{product.soldCount}+ طلب
@@ -150,13 +155,13 @@ export function ProductDetailClient({ product, shareOrigin }: { product: Product
           </div>
         </div>
 
-        <button type="button" className="stickyAddButton" onClick={onAddToCart} disabled={isOutOfStock}>
+        <button type="button" className="stickyAddButton" onClick={onAddToCart} disabled={!isCartLoaded || isOutOfStock}>
           {isOutOfStock ? 'نفدت الكمية' : added ? <><IconCheck size={20} /> تمت الإضافة للسلة</> : 'أضيفي للسلة'}
         </button>
 
         <p role="alert">{addFailed ? "وصلتِ للكمية المتاحة في السلة." : ""}</p>
         <span className="srOnly" role="status">{added ? "تمت الإضافة للسلة" : ""}</span>
-        <div className="productStoryCard">
+        {!compact && <div className="productStoryCard">
           <h2>تفاصيل المنتج</h2>
           <p>{product.description}</p>
           {product.details.length ? (
@@ -166,7 +171,7 @@ export function ProductDetailClient({ product, shareOrigin }: { product: Product
           ) : null}
           {product.careInstructions ? <p className="careInstructions">العناية: {product.careInstructions}</p> : null}
           {selectedVariant ? <p className="productSku">رمز المنتج: <bdi>{selectedVariant.sku}</bdi></p> : null}
-        </div>
+        </div>}
       </section>
     </div>
   );

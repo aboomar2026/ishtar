@@ -32,7 +32,8 @@
     "test:dashboard": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/dashboard.test.ts",
     "test:search": "node --import tsx --test tests/search-submit.test.tsx",
     "test:wishlist": "node --import tsx --test tests/wishlist.test.tsx tests/wishlist-page.test.tsx",
-    "test:discovery": "node --import tsx --test tests/recent-products.test.tsx tests/share-product.test.ts"
+    "test:discovery": "node --import tsx --test tests/recent-products.test.tsx tests/share-product.test.ts",
+    "test:quick-view": "node --import tsx --test tests/quick-view.test.tsx"
   },
   "dependencies": {
     "@phosphor-icons/react": "2.1.7",

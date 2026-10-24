@@ -5,7 +5,7 @@ import { showCatalogMetrics } from '@/lib/catalog-display';
 import { brand } from '@/lib/brand';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useQuickView } from './QuickViewProvider';
 import { useState } from 'react';
 import type { Product } from '@/lib/types';
 import { FALLBACK_PRODUCT_IMAGE } from '@/features/catalog/catalog.utils';
@@ -16,7 +16,7 @@ import { SaleBadge } from './SaleBadge';
 import { IconCheck, IconPlus } from './Icons';
 
 export function ProductCard({ product }: { product: Product }) {
-  const router = useRouter();
+  const { openQuickView } = useQuickView();
   const { addToCart } = useCart();
   const [added, setAdded] = useState(false);
   const [addFailed, setAddFailed] = useState(false);
@@ -28,7 +28,7 @@ export function ProductCard({ product }: { product: Product }) {
     if (product.isOutOfStock) return;
 
     if (!canQuickAdd || !quickVariant) {
-      router.push(`/product/${product.slug}`);
+      openQuickView(product);
       return;
     }
 
@@ -81,6 +81,7 @@ export function ProductCard({ product }: { product: Product }) {
             <span>{product.soldCount}+ طلب</span>
           </div>}
         </div>
+        <button type="button" className="quickViewButton" aria-haspopup="dialog" aria-label={`عرض سريع: ${product.name}`} onClick={() => openQuickView(product)}>عرض سريع</button>
         <div className="productBuyRow">
           <Price price={product.price} oldPrice={product.compareAtPrice} currency={product.currency} />
           <button

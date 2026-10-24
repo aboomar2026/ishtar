@@ -15,7 +15,7 @@ function handleImageError(event: SyntheticEvent<HTMLImageElement>) {
 const galleryTransform = brand.key === 'ishtar' ? { ...PRODUCT_GALLERY_IMAGE, crop: 'fit' as const } : PRODUCT_GALLERY_IMAGE;
 const thumbTransform = brand.key === 'ishtar' ? { ...PRODUCT_THUMB_IMAGE, crop: 'fit' as const } : PRODUCT_THUMB_IMAGE;
 
-export function ProductMediaGallery({ images, title }: { images: CatalogProductImage[]; title: string }) {
+export function ProductMediaGallery({ images, title, allowZoom = true }: { images: CatalogProductImage[]; title: string; allowZoom?: boolean }) {
   const galleryImages = useMemo(
     () => images.length ? images : [{ id: 'fallback', url: FALLBACK_PRODUCT_IMAGE, alt: title, sortOrder: 0, isPrimary: true }],
     [images, title]
@@ -26,13 +26,13 @@ export function ProductMediaGallery({ images, title }: { images: CatalogProductI
   const zoomRef = useDialog(zoomOpen, () => setZoomOpen(false));
   return (
     <div className="mediaGallery">
-      <button type="button" className="mediaMain" aria-label={`تكبير صورة ${title}`} onClick={() => setZoomOpen(true)}>
+      {allowZoom ? <button type="button" className="mediaMain" aria-label={`تكبير صورة ${title}`} onClick={() => setZoomOpen(true)}>
         <img
           src={getCloudinaryTransformedUrl(activeImage, galleryTransform)}
           alt={title}
           onError={handleImageError}
         />
-      </button>
+      </button> : <div className="mediaMain"><img src={getCloudinaryTransformedUrl(activeImage, galleryTransform)} alt={title} onError={handleImageError} /></div>}
       <div className="mediaThumbs">
         {galleryImages.map((image) => (
           <button
