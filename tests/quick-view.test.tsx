@@ -55,6 +55,18 @@ test('quick view loads current data, retries network errors, blocks unpublished 
   await act(async () => { view = create(createElement(QuickView, { product: { ...product, name: 'بطاقة قديمة' }, onClose: () => onClose++ }), { createNodeMock: element => element.type === 'dialog' ? modal : null }); });
   try {
     assert.equal(opened, 1); assert.equal(body.style.overflow, 'hidden');
+    let focused = '', prevented = 0;
+    const first = { getClientRects: () => [1], focus: () => { focused = 'first'; } };
+    const last = { getClientRects: () => [1], focus: () => { focused = 'last'; } };
+    const previous = document.activeElement;
+    const currentTarget = { querySelectorAll: () => [first, last], contains: () => true };
+    Object.defineProperty(document, 'activeElement', { configurable: true, value: last });
+    view.root.findByType('dialog').props.onKeyDown({ key: 'Tab', shiftKey: false, currentTarget, preventDefault: () => prevented++ });
+    assert.equal(focused, 'first');
+    Object.defineProperty(document, 'activeElement', { configurable: true, value: first });
+    view.root.findByType('dialog').props.onKeyDown({ key: 'Tab', shiftKey: true, currentTarget, preventDefault: () => prevented++ });
+    assert.equal(focused, 'last'); assert.equal(prevented, 2);
+    Object.defineProperty(document, 'activeElement', { configurable: true, value: previous });
     assert.deepEqual(pending[0].ids, ['p']);
     assert.equal(view.root.findAllByProps({ className: 'stickyAddButton' }).length, 0, 'no add control while loading');
     await act(async () => pending[0].resolve(new Response('', { status: 503 })));

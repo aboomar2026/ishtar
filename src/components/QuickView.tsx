@@ -43,6 +43,17 @@ export function QuickView({ product, onClose, opener }: { product: Preview; onCl
   const href = `/product/${encodeURIComponent(result?.product?.slug ?? product.slug)}`;
   if (!supported) return <div className="quickViewFallback" role="status">العرض السريع غير مدعوم في هذا المتصفح. <Link href={href} onClick={onClose}>افتحي صفحة المنتج</Link><button type="button" className="ghostButton" onClick={onClose}>إغلاق</button></div>;
   return <dialog ref={ref} className="quickViewDialog" aria-label={`عرض سريع: ${product.name}`}
+    onKeyDown={event => {
+      if (event.key !== 'Tab') return;
+      const items = Array.from(event.currentTarget.querySelectorAll<HTMLElement>(
+        'a[href],button:not(:disabled),input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex="0"]'
+      )).filter(item => item.getClientRects().length > 0);
+      const target = event.shiftKey ? items.at(-1) : items[0];
+      const boundary = event.shiftKey ? items[0] : items.at(-1);
+      if (target && (document.activeElement === boundary || !event.currentTarget.contains(document.activeElement))) {
+        event.preventDefault(); target.focus();
+      }
+    }}
     onCancel={event => { event.preventDefault(); onClose(); }}
     onClick={event => { if (event.target === event.currentTarget) onClose(); }}>
     <div className="quickViewSurface">
