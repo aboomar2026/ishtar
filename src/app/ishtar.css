@@ -550,3 +550,6 @@
     padding: 18px;
   }
 }
+
+.seoBreadcrumbs { margin-block: 1rem; color: var(--color-muted, #695760); font-size: .875rem; }
+.seoBreadcrumbs a { text-decoration: underline; text-underline-offset: .2em; }
