@@ -31,10 +31,7 @@ export function ProductCard({ product }: { product: Product }) {
   function handleQuickAdd() {
     if (product.isOutOfStock) return;
 
-    if (!canQuickAdd || !quickVariant) {
-      openQuickView(product);
-      return;
-    }
+    if (!canQuickAdd || !quickVariant) return;
 
     const accepted = addToCart({
       productId: product.id,
@@ -91,6 +88,11 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
         <div className="productBuyRow">
           <Price price={product.price} oldPrice={product.compareAtPrice} currency={product.currency} />
+          {!canQuickAdd && !product.isOutOfStock ? (
+            <Link className="quickAddButton isChoose" href={`/product/${product.slug}`} aria-label={`عرض تفاصيل ${product.name}`}>
+              <span>عرض المنتج</span>
+            </Link>
+          ) : (
           <button
             type="button"
             className={`quickAddButton${added ? ' isAdded' : ''}${!canQuickAdd && !product.isOutOfStock ? ' isChoose' : ''}`}
@@ -114,6 +116,7 @@ export function ProductCard({ product }: { product: Product }) {
               <span>الخيارات</span>
             )}
           </button>
+          )}
         </div>
       </div>
     </article>
