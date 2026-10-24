@@ -128,8 +128,6 @@
 .searchAllResults { display: block; padding: 12px; margin-top: 6px; border-top: 1px solid var(--brand-border); color: var(--brand-burgundy); font-weight: 700; text-align: center; min-height: 44px; }
 @media (max-width: 599px) { .searchSuggestionStatus { font-size: 11px; } .searchSuggestion { min-height: 58px; } }
 
-.productTitleRow { display: flex; align-items: flex-start; gap: 8px; }
-.productTitleRow .productTitle { flex: 1; min-width: 0; }
 .wishlistButton { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; gap: 8px; min-width: 44px; min-height: 44px; padding: 9px; border: 1px solid var(--brand-border); border-radius: 12px; color: var(--brand-burgundy); background: var(--brand-surface, #fff); cursor: pointer; }
 .wishlistButton.isSaved { background: var(--brand-section); border-color: var(--brand-burgundy); }
 .wishlistButton:disabled { opacity: .5; cursor: default; }
@@ -150,7 +148,16 @@
 .productShare input { width: 100%; min-width: 0; }
 .recentProducts .sectionHeader { flex-wrap: wrap; gap: 12px; }
 
-.quickViewButton { border: 0; background: transparent; color: var(--brand-burgundy); min-height: 44px; padding: 8px 4px; text-decoration: underline; text-underline-offset: 5px; font-weight: 700; align-self: start; }
+.productCardMedia { position: relative; min-width: 0; }
+.productCardActions { position: absolute; inset-inline-end: 10px; bottom: 10px; display: flex; gap: 7px; z-index: 2; }
+.productCardActions :is(.wishlistButton, .quickViewButton) { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; border: 1px solid var(--brand-border); border-radius: 13px; color: var(--brand-burgundy); background: var(--brand-surface, #fff); box-shadow: 0 3px 10px #522b3a14; cursor: pointer; }
+.productCardActions .wishlistButton.isSaved { background: var(--brand-section); border-color: var(--brand-burgundy); }
+.productCardActions :is(.wishlistButton, .quickViewButton):hover:not(:disabled) { color: #fff; background: var(--brand-burgundy); border-color: var(--brand-burgundy); }
+.productImageBackdrop { display: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .productCardActions button { transition: background 150ms ease, color 150ms ease, transform 150ms ease; }
+  .productCardActions button:active:not(:disabled) { transform: scale(.94); }
+}
 .quickViewDialog { width: min(960px, calc(100% - 40px)); max-width: none; max-height: calc(100dvh - 40px); padding: 0; border: 1px solid var(--line); border-radius: 24px; background: var(--brand-bg, #fbf5ed); color: var(--ink); overflow: auto; overscroll-behavior: contain; box-shadow: 0 24px 80px #2d24284d; }
 .quickViewDialog::backdrop { background: #2d2428b8; }
 .quickViewSurface { padding: 20px; }

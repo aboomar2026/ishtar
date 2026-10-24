@@ -170,9 +170,7 @@
 [data-brand="ishtar"] .promoBanner { background:var(--brand-burgundy); box-shadow:none; border-radius:16px; }
 [data-brand="ishtar"] .categoryShowcaseGrid { display:flex; overflow-x:auto; gap:16px; scroll-snap-type:x proximity; padding-bottom:10px; }
 [data-brand="ishtar"] .categoryShowcaseCard { flex:0 0 clamp(155px,18vw,210px); scroll-snap-align:start; }
-[data-brand="ishtar"] .productImage { object-fit:contain; background:var(--brand-bg); }
-[data-brand="ishtar"] .productTitle { font-size:16px; line-height:1.5; }
-[data-brand="ishtar"] .productSubtitle { font-size:13px; line-height:1.65; }
+
 [data-brand="ishtar"] .productMeta { font-size:12px; }
 [data-brand="ishtar"] .quickAddButton { min-height:44px; min-width:52px; box-shadow:none; }
 [data-brand="ishtar"] .emptyState { display:flex; flex-direction:column; justify-content:center; align-items:center; gap:16px; min-height:260px; padding:32px 20px; box-shadow:none; }
@@ -244,40 +242,7 @@
     padding: 20px;
     box-shadow: none;
   }
-  [data-brand="ishtar"] .productCard {
-    display: flex;
-    flex-direction: column;
-    border-radius: 18px;
-    box-shadow: none;
-  }
-  [data-brand="ishtar"] .productImage {
-    display: block;
-    aspect-ratio: 4 / 5;
-  }
-  [data-brand="ishtar"] .productCardBody {
-    flex: 1;
-    grid-template-rows: 1fr auto;
-    gap: 12px;
-    padding: 14px;
-  }
-  [data-brand="ishtar"] .productCardBody > [role="alert"] {
-    grid-column: 1 / -1;
-    margin: 0;
-  }
-  [data-brand="ishtar"] .productTitle {
-    overflow-wrap: anywhere;
-    min-height: 3em;
-  }
-  [data-brand="ishtar"] .productSubtitle {
-    font-size: 14px;
-    min-height: 2.8em;
-    margin-block: 6px 0;
-  }
-  [data-brand="ishtar"] .productBuyRow {
-    flex-wrap: wrap;
-    align-items: center;
-    row-gap: 10px;
-  }
+
   [data-brand="ishtar"] .price {
     gap: 6px;
     line-height: 1.4;
@@ -511,28 +476,7 @@
 }
 
 @media screen and (max-width: 599px) {
-  [data-brand="ishtar"] .productCard {
-    display: grid;
-    grid-template-columns: minmax(100px, 34%) minmax(0, 1fr);
-  }
-  [data-brand="ishtar"] .productCard .productImage {
-    height: 100%;
-    min-height: 190px;
-    aspect-ratio: auto;
-  }
-  [data-brand="ishtar"] .productCardBody {
-    padding: 12px;
-  }
-  [data-brand="ishtar"] .productTitle {
-    min-height: 0;
-  }
-  [data-brand="ishtar"] .productSubtitle {
-    min-height: 0;
-  }
-  [data-brand="ishtar"] .productBuyRow {
-    flex-direction: column;
-    align-items: start;
-  }
+
   [data-brand="ishtar"] .cartItem {
     grid-template-columns: 72px minmax(0, 1fr);
     padding: 12px;
@@ -543,12 +487,8 @@
   }
 }
 
-/* Product photos keep their source proportions instead of letterboxing in a fixed frame. */
-[data-brand="ishtar"] .productCard { display: flex; flex-direction: column; min-width: 0; }
-[data-brand="ishtar"] .productCard .productImageWrap { align-self: stretch; flex: 0 0 auto; background: var(--brand-surface); }
-[data-brand="ishtar"] .productCard .productImage { display: block; width: 100%; height: auto; min-height: 0; aspect-ratio: auto 4 / 5; object-fit: contain; background: transparent; }
-[data-brand="ishtar"] .productCard:hover .productImage { transform: none; }
-[data-brand="ishtar"] .productCardBody { flex: 1; min-width: 0; }
+/* Boutique identity strip. */
+
 [data-brand="ishtar"] .boutiqueBand { display: flex; flex-direction: row; align-items: center; gap: 24px; padding: 24px 28px; background: var(--brand-section); box-shadow: none; }
 [data-brand="ishtar"] .boutiqueBand > div:last-child { flex: 1; min-width: 0; text-align: center; }
 [data-brand="ishtar"] .boutiqueWordmark { flex: 0 0 170px; }
@@ -557,14 +497,38 @@
 [data-brand="ishtar"] .boutiqueBand h2 { font-size: clamp(24px, 3vw, 34px); line-height: 1.4; }
 [data-brand="ishtar"] .boutiqueBand p { margin: 0; max-width: none; }
 @media screen and (max-width: 599px) {
-  [data-brand="ishtar"] .productGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-  [data-brand="ishtar"] .productCardBody { padding: 12px 10px; gap: 10px; }
-  [data-brand="ishtar"] .productTitle { font-size: 16px; line-height: 1.5; }
-  [data-brand="ishtar"] .productBuyRow { flex-wrap: wrap; gap: 10px; }
-  [data-brand="ishtar"] .productBuyRow .quickAddButton { width: 100%; min-height: 44px; }
+
+
   [data-brand="ishtar"] .boutiqueBand { flex-direction: column; align-items: flex-start; gap: 12px; padding: 20px; }
   [data-brand="ishtar"] .boutiqueBand > div:last-child { text-align: start; }
   [data-brand="ishtar"] .boutiqueWordmark { flex: 0 0 auto; width: 124px; }
   [data-brand="ishtar"] .boutiqueWordmark img { width: 124px; }
   [data-brand="ishtar"] .boutiqueBand .eyebrow { font-size: 10px; }
+}
+
+/* Equal photo frames; the complete product sits over a soft full-bleed copy. */
+[data-brand="ishtar"] .productGrid { align-items: stretch; }
+[data-brand="ishtar"] .productCard { display: flex; flex-direction: column; min-width: 0; border-radius: 20px; }
+[data-brand="ishtar"] .productCardMedia { width: 100%; }
+[data-brand="ishtar"] .productCard .productImageWrap { display: block; width: 100%; aspect-ratio: 4 / 5; background: var(--brand-section); isolation: isolate; }
+[data-brand="ishtar"] .productCard .productImageBackdrop { display: block; position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(18px); opacity: .28; transform: scale(1.15); pointer-events: none; z-index: -1; }
+[data-brand="ishtar"] .productCard .productImage { display: block; position: absolute; inset: 0; width: 100%; height: 100%; min-height: 0; aspect-ratio: auto; object-fit: contain; background: transparent; }
+[data-brand="ishtar"] .productCard:hover .productImage { transform: none; }
+[data-brand="ishtar"] .productCardBody { display: flex; flex: 1; flex-direction: column; gap: 12px; padding: 14px; min-width: 0; }
+[data-brand="ishtar"] .productTitle { min-height: 0; font-size: 17px; line-height: 1.45; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+[data-brand="ishtar"] .productSubtitle { min-height: 0; font-size: 13px; line-height: 1.5; margin: 5px 0 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+[data-brand="ishtar"] .productCardBody > [role="alert"] { margin: 0; }
+[data-brand="ishtar"] .productBuyRow { display: flex; flex-direction: row; align-items: center; flex-wrap: wrap; justify-content: space-between; gap: 10px; margin-top: auto; }
+[data-brand="ishtar"] .productBuyRow .quickAddButton { min-height: 44px; }
+@media screen and (max-width: 767px) {
+  [data-brand="ishtar"] :is(.productGrid, .skeletonGrid) { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  [data-brand="ishtar"] .productCard { display: grid; grid-template-columns: minmax(0, 42%) minmax(0, 1fr); align-items: stretch; }
+  [data-brand="ishtar"] .productCardMedia { height: 230px; }
+  [data-brand="ishtar"] .productCard .productImageWrap { height: 100%; aspect-ratio: auto; }
+  [data-brand="ishtar"] .productCardBody { padding: 14px 12px; gap: 10px; }
+  [data-brand="ishtar"] .productTitle { font-size: 17px; }
+  [data-brand="ishtar"] .productBuyRow .quickAddButton { flex: 1 1 100%; width: 100%; }
+  [data-brand="ishtar"] .productCard .newBadge { inset-inline-end: 6px; padding-inline: 7px; }
+  [data-brand="ishtar"] .productCard .saleBadge { inset-inline-start: 6px; padding-inline: 7px; }
+  [data-brand="ishtar"] .productCardActions { inset-inline-end: 8px; bottom: 8px; gap: 6px; }
 }

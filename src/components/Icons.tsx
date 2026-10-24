@@ -1,4 +1,4 @@
-import { ShareNetwork, List, MagnifyingGlass, ShoppingBag, ShoppingCart, Plus, Minus, X, CaretDown, CaretLeft, CaretRight, Check, Heart, User, House, SquaresFour, Truck, Wallet, Gift, Sparkle, MapPin, Phone, Envelope, Clock, WhatsappLogo, InstagramLogo, FacebookLogo, TiktokLogo, ArrowLeft, ArrowRight, Play, Pause, ArrowClockwise, Package, Archive, Images, Receipt, Star, SignOut, WarningCircle, Eyedropper, Leaf, Diamond, Handbag } from '@phosphor-icons/react/dist/ssr';
+import { Eye, ShareNetwork, List, MagnifyingGlass, ShoppingBag, ShoppingCart, Plus, Minus, X, CaretDown, CaretLeft, CaretRight, Check, Heart, User, House, SquaresFour, Truck, Wallet, Gift, Sparkle, MapPin, Phone, Envelope, Clock, WhatsappLogo, InstagramLogo, FacebookLogo, TiktokLogo, ArrowLeft, ArrowRight, Play, Pause, ArrowClockwise, Package, Archive, Images, Receipt, Star, SignOut, WarningCircle, Eyedropper, Leaf, Diamond, Handbag } from '@phosphor-icons/react/dist/ssr';
 import type { IconProps } from '@phosphor-icons/react';
 
 // One icon family and decorative defaults across server and client components.
@@ -47,3 +47,5 @@ export function IconDiamond({ size = 20, weight = 'duotone', className = '', ...
 export function IconHandbag({ size = 20, weight = 'duotone', className = '', ...props }: IconProps) { return <Handbag size={size} weight={weight} aria-hidden="true" focusable="false" className={`uiIcon ${className}`} {...props} />; }
 
 export function IconShare({ size = 20, ...props }: IconProps) { return <ShareNetwork size={size} aria-hidden="true" focusable="false" {...props} />; }
+
+export function IconEye({ size = 20, ...props }: IconProps) { return <Eye size={size} aria-hidden="true" focusable="false" {...props} />; }

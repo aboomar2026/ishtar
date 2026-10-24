@@ -1,3 +1,19 @@
+## B3e — Product-card visual QA corrections (2026-10-24)
+
+- Removed the standalone underlined quick-view text row. Eye and heart now share a pair of 44px bordered surface buttons over the image, outside the product link, with accessible names, keyboard focus, hover/pressed treatment and existing quick-view/wishlist behavior.
+- Equal 4:5 desktop photo frames show the complete fitted image over a subtle blurred/decorative copy of the same photo; no product crop or fit-plus-gravity regression. Both copies share the transformed URL; decorative image has empty alt and aria-hidden. The full gallery/zoom is unchanged.
+- Replaced conflicting old Ishtar card overrides with one layout. Compact body, two-line visual title/subtitle limits and bottom purchase row remove the extra blank text row and avoid growing every card to the tallest source photo.
+- Up to 767px: one horizontal card per row, 42% image area with 230px frame, readable detail column and full-width purchase button. Desktop/tablet grids remain. Real mobile device acceptance still requires owner review; CSS implementation is not device verification.
+- Existing build/TypeScript/lint, quick view 2, wishlist 4, brand 28 and image/site URL 8 checks passed. Integration/CI/preview and actual desktop visual acceptance are recorded after this batch. No new dependency, database/configuration change, order or Telegram action; PR #3 preview only.
+
+## B3d final browser/CI checkpoint (2026-10-24)
+
+Final remote head `b049e8d0a5a0431ac85d8c3d571cd7f86a1dca9e`, local source commit `51a48be`, matching tree `89c00c667c11b150e31b6232b97c8e7cefc8c5f4`. GitHub Actions run 40095243452 and Netlify Deploy Preview 6adca85fafbac57969f445da succeeded. Final focused quick-view tests (2), lint and production build/TypeScript passed after the Tab-boundary correction. Earlier implementation head also passed CI 40094649457 plus the full locally recorded integration suite.
+
+Desktop actual preview on /category/clothes: both the explicit quick-view and multi-option buttons open one modal without route changes; six gallery images loaded; brown/M selection reset quantity from 2 to 1 and created one cart line at current unit price 100. Cart line was verified and removed without checkout/order creation. Escape restored focus to the original card button and released body scroll lock; backdrop and explicit close worked; full-details link navigated to /product/tttttt and removed the modal. Local recent history from this PDP visit was cleared.
+
+Final deployed boundary acceptance: Shift+Tab from close focused the full-details anchor inside the dialog; Tab from that anchor focused close, also inside. Final modal closed after capture. Public screenshot ui-quick-view-2026-10-24-final.jpg remains local QA evidence and is excluded from GitHub; no screenshot-only deploy. No live database/schema/config/order/Telegram changes by this batch. Physical mobile bottom-sheet behavior and screen-reader acceptance remain pending, not established by desktop/native-modal or renderer tests.
+
 ## B3d — Product quick view and rollout alignment (2026-10-24)
 
 - One lazily loaded native modal for all storefront product cards (including saved/recent lists); explicit quick-view action and multi-option card button open it without route navigation. Existing one-variant quick add remains. Closing returns focus to its opener, releases scroll lock and aborts outstanding reads; route changes clear selection.
