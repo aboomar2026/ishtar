@@ -511,9 +511,11 @@
 [data-brand="ishtar"] .productCard { display: flex; flex-direction: column; min-width: 0; border-radius: 20px; }
 [data-brand="ishtar"] .productCardMedia { width: 100%; }
 [data-brand="ishtar"] .productCard .productImageWrap { display: block; width: 100%; aspect-ratio: 4 / 5; background: var(--brand-section); isolation: isolate; }
-[data-brand="ishtar"] .productCard .productImageBackdrop { display: block; position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(18px); opacity: .28; transform: scale(1.15); pointer-events: none; z-index: -1; }
-[data-brand="ishtar"] .productCard .productImage { display: block; position: absolute; inset: 0; width: 100%; height: 100%; min-height: 0; aspect-ratio: auto; object-fit: contain; background: transparent; }
+[data-brand="ishtar"] .productCard .productImageBackdrop { display: block; position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(18px); opacity: .28; transform: scale(1.15); pointer-events: none; z-index: 0; }
+[data-brand="ishtar"] .productCard .productImage { display: block; position: absolute; inset: 0; width: 100%; height: 100%; min-height: 0; aspect-ratio: auto; object-fit: contain; background: transparent; z-index: 1; }
 [data-brand="ishtar"] .productCard:hover .productImage { transform: none; }
+[data-brand="ishtar"] .productCard .productImageWrap :is(.saleBadge, .newBadge, .sellerBadge, .stockOverlay) { z-index: 2; }
+[data-brand="ishtar"] .productCard .productImageWrap { overflow: hidden; }
 [data-brand="ishtar"] .productCardBody { display: flex; flex: 1; flex-direction: column; gap: 12px; padding: 14px; min-width: 0; }
 [data-brand="ishtar"] .productTitle { min-height: 0; font-size: 17px; line-height: 1.45; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
 [data-brand="ishtar"] .productSubtitle { min-height: 0; font-size: 13px; line-height: 1.5; margin: 5px 0 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
