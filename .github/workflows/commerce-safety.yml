@@ -33,6 +33,8 @@ jobs:
       - run: npm ci
       - run: npm run db:generate
       - run: npm run test:admin-safety
+      - run: npm run test:order-reset
+      - run: npm run test:test-products
       - run: npm run test:notifications
       - run: npm run test:dashboard
       - run: npm run test:search

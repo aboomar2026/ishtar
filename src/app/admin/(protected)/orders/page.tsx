@@ -1,3 +1,5 @@
+import { canResetTestOrders } from '@/features/admin/orders/order-reset';
+import { ResetTestOrders } from '@/components/admin/ResetTestOrders';
 import { requireOrderAdmin } from '@/features/admin/auth/admin-auth';
 import { IconSearch, IconReceipt } from '@/components/Icons';
 import Link from 'next/link';
@@ -14,7 +16,7 @@ export const dynamic = 'force-dynamic';
 type SearchParams = Promise<{ q?: string; status?: string; date?: string; delivery?: string; page?: string }>;
 
 export default async function AdminOrdersPage({ searchParams }: { searchParams: SearchParams }) {
-  await requireOrderAdmin();
+  const admin = await requireOrderAdmin();
   const sp = await searchParams;
   const { orders, total, page, pageCount } = await getAdminOrderPage({
     q: sp.q,
@@ -56,7 +58,10 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
           <h1>الطلبات</h1>
           <p className="adminMuted">عرض {orders.length} من {total} طلب · الدفع عند الاستلام فقط · التوصيل يحدد من الأدمن.</p>
         </div>
-        <a href={exportHref} className="adminBtn adminBtnGhost" download>⬇ تصدير CSV</a>
+        <div className="orderResetActions">
+          <a href={exportHref} className="adminBtn adminBtnGhost" download>⬇ تصدير CSV</a>
+          {canResetTestOrders(admin.role) && <ResetTestOrders />}
+        </div>
       </div>
 
       <OrderFilters />
