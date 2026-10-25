@@ -1,5 +1,7 @@
 # B1 — Durable notifications and live admin activity
 
+Historical implementation/rollout snapshot. For later owner-confirmed SQL application, RLS activation and transfer instructions, see the [current database execution ledger](../database/README.md). References below to not applied describe this batch, not the later owner actions.
+
 23 October 2026. Same PR #3; preview only, no merge. This batch adds F21/F22/F24 foundations without applying SQL or changing the existing DB/Telegram configuration. Activation remains explicit.
 
 ## Implemented behavior
