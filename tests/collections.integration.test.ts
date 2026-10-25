@@ -75,7 +75,7 @@ test("collections on isolated PostgreSQL", { timeout: 90000 }, async (t) => {
     async () => {
       assert.equal(await queries.collectionsReady(), false);
       assert.deepEqual(await queries.getCollections(), []);
-      assert.deepEqual(await queries.getComplements("source"), []);
+      assert.deepEqual((await queries.getCollectionRecommendations("source")).products, []);
       assert.equal(await queries.getCollection("missing"), null);
       assert.equal(
         (await getProductsByCategorySlug("all", { q: "source" }))?.products
@@ -178,8 +178,8 @@ test("collections on isolated PostgreSQL", { timeout: 90000 }, async (t) => {
         ],
       });
       assert.deepEqual(
-        (await queries.getComplements("source")).map((p) => p.id),
-        ["manual", "same", "stocked"],
+        (await queries.getCollectionRecommendations("source")).products.map((p) => p.id),
+        ["manual"],
       );
       await assert.rejects(
         prisma.productComplement.create({
@@ -191,7 +191,7 @@ test("collections on isolated PostgreSQL", { timeout: 90000 }, async (t) => {
         data: { isActive: false },
       });
       assert.deepEqual(await queries.getCollections(), []);
-      assert.deepEqual(await queries.getComplements("source"), []);
+      assert.deepEqual((await queries.getCollectionRecommendations("source")).products, []);
       await prisma.category.update({
         where: { id: "cat" },
         data: { isActive: true },

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { CollectionSymbol } from "@/components/CollectionCard";
 import { ProductGrid } from "@/components/ProductGrid";
 import { getCollection } from "@/features/collections/collections.queries";
@@ -32,11 +32,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 export default async function CollectionPage({ params, searchParams }: Props) {
   const { slug } = await params;
-  const collection = await getCollection(
-    slug,
-    Number((await searchParams).page) || 1,
-  );
+  const rawPage = (await searchParams).page;
+  const collection = await getCollection(slug, Number(rawPage) || 1);
   if (!collection) notFound();
+  if (rawPage !== undefined && rawPage !== String(collection.page)) {
+    const path = `/collections/${encodeURIComponent(slug)}`;
+    redirect(collection.page === 1 ? path : `${path}?page=${collection.page}`);
+  }
   return (
     <section className="contentSection">
       <nav className="collectionBreadcrumb" aria-label="مسار التصفح">

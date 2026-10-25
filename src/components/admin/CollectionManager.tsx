@@ -1,4 +1,5 @@
 "use client";
+import { selectCollectionImages } from "@/features/collections/collection-images";
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -188,7 +189,10 @@ export function CollectionManager({
                     onChange={(event) => change("imageUrl", event.target.value)}
                     placeholder="https://…"
                   />
-                  <small>بدون غلاف ننسّق صور أول ثلاثة منتجات ظاهرة.</small>
+                  <small>
+                    بدون غلاف نختار صوراً متنوعة من المنتجات الظاهرة في
+                    المجموعة.
+                  </small>
                 </div>
               </div>
               <div>
@@ -200,10 +204,15 @@ export function CollectionManager({
                     ...editor,
                     name: editor.name || "اسم المجموعة",
                     imageUrl: editor.imageUrl || null,
-                    images: editor.productIds.flatMap((id) =>
-                      previewProducts.find((p) => p.id === id)?.image
-                        ? [previewProducts.find((p) => p.id === id)!.image]
-                        : [],
+                    images: selectCollectionImages(
+                      editor.productIds.flatMap((id) => {
+                        const product = previewProducts.find(
+                          (product) => product.id === id,
+                        );
+                        return product && product.status === "ACTIVE"
+                          ? [product]
+                          : [];
+                      }),
                     ),
                     productCount: editor.productIds.length,
                   }}

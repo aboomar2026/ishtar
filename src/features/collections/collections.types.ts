@@ -53,6 +53,7 @@ export type CollectionCardData = {
   productCount: number;
 };
 export type ProductOption = {
+  categoryId?: string;
   id: string;
   name: string;
   image: string;

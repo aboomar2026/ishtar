@@ -46,6 +46,7 @@ export async function productOptions(
     select: {
       id: true,
       name: true,
+      categoryId: true,
       status: true,
       basePrice: true,
       category: { select: { isActive: true } },
@@ -64,6 +65,7 @@ export async function productOptions(
   return products.map((p) => ({
     id: p.id,
     name: p.name,
+    categoryId: p.categoryId,
     status: p.status === "ACTIVE" && !p.category.isActive ? "HIDDEN" : p.status,
     price: Math.min(
       ...(p.variants.some((v) => v.quantity > 0)

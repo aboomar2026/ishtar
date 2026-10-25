@@ -30,7 +30,7 @@ test('documented additive sequence and archived display-name repair run safely o
     assert.equal(report[1].rows.length, 3);
     assert.equal(report[2].rows.length, 6);
     assert.equal(report[3].rows.length, 3);
-    assert.equal((await db.query('SELECT COUNT(*)::integer AS count FROM "Order"')).rows[0].count, 0);
+    assert.equal((await db.query<{ count: number }>('SELECT COUNT(*)::integer AS count FROM "Order"')).rows[0].count, 0);
   } finally { await db.close(); }
 });
 
