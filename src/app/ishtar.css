@@ -553,3 +553,45 @@
 
 .seoBreadcrumbs { margin-block: 1rem; color: var(--color-muted, #695760); font-size: .875rem; }
 .seoBreadcrumbs a { text-decoration: underline; text-underline-offset: .2em; }
+
+/* Named social links remain readable and easy to tap inside the footer. */
+[data-brand="ishtar"] .footerSocials {
+  display: grid;
+  gap: 8px;
+}
+[data-brand="ishtar"] .footerSocialBtn {
+  display: flex;
+  width: 100%;
+  min-height: 52px;
+  height: auto;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  color: var(--brand-bg);
+  text-decoration: none;
+}
+[data-brand="ishtar"] .footerSocialIcon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 24px;
+}
+[data-brand="ishtar"] .footerSocialLabel {
+  flex: 1;
+  text-align: start;
+  font-size: 14px;
+  font-weight: 700;
+}
+[data-brand="ishtar"] .footerSocialArrow {
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+[data-brand="ishtar"] .footerSocialBtn:hover {
+  transform: translateY(-2px);
+  color: var(--brand-bg);
+  background: rgba(var(--brand-accent-rgb), 0.2);
+  border-color: var(--brand-gold);
+  box-shadow: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-brand="ishtar"] .footerSocialBtn:hover { transform: none; }
+}

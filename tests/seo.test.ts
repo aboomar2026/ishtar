@@ -68,5 +68,10 @@ test('product markup reports selectable variant prices/stock and omits unverifie
   assert.deepEqual(data.image, ['https://ishtar.example/photo.jpg']);
   assert.ok(!('aggregateRating' in data) && !JSON.stringify(data).includes('shippingDetails'));
   assert.equal(storeData()?.['@graph'][0]['@type'], 'OnlineStore');
+  assert.deepEqual(storeData()?.['@graph'][0].sameAs, [
+    'https://www.instagram.com/ishtarr_3/',
+    'https://www.facebook.com/profile.php?id=61591305881099',
+    'https://www.tiktok.com/@ishtarr_3'
+  ]);
   assert.equal(breadcrumbData([{ name: 'الرئيسية', path: '/' }])?.itemListElement[0].position, 1);
 });

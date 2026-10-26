@@ -14,7 +14,8 @@ export function storeData() {
   if (!url) return undefined;
   return { '@context': 'https://schema.org', '@graph': [
     { '@type': 'OnlineStore', '@id': `${url}#store`, name: brand.name, alternateName: brand.englishName, url,
-      logo: absoluteUrl(brand.assets.appleTouchIcon || brand.assets.icon || '/icon.svg'), description: brand.seo.description },
+      logo: absoluteUrl(brand.assets.appleTouchIcon || brand.assets.icon || '/icon.svg'), description: brand.seo.description,
+      sameAs: Object.values(brand.social).filter(Boolean) },
     { '@type': 'WebSite', '@id': `${url}#website`, name: brand.name, alternateName: brand.englishName, url, inLanguage: 'ar', publisher: { '@id': `${url}#store` } }
   ] };
 }
