@@ -1,3 +1,6 @@
+import { buildPageMetadata } from '@/lib/seo';
+import { storeData } from '@/lib/structured-data';
+import { JsonLd } from '@/components/JsonLd';
 import Link from 'next/link';
 import { CategoryStrip } from '@/components/CategoryStrip';
 import { HeroBanner } from '@/components/HeroBanner';
@@ -6,6 +9,8 @@ import { PromoBanner } from '@/components/PromoBanner';
 import { getHomeCatalog } from '@/features/catalog/catalog.queries';
 import { brand } from '@/lib/brand';
 import { BrandLogo } from '@/components/BrandLogo';
+
+export const metadata = buildPageMetadata({ title: brand.seo.title, description: brand.seo.description, path: '/' });
 
 export const dynamic = 'force-dynamic';
 
@@ -16,6 +21,7 @@ export default async function HomePage() {
 
   return (
     <div className="homePage">
+      <JsonLd data={storeData()} />
       <HeroBanner banner={heroBanner} />
       <CategoryStrip categories={catalog.categories} />
       <PromoBanner banner={promoBanner} />

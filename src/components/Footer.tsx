@@ -197,7 +197,7 @@ export function Footer() {
                 <h3 className="footerColTitle">{brand.key === 'ishtar' ? 'تابعي عشتار' : 'كوني أول من يعرف'}</h3>
                 {brand.key !== 'ishtar' ? <p className="footerNewsletterDesc">اشتركي ليصلك جديد العروض والمنتجات المختارة.</p> : null}
                 {brand.key === 'ishtar' ? (
-                  <p className="footerNewsletterDesc">تابعي جديد عشتار من خلال قنوات التواصل الرسمية عند إطلاقها.</p>
+                  <p className="footerNewsletterDesc">خلّيكِ قريبة من عشتار. اكتشفي جديدنا ولمسات تكمّل إطلالتك على صفحاتنا.</p>
                 ) : (
                   <>
                   {subscribed ? (
@@ -221,13 +221,17 @@ export function Footer() {
                   </>
                 )}
 
-                <div className="footerSocials">
+                <nav className="footerSocials" aria-label={`تابعي ${brand.name} على السوشيال ميديا`}>
                   {socialLinks.map((social) => (
-                    <a key={social.label} className="footerSocialBtn" href={social.href} target="_blank" rel="noopener noreferrer" aria-label={social.label}>
-                      {social.icon}
+                    <a key={social.label} className="footerSocialBtn" href={social.href} target="_blank" rel="noopener noreferrer" aria-label={`${brand.name} على ${social.label} (يفتح في تبويب جديد)`}>
+                      <span className="footerSocialIcon">{social.icon}</span>
+                      {brand.key === 'ishtar' ? <>
+                        <span className="footerSocialLabel" lang="en" dir="ltr">{social.label}</span>
+                        <svg className="footerSocialArrow" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10" /></svg>
+                      </> : null}
                     </a>
                   ))}
-                </div>
+                </nav>
               </div>
             </div>
           </div>

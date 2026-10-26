@@ -1,13 +1,33 @@
 import type { MetadataRoute } from 'next';
 import { prisma } from '@/lib/prisma';
-import { publicSiteUrl } from '@/lib/site-url';
+import { absoluteUrl, categorySeoPath, catalogPath, isIndexingEnabled } from '@/lib/seo';
+import { getProductsByCategorySlug } from '@/features/catalog/catalog.queries';
+import { virtualCategories } from '@/features/catalog/catalog.utils';
+
 export const dynamic = 'force-dynamic';
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const site = publicSiteUrl();
-  if (!site) return [];
+  if (!isIndexingEnabled()) return [];
   const [categories, products] = await Promise.all([
     prisma.category.findMany({ where: { isActive: true }, select: { slug: true } }),
-    prisma.product.findMany({ where: { status: 'ACTIVE', category: { isActive: true } }, select: { slug: true, updatedAt: true }, take: 49000 })
+    prisma.product.findMany({ where: { status: 'ACTIVE', category: { isActive: true } }, select: {
+      slug: true, updatedAt: true, images: { select: { url: true, updatedAt: true } },
+      variants: { select: { updatedAt: true } }
+    } })
   ]);
-  return [{ url: site.href }, ...['all','new-in','sale','featured',...categories.map((c) => c.slug)].map((slug) => ({ url: new URL(`/category/${encodeURIComponent(slug)}`, site).href })), ...products.map((product) => ({ url: new URL(`/product/${encodeURIComponent(product.slug)}`, site).href, lastModified: product.updatedAt }))];
+  const entries: MetadataRoute.Sitemap = [{ url: absoluteUrl('/')! }];
+  const slugs = new Set([...Object.keys(virtualCategories), ...categories.map((category) => category.slug)]);
+  // Use the storefront's exact sale/availability rules; empty categories must not be submitted.
+  for (const slug of slugs) {
+    const result = await getProductsByCategorySlug(slug);
+    if (!result?.total) continue;
+    for (let page = 1; page <= result.pageCount; page++) entries.push({ url: absoluteUrl(categorySeoPath(slug, page))! });
+  }
+  for (const product of products) entries.push({
+    url: absoluteUrl(catalogPath('product', product.slug))!,
+    lastModified: new Date(Math.max(product.updatedAt.getTime(), ...product.images.map((image) => image.updatedAt.getTime()), ...product.variants.map((variant) => variant.updatedAt.getTime()))),
+    images: [...new Set(product.images.map((image) => absoluteUrl(image.url)).filter((url): url is string => Boolean(url)))]
+  });
+  // Never silently truncate submitted products. Split into child sitemaps before this scale.
+  if (entries.length > 50000) throw new Error('Catalogue exceeds one sitemap: configure partitioned sitemaps.');
+  return entries;
 }

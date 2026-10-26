@@ -24,7 +24,9 @@
     "brand:check": "node scripts/check-ishtar-brand.mjs",
     "test:checkout-client": "node --import tsx --test tests/checkout-recovery.test.tsx",
     "test:commerce": "node --import tsx --test tests/commerce.test.ts",
-    "test:integration": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/checkout.integration.test.ts"
+    "test:integration": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/checkout.integration.test.ts",
+    "test:seo": "node --import tsx --test tests/site-url.test.ts tests/seo.test.ts",
+    "test:seo-integration": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/seo.integration.test.ts"
   },
   "dependencies": {
     "@prisma/client": "6.19.0",

@@ -61,6 +61,10 @@ export const ishtarBrand: BrandProfile = {
   // Business contact details are unconfirmed. Never copy sample numbers from other brands.
   contact: { whatsappNumber: '', phoneDisplay: '', addressAr: 'فلسطين', addressEn: 'Palestine',
     hoursPrimary: '', hoursSecondary: '', inquiryText: '' },
-  social: {},
+  social: {
+    instagram: 'https://www.instagram.com/ishtarr_3/',
+    facebook: 'https://www.facebook.com/profile.php?id=61591305881099',
+    tiktok: 'https://www.tiktok.com/@ishtarr_3'
+  },
   behavior: { useDatabaseBannerCopy: false }
 };

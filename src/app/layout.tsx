@@ -1,3 +1,4 @@
+import { buildPageMetadata } from '@/lib/seo';
 import { publicSiteUrl } from '@/lib/site-url';
 import type { Metadata, Viewport } from 'next';
 import { Tajawal, El_Messiri } from 'next/font/google';
@@ -21,9 +22,9 @@ const elMessiri = El_Messiri({
 
 export const metadata: Metadata = {
   metadataBase: publicSiteUrl(),
-  title: brand.seo.title,
-  openGraph: { title: brand.seo.title, description: brand.seo.description, siteName: brand.englishName, locale: 'ar_PS', type: 'website' },
-  description: brand.seo.description,
+  ...buildPageMetadata({ title: brand.seo.title, description: brand.seo.description, path: '/' }),
+  alternates: undefined,
+  verification: process.env.GOOGLE_SITE_VERIFICATION ? { google: process.env.GOOGLE_SITE_VERIFICATION } : undefined,
   applicationName: brand.englishName,
   manifest: brand.key === 'ishtar' ? '/brand/ishtar/site.webmanifest' : undefined,
   icons: {
