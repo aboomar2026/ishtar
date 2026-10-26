@@ -1,6 +1,9 @@
 import { CollectionCard } from '@/components/CollectionCard';
 import { getCollections } from '@/features/collections/collections.queries';
 import { RecentlyViewed } from '@/components/RecentlyViewed';
+import { buildPageMetadata } from '@/lib/seo';
+import { storeData } from '@/lib/structured-data';
+import { JsonLd } from '@/components/JsonLd';
 import Link from 'next/link';
 import { CategoryStrip } from '@/components/CategoryStrip';
 import { HeroView } from '@/components/hero/HeroView';
@@ -10,6 +13,8 @@ import { PromoBanner } from '@/components/PromoBanner';
 import { getHomeCatalog } from '@/features/catalog/catalog.queries';
 import { brand } from '@/lib/brand';
 import { BrandLogo } from '@/components/BrandLogo';
+
+export const metadata = buildPageMetadata({ title: brand.seo.title, description: brand.seo.description, path: '/' });
 
 export const dynamic = 'force-dynamic';
 
@@ -21,6 +26,7 @@ export default async function HomePage() {
   return (
     <div className="homePage">
       <HeroView settings={heroSettings} banners={catalog.heroBanners} products={heroProducts} />
+      <JsonLd data={storeData()} />
       <CategoryStrip categories={catalog.categories} />
       <PromoBanner banner={promoBanner} />
       {collections.length > 0 && <section className="contentSection"><div className="sectionHeader"><div><span className="eyebrow">CURATED FOR YOU</span><h2>اختيارات تجمعها حكاية</h2></div><Link href="/collections">كل المجموعات</Link></div><div className="collectionGrid">{collections.map(collection => <CollectionCard key={collection.id} collection={collection} />)}</div></section>}

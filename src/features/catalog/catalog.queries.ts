@@ -1,4 +1,5 @@
 import { collectionsReady } from '@/features/collections/collections.storage';
+import { cache } from 'react';
 import { Prisma, type BannerPlacement } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import type { CatalogProductFilters, CategoryProductsResult, HomeCatalogResult } from './catalog.types';
@@ -166,7 +167,7 @@ export async function getProductsByCategorySlug(slug: string, filters: CatalogPr
   };
 }
 
-export async function getProductBySlug(slug: string) {
+export const getProductBySlug = cache(async (slug: string) => {
   const product = await prisma.product.findFirst({
     where: { slug, status: 'ACTIVE', category: { isActive: true } },
     include: productListInclude
@@ -175,7 +176,7 @@ export async function getProductBySlug(slug: string) {
   if (!product) return null;
   const [productWithSoldCount] = await withEffectiveSoldCounts([product]);
   return mapProductDetail(productWithSoldCount);
-}
+});
 
 export async function getRelatedProducts(productId: string, categoryId: string) {
   const products = await prisma.product.findMany({

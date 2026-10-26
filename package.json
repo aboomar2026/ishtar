@@ -38,7 +38,9 @@
     "test:order-reset": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/order-reset.integration.test.ts",
     "test:test-products": "node --import tsx --test tests/test-products.integration.test.ts",
     "test:collections": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/collections.integration.test.ts tests/collections-auth.test.ts tests/collections-seed.integration.test.ts tests/database-reference.integration.test.ts",
-    "test:collections:qa": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/collections-qa.integration.test.ts"
+    "test:collections:qa": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/collections-qa.integration.test.ts",
+    "test:seo": "node --import tsx --test tests/site-url.test.ts tests/seo.test.ts",
+    "test:seo-integration": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/seo.integration.test.ts"
   },
   "dependencies": {
     "@phosphor-icons/react": "2.1.7",

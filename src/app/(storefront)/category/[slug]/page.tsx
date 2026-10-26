@@ -1,57 +1,49 @@
 import { getCollections } from '@/features/collections/collections.queries';
 import { CollectionCard } from '@/components/CollectionCard';
 import type { Metadata } from 'next';
-import { publicSiteUrl } from '@/lib/site-url';
-import { getCategoryBySlug } from '@/features/catalog/catalog.queries';
+import Link from 'next/link';
+import { buildPageMetadata, catalogPath, categorySeoPath, hasCatalogFacets } from '@/lib/seo';
+import { breadcrumbData } from '@/lib/structured-data';
+import { JsonLd } from '@/components/JsonLd';
+import { getCategoryPage, type CategorySearchParams } from '@/features/catalog/catalog-page';
 import { notFound } from 'next/navigation';
 import { CategoryStrip } from '@/components/CategoryStrip';
 import { ClearableSearchInput } from '@/components/ClearableSearchInput';
 import { ProductGrid } from '@/components/ProductGrid';
-import { getProductsByCategorySlug } from '@/features/catalog/catalog.queries';
-import { normalizeCatalogFilters } from '@/features/catalog/catalog.filters';
 import { brand } from '@/lib/brand';
 
 export const dynamic = 'force-dynamic';
-export async function generateMetadata({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<CategoryPageSearchParams> }): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<CategorySearchParams> }): Promise<Metadata> {
   const { slug } = await params;
-  const filters = await searchParams;
-  const category = await getCategoryBySlug(slug);
-  return { title: `${category?.name ?? 'المنتجات'} | ${brand.name}`, description: category?.description,
-    robots: filters.q || filters.sort || filters.availability || filters.page ? { index: false, follow: true } : undefined,
-    alternates: publicSiteUrl() ? { canonical: `/category/${encodeURIComponent(slug)}` } : undefined };
+  const values = await searchParams;
+  const result = await getCategoryPage(slug, JSON.stringify(values));
+  if (!result || result.page > result.pageCount) notFound();
+  return buildPageMetadata({ title: `${result.category.name}${result.page > 1 ? ` — صفحة ${result.page}` : ''} | ${brand.name}`,
+    description: result.category.description, path: categorySeoPath(slug, result.page), image: result.category.imageUrl,
+    noindex: hasCatalogFacets(values) || result.total === 0 });
 }
-
-
-type CategoryPageSearchParams = {
-  q?: string;
-  page?: string;
-  sort?: string;
-  availability?: string;
-  minPrice?: string;
-  maxPrice?: string;
-};
 
 export default async function CategoryPage({
   params,
   searchParams
 }: {
   params: Promise<{ slug: string }>;
-  searchParams?: Promise<CategoryPageSearchParams>;
+  searchParams?: Promise<CategorySearchParams>;
 }) {
   const { slug } = await params;
   const resolvedSearchParams = searchParams ? await searchParams : {};
-  const filters = normalizeCatalogFilters(resolvedSearchParams);
-  const result = await getProductsByCategorySlug(slug, filters);
+  const result = await getCategoryPage(slug, JSON.stringify(resolvedSearchParams));
 
-  if (!result) notFound();
+  if (!result || result.page > result.pageCount) notFound();
+  const filters = result.filters;
 
   const query = filters.q ?? '';
   const matchingGroups = query.length >= 2 ? await getCollections({ q: query, limit: 3 }) : [];
   function pageHref(page: number) {
     const values = new URLSearchParams();
-    for (const [key, value] of Object.entries(resolvedSearchParams)) if (value && key !== 'page') values.set(key, value);
-    values.set('page', String(page));
-    return `/category/${slug}?${values.toString()}`;
+    for (const [key, value] of Object.entries(resolvedSearchParams)) if (value && key !== 'page') values.set(key, Array.isArray(value) ? value[0] : value);
+    if (page > 1) values.set('page', String(page));
+    return `${catalogPath('category', slug)}${values.size ? `?${values.toString()}` : ''}`;
   }
   const isFiltered = Boolean(
     query ||
@@ -63,6 +55,8 @@ export default async function CategoryPage({
 
   return (
     <div className="categoryPage">
+      <JsonLd data={breadcrumbData([{ name: 'الرئيسية', path: '/' }, { name: result.category.name, path: categorySeoPath(slug, result.page) }])} />
+      <nav aria-label="مسار التنقل" className="seoBreadcrumbs"><Link href="/">الرئيسية</Link> / <span aria-current="page">{result.category.name}</span></nav>
       <section className="categoryHero">
         <span className="eyebrow">{brand.copy.categoryEyebrow}</span>
         <h1>{query ? `نتائج البحث: ${query}` : result.category.name}</h1>
