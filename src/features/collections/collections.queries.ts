@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { mapProductCard } from "@/features/catalog/catalog.mappers";
@@ -95,14 +96,32 @@ export async function getCollections({
   });
   return cards(rows);
 }
-export async function getCollection(slug: string, page = 1) {
+
+/** PDP pills need no collage images or aggregate membership counts. */
+export async function getProductCollectionLinks(productId: string) {
+  if (!(await collectionsReady())) return [];
+  return prisma.collection.findMany({
+    where: { isActive: true, products: { some: { productId, product: publishedProduct } } },
+    select: { id: true, name: true, slug: true },
+    orderBy: [{ sortOrder: 'asc' }, { id: 'asc' }],
+    take: 6,
+  });
+}
+// Only request-scoped reuse: visibility/count edits are fresh on every request.
+// Metadata must not hydrate an unused first page of 24 products.
+export const getCollectionSummary = cache(async (slug: string) => {
   if (!(await collectionsReady())) return null;
   const row = await prisma.collection.findFirst({
     where: { slug, isActive: true },
     include: cardInclude,
   });
   if (!row || !row._count.products) return null;
-  const pageCount = Math.ceil(row._count.products / 24);
+  return (await cards([row]))[0];
+});
+export async function getCollection(slug: string, page = 1) {
+  const row = await getCollectionSummary(slug);
+  if (!row) return null;
+  const pageCount = Math.ceil(row.productCount / 24);
   const currentPage = Math.max(
     1,
     Math.min(pageCount, Number.isFinite(page) ? Math.trunc(page) || 1 : 1),
@@ -115,7 +134,7 @@ export async function getCollection(slug: string, page = 1) {
     skip: (currentPage - 1) * 24,
   });
   return {
-    ...(await cards([row]))[0],
+    ...row,
     products: members.map((member) => mapProductCard(member.product)),
     page: currentPage,
     pageCount,

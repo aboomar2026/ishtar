@@ -56,7 +56,11 @@ test('catalog queries execute against isolated Postgres with more than one page'
     await db.query('INSERT INTO "Product" (id,name,slug,description,"categoryId","basePrice",status,"isNewArrival","updatedAt") VALUES ($1,$2,$3,$4,$5,$6,\'ACTIVE\',$7,now())', [p.id,p.name,p.slug,p.description,p.categoryId,p.basePrice,p.isNewArrival]);
     await db.query('INSERT INTO "ProductVariant" (id,"productId",sku,price,quantity,"updatedAt") VALUES ($1,$2,$3,$4,$5,now())', [p.variants[0].id,p.id,p.variants[0].sku,p.variants[0].price,10]);
   }
-  Object.defineProperty(prisma, '$queryRaw', { configurable: true, value: async (query: Prisma.Sql) => (await db.query(query.text, query.values)).rows });
+  Object.defineProperty(prisma, '$queryRaw', { configurable: true, value: async (query: Prisma.Sql | TemplateStringsArray, ...values: unknown[]) => {
+    // Prisma accepts both Sql objects and tagged templates (collections readiness).
+    const sql = Array.isArray(query) ? Prisma.sql(query as unknown as TemplateStringsArray, ...values) : query as Prisma.Sql;
+    return (await db.query(sql.text, sql.values)).rows;
+  } });
   Object.defineProperty(prisma.category, 'findMany', { configurable: true, value: async () => [] });
   Object.defineProperty(prisma.product, 'findMany', { configurable: true, value: async (args: { where: { id: { in: string[] } } }) => products.filter((p) => args.where.id.in.includes(p.id)) });
   try {

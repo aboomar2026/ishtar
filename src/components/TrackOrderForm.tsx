@@ -1,4 +1,6 @@
 'use client';
+import { CatalogImage } from '@/components/CatalogImage';
+import { PRODUCT_THUMB_IMAGE } from '@/lib/cloudinary-image';
 import { IconX } from './Icons';
 
 import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
@@ -364,7 +366,7 @@ export function TrackOrderForm({ initialOrderNumber = '' }: { initialOrderNumber
           <div className="summaryDivider" />
           {order.items.map((item) => (
             <div className="miniOrderItem" key={item.id}>
-              <img src={item.image ?? '/mock-products/gift-box.svg'} alt={item.productName} />
+              <CatalogImage src={item.image ?? '/mock-products/gift-box.svg'} alt={item.productName}  transform={{ ...PRODUCT_THUMB_IMAGE, crop: 'fit' }} sizes="100px" loading="lazy" />
               <div>
                 <strong>{item.productName}</strong>
                 <span>

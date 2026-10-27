@@ -9,7 +9,8 @@ import { useQuickView } from './QuickViewProvider';
 import { useState } from 'react';
 import type { Product } from '@/lib/types';
 import { FALLBACK_PRODUCT_IMAGE } from '@/features/catalog/catalog.utils';
-import { getCloudinaryTransformedUrl, PRODUCT_CARD_IMAGE } from '@/lib/cloudinary-image';
+import { CatalogImage } from './CatalogImage';
+import { PRODUCT_CARD_IMAGE } from '@/lib/cloudinary-image';
 import { useCart } from './CartProvider';
 import { Price } from './Price';
 import { SaleBadge } from './SaleBadge';
@@ -23,10 +24,8 @@ export function ProductCard({ product }: { product: Product }) {
   const availableVariants = product.variants.filter((variant) => variant.isActive && variant.quantity > 0);
   const canQuickAdd = availableVariants.length === 1;
   const quickVariant = availableVariants[0];
-  const imageUrl = getCloudinaryTransformedUrl(product.image, brand.key === 'ishtar' ? { ...PRODUCT_CARD_IMAGE, crop: 'fit' } : PRODUCT_CARD_IMAGE);
-  const handleImageError = (event: React.SyntheticEvent<HTMLImageElement>) => {
-    if (!event.currentTarget.src.endsWith(FALLBACK_PRODUCT_IMAGE)) event.currentTarget.src = FALLBACK_PRODUCT_IMAGE;
-  };
+  const imageProps = { src: product.image, transform: brand.key === 'ishtar' ? { ...PRODUCT_CARD_IMAGE, crop: 'fit' as const } : PRODUCT_CARD_IMAGE,
+    widths: [320, 480, 800], sizes: '(max-width: 767px) 42vw, (max-width: 1019px) 33vw, 20vw', fallbackSrc: FALLBACK_PRODUCT_IMAGE };
 
   function handleQuickAdd() {
     if (product.isOutOfStock) return;
@@ -58,13 +57,12 @@ export function ProductCard({ product }: { product: Product }) {
     <article className={`productCard ${product.isOutOfStock ? 'isOutOfStock' : ''}`}>
       <div className="productCardMedia">
       <Link href={`/product/${product.slug}`} className="productImageWrap" aria-label={product.name}>
-        {brand.key === 'ishtar' && <img className="productImageBackdrop" src={imageUrl} alt="" aria-hidden="true" loading="lazy" onError={handleImageError} />}
-        <img
-          src={imageUrl}
+        {brand.key === 'ishtar' && <CatalogImage {...imageProps} className="productImageBackdrop" alt="" aria-hidden="true" loading="lazy" />}
+        <CatalogImage
+          {...imageProps}
           alt={product.name}
           className="productImage"
           loading="lazy"
-          onError={handleImageError}
         />
         <SaleBadge oldPrice={product.compareAtPrice} price={product.price} discountPercent={product.discountPercent} />
         {product.isNewArrival ? <span className="newBadge">جديد</span> : null}

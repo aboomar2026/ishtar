@@ -1,4 +1,5 @@
 import 'server-only';
+import { cache } from 'react';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import bcrypt from 'bcryptjs';
@@ -52,7 +53,9 @@ export async function clearAdminSessionCookie(): Promise<void> {
  * Resolve the current admin session: verify the cookie, then confirm the admin
  * still exists and is active. Returns null when there is no valid session.
  */
-export async function getAdminSession(): Promise<AdminSession | null> {
+// React cache is request scoped: layout/page guards share one current-DB check.
+// Never use a persistent/public cache for session or permission decisions.
+export const getAdminSession = cache(async (): Promise<AdminSession | null> => {
   const cookieStore = await cookies();
   const token = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;
   const payload = verifySessionToken(token);
@@ -65,7 +68,7 @@ export async function getAdminSession(): Promise<AdminSession | null> {
 
   if (!admin || !admin.isActive) return null;
   return { id: admin.id, name: admin.name, email: admin.email, role: admin.role };
-}
+});
 
 /** Guard for protected admin pages/actions: redirects to login when unauthenticated. */
 export async function requireAdmin(): Promise<AdminSession> {

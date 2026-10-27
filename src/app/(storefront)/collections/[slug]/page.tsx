@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { CollectionSymbol } from "@/components/CollectionCard";
 import { ProductGrid } from "@/components/ProductGrid";
-import { getCollection } from "@/features/collections/collections.queries";
+import { getCollection, getCollectionSummary } from "@/features/collections/collections.queries";
 import { publicSiteUrl } from "@/lib/site-url";
 export const dynamic = "force-dynamic";
 type Props = {
@@ -12,7 +12,7 @@ type Props = {
 };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const collection = await getCollection(slug);
+  const collection = await getCollectionSummary(slug);
   if (!collection)
     return { title: "المجموعة غير موجودة", robots: { index: false } };
   return {

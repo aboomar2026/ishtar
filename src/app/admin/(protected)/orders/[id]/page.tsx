@@ -1,3 +1,5 @@
+import { CatalogImage } from '@/components/CatalogImage';
+import { PRODUCT_THUMB_IMAGE } from '@/lib/cloudinary-image';
 import { requireOrderAdmin } from '@/features/admin/auth/admin-auth';
 import { IconArrowRight, IconArrowLeft } from '@/components/Icons';
 import Link from 'next/link';
@@ -120,7 +122,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                 <tr key={item.id}>
                   <td>
                     <div className="adminCellMain">
-                      <img className="adminThumb" src={item.image ?? '/mock-products/gift-box.svg'} alt={item.productName} />
+                      <CatalogImage className="adminThumb" src={item.image ?? '/mock-products/gift-box.svg'} alt={item.productName}  transform={{ ...PRODUCT_THUMB_IMAGE, crop: 'fit' }} sizes="100px" loading="lazy" />
                       <div><strong>{item.productName}</strong><small>{item.sku ?? '—'}</small></div>
                     </div>
                   </td>

@@ -1,5 +1,5 @@
 import 'server-only';
-import type { Prisma, ProductStatus } from '@prisma/client';
+import { Prisma, type ProductStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import type { ProductStockState } from '@/features/catalog/catalog.types';
 import { getStockState } from '@/features/catalog/catalog.utils';
@@ -9,6 +9,7 @@ export type AdminProductSort = 'newest' | 'updated' | 'name' | 'stock-asc';
 
 export type AdminProductListParams = {
   q?: string;
+  page?: number;
   status?: ProductStatus | 'ALL';
   categoryId?: string | 'ALL';
   stock?: AdminProductStockFilter;
@@ -41,32 +42,40 @@ function decimalToNumber(value: Prisma.Decimal | number | string | null): number
   return value.toNumber();
 }
 
-export async function getAdminProducts(params: AdminProductListParams = {}): Promise<AdminProductListItem[]> {
+export async function getAdminProductPage(params: AdminProductListParams = {}) {
   const { q, status = 'ALL', categoryId = 'ALL', stock = 'all', sort = 'updated' } = params;
-
-  const where: Prisma.ProductWhereInput = {};
-  if (status !== 'ALL') where.status = status;
-  if (categoryId !== 'ALL') where.categoryId = categoryId;
-
+  const requestedPage = Number.isFinite(params.page) ? Math.min(1_000_000, Math.max(1, Math.floor(params.page!))) : 1;
+  const pageSize = 24;
+  const conditions: Prisma.Sql[] = [Prisma.sql`true`];
+  if (status !== 'ALL') conditions.push(Prisma.sql`p.status::text = ${status}`);
+  if (categoryId !== 'ALL') conditions.push(Prisma.sql`p."categoryId" = ${categoryId}`);
   const term = q?.trim();
   if (term) {
-    where.OR = [
-      { name: { contains: term, mode: 'insensitive' } },
-      { slug: { contains: term, mode: 'insensitive' } },
-      { variants: { some: { sku: { contains: term, mode: 'insensitive' } } } }
-    ];
+    const pattern = `%${term.replace(/[\\%_]/g, character => `\\${character}`)}%`;
+    conditions.push(Prisma.sql`(p.name ILIKE ${pattern} OR p.slug ILIKE ${pattern} OR EXISTS (SELECT 1 FROM "ProductVariant" v WHERE v."productId" = p.id AND v.sku ILIKE ${pattern}))`);
   }
-
-  const orderBy: Prisma.ProductOrderByWithRelationInput =
-    sort === 'newest'
-      ? { createdAt: 'desc' }
-      : sort === 'name'
-        ? { name: 'asc' }
-        : { updatedAt: 'desc' };
-
+  if (stock === 'out-of-stock') conditions.push(Prisma.sql`s.quantity <= 0`);
+  if (stock === 'low-stock') conditions.push(Prisma.sql`s.quantity > 0 AND s.quantity <= s.threshold`);
+  if (stock === 'in-stock') conditions.push(Prisma.sql`s.quantity > s.threshold AND s.quantity > 0`);
+  const order = sort === 'stock-asc' ? Prisma.sql`quantity ASC` : sort === 'name' ? Prisma.sql`name ASC` : sort === 'newest' ? Prisma.sql`"createdAt" DESC` : Prisma.sql`"updatedAt" DESC`;
+  // Filter and sort the aggregate BEFORE pagination; hydrate at most 24 products.
+  const [selection] = await prisma.$queryRaw<{ total: bigint; ids: string[] }[]>(Prisma.sql`
+    WITH filtered AS (
+      SELECT p.id, p.name, p."createdAt", p."updatedAt", s.quantity FROM "Product" p
+      JOIN LATERAL (SELECT COALESCE(SUM(GREATEST(quantity, 0)) FILTER (WHERE "isActive"), 0) AS quantity,
+        COALESCE(MIN("lowStockThreshold") FILTER (WHERE "isActive"), 0) AS threshold
+        FROM "ProductVariant" WHERE "productId" = p.id) s ON true
+      WHERE ${Prisma.join(conditions, ' AND ')}
+    ), total AS (SELECT COUNT(*) AS total FROM filtered), paged AS (
+      SELECT * FROM filtered ORDER BY ${order}, id ASC LIMIT ${pageSize}
+      OFFSET (SELECT GREATEST(0, LEAST(${requestedPage - 1}, CEIL(total::numeric / ${pageSize}) - 1)) * ${pageSize} FROM total)
+    ) SELECT total, ARRAY(SELECT id FROM paged ORDER BY ${order}, id ASC) AS ids FROM total`);
+  const total = Number(selection?.total ?? 0);
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
+  const page = Math.min(pageCount, requestedPage);
+  const ids = selection?.ids ?? [];
   const products = await prisma.product.findMany({
-    where,
-    orderBy,
+    where: { id: { in: ids } },
     include: {
       category: { select: { name: true } },
       images: { orderBy: [{ isPrimary: 'desc' }, { sortOrder: 'asc' }], take: 1 },
@@ -74,7 +83,7 @@ export async function getAdminProducts(params: AdminProductListParams = {}): Pro
     }
   });
 
-  let items: AdminProductListItem[] = products.map((product) => {
+  const items: AdminProductListItem[] = products.map((product) => {
     const activeVariants = product.variants.filter((variant) => variant.isActive);
     const totalStock = activeVariants.reduce((sum, variant) => sum + Math.max(0, variant.quantity), 0);
     const lowestThreshold = activeVariants.length
@@ -98,14 +107,9 @@ export async function getAdminProducts(params: AdminProductListParams = {}): Pro
     };
   });
 
-  if (stock !== 'all') {
-    items = items.filter((item) => item.stockState === stock);
-  }
-  if (sort === 'stock-asc') {
-    items = [...items].sort((a, b) => a.totalStock - b.totalStock);
-  }
+  const byId = new Map(items.map(item => [item.id, item]));
+  return { items: ids.flatMap(id => byId.has(id) ? [byId.get(id)!] : []), total, page, pageCount };
 
-  return items;
 }
 
 export type AdminProductDetail = NonNullable<Awaited<ReturnType<typeof getAdminProductById>>>;

@@ -1,4 +1,4 @@
-import { getCollections, getCollectionRecommendations } from '@/features/collections/collections.queries';
+import { getProductCollectionLinks, getCollectionRecommendations } from '@/features/collections/collections.queries';
 import { RecentlyViewed, RecordProductView } from '@/components/RecentlyViewed';
 import type { Metadata } from 'next';
 import { brand } from '@/lib/brand';
@@ -29,7 +29,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const breadcrumbs = [{ name: 'الرئيسية', path: '/' },
     ...(product.category ? [{ name: product.category.name, path: catalogPath('category', product.category.slug) }] : []),
     { name: product.name, path: catalogPath('product', product.slug) }];
-  const [groups, recommendation] = await Promise.all([getCollections({ productId: product.id, limit: 6 }), getCollectionRecommendations(product.id)]);
+  const [groups, recommendation] = await Promise.all([getProductCollectionLinks(product.id), getCollectionRecommendations(product.id)]);
   const related = recommendation.products.length ? recommendation.products : await getRelatedProducts(product.id, product.categoryId);
 
   return (

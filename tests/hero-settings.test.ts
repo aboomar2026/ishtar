@@ -33,8 +33,9 @@ test('admin-only settings persist across database reads and template changes', {
   process.env.DATABASE_URL = `${address.startsWith('postgres') ? address : `postgresql://postgres:test@${address}/postgres`}?connection_limit=1&sslmode=disable`;
   let authorized = false;
   const paths: string[] = [];
+  const tags: string[] = [];
   mockModule('../src/features/admin/auth/admin-auth', { requireAdmin: async () => { if (!authorized) throw new Error('unauthorized'); } });
-  mockModule('next/cache', { revalidatePath: (path: string) => paths.push(path) });
+  mockModule('next/cache', { revalidatePath: (path: string) => paths.push(path), updateTag: (tag: string) => tags.push(tag), unstable_cache: (reader: unknown) => reader });
   const { prisma } = await import('../src/lib/prisma');
   t.after(() => prisma.$disconnect());
   const { getHeroSettings } = await import('../src/features/hero/hero.queries');
@@ -61,6 +62,7 @@ test('admin-only settings persist across database reads and template changes', {
     assert.deepEqual(saved.profiles, profiles);
   }
   assert.equal(await prisma.heroSettings.count(), 1);
+  assert.deepEqual(tags, Array(3).fill('public-hero-settings'));
   assert.deepEqual([...new Set(paths)].sort(), ['/', '/admin/banners']);
 });
 

@@ -9,7 +9,7 @@ import {
   ArrowLeft,
 } from "@phosphor-icons/react";
 import type { CollectionCardData } from "@/features/collections/collections.types";
-import { getCloudinaryTransformedUrl } from "@/lib/cloudinary-image";
+import { CatalogImage } from "./CatalogImage";
 export function CollectionSymbol({
   symbol,
   size = 28,
@@ -50,21 +50,13 @@ export function CollectionCard({
         aria-hidden="true"
       >
         {images.map((src, index) => (
-          <img
+          <CatalogImage
             key={`${src}-${index}`}
-            src={getCloudinaryTransformedUrl(src, {
-              width: 600,
-              height: 600,
-              crop: "fit",
-            })}
+            src={src} transform={{ width: 600, height: 600, crop: 'fit' }} widths={[320, 480, 600]}
+            sizes={images.length > 1 ? '(max-width: 700px) 40vw, 180px' : '(max-width: 700px) 90vw, 400px'}
             alt=""
             loading="lazy"
-            onError={(event) => {
-              if (
-                !event.currentTarget.src.endsWith("/mock-products/gift-box.svg")
-              )
-                event.currentTarget.src = "/mock-products/gift-box.svg";
-            }}
+
           />
         ))}
         {!images.length && (

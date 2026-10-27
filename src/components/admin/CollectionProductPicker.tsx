@@ -1,4 +1,6 @@
 "use client";
+import { CatalogImage } from '@/components/CatalogImage';
+import { PRODUCT_THUMB_IMAGE } from '@/lib/cloudinary-image';
 import { useEffect, useId, useState } from "react";
 import { ArrowUp, ArrowDown, X, MagnifyingGlass } from "@phosphor-icons/react";
 import { searchCollectionProducts } from "@/features/collections/collections.actions";
@@ -110,12 +112,12 @@ export function CollectionProductPicker({
               setDragged(undefined);
             }}
           >
-            <img
+            <CatalogImage
               src={known[id]?.image ?? "/mock-products/gift-box.svg"}
               alt=""
               width={48}
               height={48}
-            />
+             transform={{ ...PRODUCT_THUMB_IMAGE, crop: 'fit' }} sizes="100px" loading="lazy" />
             <span>
               {known[id]?.name ?? "منتج غير متوفر"}
               <small>
@@ -181,7 +183,7 @@ export function CollectionProductPicker({
                 disabled={disabled || ids.length >= max}
                 onClick={() => onChange([...ids, product.id])}
               >
-                <img src={product.image} width={44} height={44} alt="" />
+                <CatalogImage src={product.image} width={44} height={44} alt=""  transform={{ ...PRODUCT_THUMB_IMAGE, crop: 'fit' }} sizes="100px" loading="lazy" />
                 <span>
                   {product.name}
                   <small>

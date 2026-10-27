@@ -1,3 +1,4 @@
+import { getCloudinaryTransformedUrl } from '@/lib/cloudinary-image';
 import { CollectionCard } from '@/components/CollectionCard';
 import { getCollections } from '@/features/collections/collections.queries';
 import { RecentlyViewed } from '@/components/RecentlyViewed';
@@ -7,7 +8,7 @@ import { JsonLd } from '@/components/JsonLd';
 import Link from 'next/link';
 import { CategoryStrip } from '@/components/CategoryStrip';
 import { HeroView } from '@/components/hero/HeroView';
-import { getHeroSettings } from '@/features/hero/hero.queries';
+import { getPublicHeroSettings } from '@/features/hero/hero.queries';
 import { ProductGrid } from '@/components/ProductGrid';
 import { PromoBanner } from '@/components/PromoBanner';
 import { getHomeCatalog } from '@/features/catalog/catalog.queries';
@@ -19,7 +20,7 @@ export const metadata = buildPageMetadata({ title: brand.seo.title, description:
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
-  const [catalog, heroSettings, collections] = await Promise.all([getHomeCatalog(), getHeroSettings(), getCollections({ home: true, limit: 3 })]);
+  const [catalog, heroSettings, collections] = await Promise.all([getHomeCatalog(), getPublicHeroSettings(), getCollections({ home: true, limit: 3 })]);
   const heroProducts = [...catalog.featuredProducts, ...catalog.newArrivals].filter((product, index, all) => all.findIndex(other => other.id === product.id) === index).slice(0, 8).map(product => ({ image: product.image, name: product.name, href: `/product/${product.slug}` }));
   const promoBanner = catalog.promoBanners[0];
 
@@ -42,7 +43,7 @@ export default async function HomePage() {
         <div className="categoryShowcaseGrid" role="region" aria-label="تصفّحي جميع التصنيفات" tabIndex={0}>
           {catalog.categories.map((category) => (
             <Link href={`/category/${category.slug}`} className="categoryShowcaseCard" key={category.slug}>
-              <img className="categoryShowcaseImg" src={category.imageUrl ?? '/mock-products/gift-box.svg'} alt={category.name} />
+              <img className="categoryShowcaseImg" src={getCloudinaryTransformedUrl(category.imageUrl ?? '/mock-products/gift-box.svg', { width: 480, height: 600, crop: 'fit' })} loading="lazy" decoding="async" alt={category.name} />
               <div className="categoryShowcaseOverlay">
                 <strong>{category.name}</strong>
                 <span>{category.productCount ?? 0} منتجات</span>
