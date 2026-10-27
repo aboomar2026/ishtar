@@ -2,7 +2,7 @@ import { canResetTestOrders } from '@/features/admin/orders/order-reset';
 import { ResetTestOrders } from '@/components/admin/ResetTestOrders';
 import { requireOrderAdmin } from '@/features/admin/auth/admin-auth';
 import { IconSearch, IconReceipt } from '@/components/Icons';
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 import type { DeliveryFeeStatus, OrderStatus } from '@prisma/client';
 import { getAdminOrderPage, type AdminOrderDateFilter, type AdminDeliveryFeeFilter } from '@/features/admin/orders/order-admin.queries';
 import { formatCurrency, formatDateTime } from '@/features/admin/shared/admin-format';

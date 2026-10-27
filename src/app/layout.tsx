@@ -1,3 +1,4 @@
+import { NavigationProvider } from '@/components/NavigationProvider';
 import { buildPageMetadata } from '@/lib/seo';
 import { publicSiteUrl } from '@/lib/site-url';
 import type { Metadata, Viewport } from 'next';
@@ -50,7 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       data-scroll-behavior="smooth"
       style={getBrandCssVariables()}
     >
-      <body>{children}</body>
+      <body><NavigationProvider>{children}</NavigationProvider></body>
     </html>
   );
 }

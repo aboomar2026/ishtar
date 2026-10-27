@@ -4,9 +4,9 @@ import { PRODUCT_THUMB_IMAGE } from '@/lib/cloudinary-image';
 
 import { brandStorageKeys } from '@/lib/brand-storage';
 
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 import { FormEvent, useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useNavigationRouter as useRouter } from '@/components/NavigationProvider';
 import { CartSummary } from './CartSummary';
 import { EmptyState } from './EmptyState';
 import { useCart } from './CartProvider';

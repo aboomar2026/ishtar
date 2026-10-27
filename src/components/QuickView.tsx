@@ -1,8 +1,9 @@
 'use client';
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 import { useEffect, useRef, useState } from 'react';
 import type { Product } from '@/lib/types';
 import { ProductDetailClient } from './ProductDetailClient';
+import { ProductLoadingSkeleton } from './ProductLoadingSkeleton';
 import { IconX } from './Icons';
 
 type Preview = Pick<Product, 'id' | 'name' | 'slug'>;
@@ -59,7 +60,7 @@ export function QuickView({ product, onClose, opener }: { product: Preview; onCl
     <div className="quickViewSurface">
       <header className="quickViewHeader"><span className="eyebrow">نظرة أقرب</span>
         <button type="button" className="quickViewClose ghostButton" aria-label="إغلاق العرض السريع" onClick={onClose}><IconX size={22} /></button></header>
-      {!result ? <p className="quickViewMessage" role="status">جارٍ تحميل تفاصيل المنتج…</p> : result.product ?
+      {!result ? <ProductLoadingSkeleton /> : result.product ?
         <ProductDetailClient key={result.product.id} product={result.product} compact /> :
         <div className="quickViewMessage" role="status"><h2>{product.name}</h2><p>{result.error === 'unavailable' ? 'هذا المنتج لم يعد متاحًا للعرض.' : 'تعذّر تحميل المنتج. حاولي مجددًا أو افتحي صفحته.'}</p>
           {result.error === 'network' && <button type="button" className="ghostButton" onClick={() => { setResult(undefined); setRetry(value => value + 1); }}>إعادة المحاولة</button>}</div>}

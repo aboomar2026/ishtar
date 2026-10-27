@@ -5,7 +5,7 @@ import { useUnsavedChanges } from './useUnsavedChanges';
 import { useDialog } from '@/components/useDialog';
 
 import { useMemo, useState, useTransition, type FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
+import { useNavigationRouter as useRouter } from '@/components/NavigationProvider';
 import { createProductAction, updateProductAction, type ActionIssue } from '@/features/admin/products/product-admin.actions';
 import type { ProductInput } from '@/features/admin/products/product-admin.validation';
 import { slugify } from '@/features/admin/shared/admin-format';

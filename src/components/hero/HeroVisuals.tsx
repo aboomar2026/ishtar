@@ -1,6 +1,6 @@
 'use client';
 import { IconArrowLeft, IconCheck, IconSparkle, IconStar } from '@/components/Icons';
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 import { motion } from 'motion/react';
 import { useHeroMotion } from './useHeroMotion';
 import { useState } from 'react';

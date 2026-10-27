@@ -1,8 +1,8 @@
 'use client';
 
 import { FormEvent, useEffect, useId, useRef, useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import Link from '@/components/NavigationLink';
+import { useNavigationRouter as useRouter } from '@/components/NavigationProvider';
 import { IconSearch, IconX } from './Icons';
 import { normalizeSuggestionQuery, SEARCH_QUERY_LIMIT, type SearchSuggestion } from '@/features/catalog/search-suggestions';
 import { FALLBACK_PRODUCT_IMAGE } from '@/features/catalog/catalog.utils';

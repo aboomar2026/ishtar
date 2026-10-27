@@ -2,7 +2,7 @@
 import { selectCollectionImages } from "@/features/collections/collection-images";
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import Link from "@/components/NavigationLink";
 import { CollectionCard, CollectionSymbol } from "@/components/CollectionCard";
 import { CollectionProductPicker } from "./CollectionProductPicker";
 import { ImageUploadButton } from "./ImageUploadButton";

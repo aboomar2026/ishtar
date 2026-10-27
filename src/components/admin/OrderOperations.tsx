@@ -2,7 +2,7 @@
 import { IconCheck, IconReceipt, IconPackage } from '@/components/Icons';
 
 import { useState, useTransition } from 'react';
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 import { useRouter } from 'next/navigation';
 import type { DeliveryFeeStatus, OrderStatus } from '@prisma/client';
 import { setOrderPackedAction } from '@/features/admin/orders/order-operations.actions';

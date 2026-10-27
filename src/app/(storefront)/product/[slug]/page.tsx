@@ -3,7 +3,7 @@ import { RecentlyViewed, RecordProductView } from '@/components/RecentlyViewed';
 import type { Metadata } from 'next';
 import { brand } from '@/lib/brand';
 import { publicSiteUrl } from '@/lib/site-url';
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 import { buildPageMetadata, catalogPath } from '@/lib/seo';
 import { breadcrumbData, productData } from '@/lib/structured-data';
 import { JsonLd } from '@/components/JsonLd';

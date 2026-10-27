@@ -3,7 +3,7 @@ import { CatalogImage } from '@/components/CatalogImage';
 import { PRODUCT_THUMB_IMAGE } from '@/lib/cloudinary-image';
 
 import { formatMoney } from '@/lib/numbers';
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 import { useCart } from './CartProvider';
 import { CartSummary } from './CartSummary';
 import { EmptyState } from './EmptyState';

@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 import { requireOrderAdmin } from '@/features/admin/auth/admin-auth';
 import { getNotifications } from '@/features/notifications/notification.queries';
 import { formatDateTime } from '@/features/admin/shared/admin-format';

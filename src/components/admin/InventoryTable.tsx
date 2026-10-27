@@ -3,7 +3,7 @@ import { CatalogImage } from '@/components/CatalogImage';
 import { PRODUCT_THUMB_IMAGE } from '@/lib/cloudinary-image';
 
 import { useState, useTransition } from 'react';
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 import { useRouter } from 'next/navigation';
 import type { InventoryRow } from '@/features/admin/inventory/inventory-admin.queries';
 import {

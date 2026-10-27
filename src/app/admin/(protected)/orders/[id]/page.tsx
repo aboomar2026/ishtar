@@ -2,7 +2,7 @@ import { CatalogImage } from '@/components/CatalogImage';
 import { PRODUCT_THUMB_IMAGE } from '@/lib/cloudinary-image';
 import { requireOrderAdmin } from '@/features/admin/auth/admin-auth';
 import { IconArrowRight, IconArrowLeft } from '@/components/Icons';
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 import { notFound } from 'next/navigation';
 import { getAdminOrderById } from '@/features/admin/orders/order-admin.queries';
 import { STATUS_LABEL_AR } from '@/features/admin/orders/order-admin.validation';

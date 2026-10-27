@@ -1,5 +1,7 @@
 # Validation — 2026-10-27
 
+Later validation: [Navigation feedback](NAVIGATION-FEEDBACK.md) now has real headless Chromium desktop/mobile tests. The unavailable-browser notes below describe the original audit, not this subsequent workflow verification; real-user Web Vitals remain unmeasured.
+
 Local Node 24.22.1; production Next 16.2.7 build. Existing CI/Netlify target Node 22. All database fixtures below are disposable local PGlite; no live writes/orders or live Telegram/Cloudinary test. Counts overlap between commands; do not sum them as distinct cases.
 
 | Command/group | Final result |

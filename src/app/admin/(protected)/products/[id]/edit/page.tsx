@@ -3,7 +3,7 @@ import { productOptions } from '@/features/collections/collections.admin';
 import { prisma } from '@/lib/prisma';
 import { ProductCollections } from '@/components/admin/ProductCollections';
 import { IconArrowRight } from '@/components/Icons';
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 import { notFound } from 'next/navigation';
 import { getAdminProductById, getCategoryOptions } from '@/features/admin/products/product-admin.queries';
 import { ProductForm, type ProductFormInitial } from '@/components/admin/ProductForm';

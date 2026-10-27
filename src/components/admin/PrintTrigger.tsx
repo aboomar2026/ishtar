@@ -2,7 +2,7 @@
 import { IconArrowRight } from '@/components/Icons';
 
 import { useState, useTransition } from 'react';
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 import { markOrderPrintedAction } from '@/features/admin/orders/order-operations.actions';
 import type { PrintType } from '@/features/admin/orders/order-operations.validation';
 

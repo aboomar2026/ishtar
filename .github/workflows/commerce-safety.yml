@@ -40,6 +40,9 @@ jobs:
       - run: npm run test:collections
       - run: npm run build
       - run: npm run test:performance
+      - name: Install test Chromium
+        run: node node_modules/playwright-core/cli.js install --with-deps chromium
+      - run: npm run test:navigation
       - run: npm run test:collections:qa
       - run: npm run test:search
       - run: npm run test:wishlist

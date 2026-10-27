@@ -1,5 +1,7 @@
 # Performance audit — 2026-10-27
 
+Later follow-up: [Navigation feedback](NAVIGATION-FEEDBACK.md) adds client transition feedback and quick-view skeletons, with production Chromium desktop/mobile workflow coverage while preserving HTTP 404s. The original lab figures below remain historical.
+
 Source baseline: PR #3, `hotfix/cloudinary-fit-images`, `28a3ac37f93b553aba09ccb7847a77cd00bcbebb`. PR was open/unmerged. The supplied ZIP was older. GitHub connector fetched the current tree and all missing files; source blob hashes were checked (Next regenerates next-env.d.ts). Direct Git clone/fetch was unavailable and gh was absent. The actual upstream commit and complete tree were reconstructed as Git objects, SHA-verified and checked out shallowly with working changes preserved; delivery uses a new commit parented to that head and a fast-forward ref update.
 
 The full tree, route/source inventory, configurations, SQL/schema and test scripts were scanned. Detailed review focused on route-facing reads, image delivery, navigation, auth, mutation invalidation and order integrity. This is not exhaustive browser acceptance of every admin editor. [SOURCE-INVENTORY.tsv](SOURCE-INVENTORY.tsv) lists source-level patterns; its operation counts are NOT runtime SQL counts. HTTP/runtime evidence and limitations are in BASELINE.md and BENCHMARKS.md.

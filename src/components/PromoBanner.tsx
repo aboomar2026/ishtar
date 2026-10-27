@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 import type { CatalogBanner } from '@/features/catalog/catalog.types';
 import { brand } from '@/lib/brand';
 

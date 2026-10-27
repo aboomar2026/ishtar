@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 import { brand } from '@/lib/brand';
 import { BrandLogo } from './BrandLogo';
 import {

@@ -42,7 +42,8 @@
     "test:seo": "node --import tsx --test tests/site-url.test.ts tests/seo.test.ts",
     "test:seo-integration": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/seo.integration.test.ts",
     "test:performance": "node --require ./tests/runtime/server-marker.cjs --import tsx --test --test-concurrency=1 tests/cloudinary-image.test.ts tests/catalog-image.test.tsx tests/performance.integration.test.ts tests/performance-http.integration.test.ts",
-    "perf:benchmark": "node scripts/performance-benchmark.mjs"
+    "perf:benchmark": "node scripts/performance-benchmark.mjs",
+    "test:navigation": "node --require ./tests/runtime/server-marker.cjs --import tsx --test --test-concurrency=1 tests/navigation-target.test.ts tests/navigation.browser.test.ts"
   },
   "dependencies": {
     "@phosphor-icons/react": "2.1.7",
@@ -70,6 +71,7 @@
     "@types/react-test-renderer": "19.1.0",
     "eslint": "9.39.4",
     "eslint-config-next": "16.2.7",
+    "playwright-core": "1.64.1",
     "prisma": "6.19.0",
     "react-test-renderer": "19.2.7",
     "tsx": "4.20.6",

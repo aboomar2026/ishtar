@@ -186,3 +186,37 @@
   .quickViewDialog[open] { animation: quickViewEnter 180ms ease-out; }
   @keyframes quickViewEnter { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 }
+
+/* Global navigation feedback: old page remains usable; no layout shift. */
+.navigationFeedback { position: fixed; inset: 0; z-index: 10000; pointer-events: none; }
+.navigationProgress { position: absolute; inset: 0 0 auto; height: 4px; overflow: hidden; background: var(--brand-section); }
+.navigationProgress > span { display: block; width: 38%; height: 100%; background: linear-gradient(90deg, var(--brand-gold, #cba85c), var(--brand-burgundy, #8b1e33)); animation: navigationSlide 1.15s ease-in-out infinite; }
+.navigationNotice { position: absolute; top: max(18px, env(safe-area-inset-top)); inset-inline: 16px; margin-inline: auto; width: fit-content; max-width: min(540px, calc(100% - 32px)); display: flex; align-items: center; flex-wrap: wrap; gap: 12px; padding: 13px 18px; border: 1px solid var(--brand-border); border-radius: 18px; background: var(--brand-bg, #fbf5ed); color: var(--brand-ink, #2c2426); box-shadow: 0 8px 28px #522b3a24; pointer-events: auto; }
+.navigationNotice strong { font-size: 16px; color: var(--brand-burgundy); }
+.navigationNotice p { margin: 4px 0 0; font-size: 14px; }
+.navigationNotice .ghostButton { min-height: 44px; }
+.ishtarSpinner { display: inline-block; flex: 0 0 22px; width: 22px; height: 22px; border: 2px solid var(--brand-border); border-top-color: var(--brand-burgundy); border-inline-end-color: var(--brand-gold, #cba85c); border-radius: 50%; animation: navigationSpin .8s linear infinite; }
+.loadingSkeletonCaption { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; color: var(--brand-burgundy); }
+.productLoadingSkeleton { padding: 8px 0; }
+.productLoadingGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.skeletonSurface { display: block; border-radius: 14px; background: linear-gradient(100deg, var(--brand-section) 20%, var(--brand-surface, #fff) 45%, var(--brand-section) 70%); background-size: 240% 100%; animation: navigationShimmer 1.5s ease-in-out infinite; }
+.productLoadingPhoto { aspect-ratio: 4 / 5; max-height: 300px; }
+.productLoadingDetails { display: flex; flex-direction: column; gap: 18px; padding-block: 16px; }
+.productLoadingDetails > span { height: 18px; }
+.productLoadingDetails > span:nth-child(2) { width: 55%; height: 24px; }
+.productLoadingDetails > span:last-child { margin-top: auto; height: 48px; }
+.productLoadingOptions { display: flex; gap: 10px; }
+.productLoadingOptions > i { width: 42px; height: 42px; border-radius: 50%; }
+@keyframes navigationSlide { from { transform: translateX(-110%); } to { transform: translateX(365%); } }
+@keyframes navigationSpin { to { transform: rotate(360deg); } }
+@keyframes navigationShimmer { to { background-position: -140% 0; } }
+@media (max-width: 640px) {
+  .navigationNotice { top: max(12px, env(safe-area-inset-top)); padding: 12px 14px; }
+  .productLoadingGrid { grid-template-columns: 1fr; gap: 10px; }
+  .productLoadingPhoto { width: min(100%, 240px); max-height: 230px; margin-inline: auto; }
+  .productLoadingDetails { gap: 12px; padding-block: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .navigationProgress > span { width: 100%; animation: none; }
+  .ishtarSpinner, .skeletonSurface { animation: none; }
+}

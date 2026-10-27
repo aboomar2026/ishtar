@@ -1,5 +1,5 @@
 import { IconCheck } from '@/components/Icons';
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 import { getOrderSuccessSummaryByNumber } from '@/features/orders/order.queries';
 import { ORDER_STATUS_LABEL_AR } from '@/features/orders/order-status.labels';
 

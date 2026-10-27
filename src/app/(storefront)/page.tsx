@@ -5,7 +5,7 @@ import { RecentlyViewed } from '@/components/RecentlyViewed';
 import { buildPageMetadata } from '@/lib/seo';
 import { storeData } from '@/lib/structured-data';
 import { JsonLd } from '@/components/JsonLd';
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 import { CategoryStrip } from '@/components/CategoryStrip';
 import { HeroView } from '@/components/hero/HeroView';
 import { getPublicHeroSettings } from '@/features/hero/hero.queries';

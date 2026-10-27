@@ -1,5 +1,5 @@
 import { IconArrowRight } from '@/components/Icons';
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 import { getCategoryOptions } from '@/features/admin/products/product-admin.queries';
 import { ProductForm, type ProductFormInitial } from '@/components/admin/ProductForm';
 

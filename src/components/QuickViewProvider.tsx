@@ -4,7 +4,10 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { usePathname } from 'next/navigation';
 import type { Product } from '@/lib/types';
 
-const QuickView = dynamic(() => import('./QuickView').then(module => module.QuickView), { ssr: false });
+const QuickView = dynamic(() => import('./QuickView').then(module => module.QuickView), {
+  ssr: false,
+  loading: () => <div className="quickViewFallback loadingSkeletonCaption" role="status"><span className="ishtarSpinner" aria-hidden="true" />جارٍ فتح العرض السريع…</div>,
+});
 type Preview = Pick<Product, 'id' | 'name' | 'slug'>;
 const QuickViewContext = createContext<{ openQuickView: (product: Preview) => void } | null>(null);
 export function QuickViewProvider({ children }: { children: React.ReactNode }) {

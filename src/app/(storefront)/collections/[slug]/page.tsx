@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/NavigationLink";
 import { notFound, redirect } from "next/navigation";
 import { CollectionSymbol } from "@/components/CollectionCard";
 import { ProductGrid } from "@/components/ProductGrid";

@@ -1,6 +1,7 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+import { useNavigationRouter as useRouter } from '@/components/NavigationProvider';
 import { useEffect, useState } from 'react';
 
 export function InventoryFilters() {

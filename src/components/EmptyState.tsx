@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 
 export function EmptyState({ title, description, actionHref, actionLabel }: { title: string; description: string; actionHref?: string; actionLabel?: string }) {
   return (

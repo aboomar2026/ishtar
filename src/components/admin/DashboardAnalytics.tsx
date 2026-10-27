@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 import { getDashboardAnalytics } from '@/features/admin/dashboard/dashboard-analytics.queries';
 import { DASHBOARD_PERIODS } from '@/features/admin/dashboard/dashboard-period';
 import { formatCurrency } from '@/features/admin/shared/admin-format';

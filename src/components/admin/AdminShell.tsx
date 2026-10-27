@@ -3,13 +3,21 @@
 import { IconHome, IconReceipt, IconPackage, IconGrid, IconArchive, IconImages, IconMenu } from '@/components/Icons';
 import { useDialog } from '@/components/useDialog';
 import { useState } from 'react';
-import Link from 'next/link';
+import { useFormStatus } from 'react-dom';
+import Link from '@/components/NavigationLink';
 import { usePathname } from 'next/navigation';
 import { logoutAction } from '@/features/admin/auth/admin-actions';
 import { BrandLogo } from '@/components/BrandLogo';
 import { brand } from '@/lib/brand';
 import { hasAdminPermission } from '@/features/admin/auth/admin-permissions';
 import { AdminOrderActivity } from './AdminOrderActivity';
+
+function LogoutSubmit({ className }: { className: string }) {
+  const { pending } = useFormStatus();
+  return <button type="submit" className={className} disabled={pending} aria-busy={pending}>
+    {pending && <span className="ishtarSpinner" aria-hidden="true" />}{pending ? 'جارٍ تسجيل الخروج…' : 'تسجيل الخروج'}
+  </button>;
+}
 
 type NavItem = { href: string; label: string; icon: React.ReactNode; exact?: boolean; orderOnly?: boolean };
 
@@ -86,7 +94,7 @@ export function AdminShell({
               <span>{admin.email}</span>
             </div>
             <form action={logoutAction}>
-              <button type="submit" className="adminBtn adminBtnGhost adminBtnSm">تسجيل الخروج</button>
+              <LogoutSubmit className="adminBtn adminBtnGhost adminBtnSm" />
             </form>
           </div>
         </header>
@@ -106,7 +114,7 @@ export function AdminShell({
             <button type="button" className="adminBtn adminBtnGhost" onClick={() => setDrawerOpen(false)}>إغلاق القائمة</button>
             <NavLinks pathname={pathname} role={admin.role} onNavigate={() => setDrawerOpen(false)} />
             <form action={logoutAction} style={{ marginTop: 14 }}>
-              <button type="submit" className="adminBtn adminBtnGhost adminBtnFull">تسجيل الخروج</button>
+              <LogoutSubmit className="adminBtn adminBtnGhost adminBtnFull" />
             </form>
           </div>
         </>

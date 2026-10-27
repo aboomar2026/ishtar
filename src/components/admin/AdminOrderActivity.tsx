@@ -1,5 +1,5 @@
 'use client';
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 import { useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useOrderActivity } from './useOrderActivity';

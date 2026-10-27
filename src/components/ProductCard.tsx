@@ -4,7 +4,7 @@ import { IconEye, IconStar } from './Icons';
 import { showCatalogMetrics } from '@/lib/catalog-display';
 import { brand } from '@/lib/brand';
 
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 import { useQuickView } from './QuickViewProvider';
 import { useState } from 'react';
 import type { Product } from '@/lib/types';

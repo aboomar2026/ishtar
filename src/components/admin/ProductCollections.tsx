@@ -1,6 +1,6 @@
 "use client";
 import { useState, useTransition } from "react";
-import Link from "next/link";
+import Link from "@/components/NavigationLink";
 import { CollectionProductPicker } from "./CollectionProductPicker";
 import {
   saveProductComplementsAction,

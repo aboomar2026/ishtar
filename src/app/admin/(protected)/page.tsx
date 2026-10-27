@@ -2,7 +2,7 @@ import { DashboardAnalytics } from '@/components/admin/DashboardAnalytics';
 import { getDashboardAnalytics } from '@/features/admin/dashboard/dashboard-analytics.queries';
 import { requireOrderAdmin } from '@/features/admin/auth/admin-auth';
 import { IconReceipt, IconTruck, IconPlus, IconPackage, IconBag, IconImages } from '@/components/Icons';
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 import { getDashboardOverview } from '@/features/admin/dashboard/dashboard.queries';
 import { formatCurrency, formatDateTime } from '@/features/admin/shared/admin-format';
 import { OrderStatusBadge } from '@/components/admin/OrderStatusBadge';

@@ -1,6 +1,6 @@
 import { CatalogImage } from '@/components/CatalogImage';
 import { PRODUCT_THUMB_IMAGE } from '@/lib/cloudinary-image';
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 import { redirect } from 'next/navigation';
 import { requireAdmin } from '@/features/admin/auth/admin-auth';
 import type { ProductStatus } from '@prisma/client';

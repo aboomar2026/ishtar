@@ -1,8 +1,8 @@
 import { getCollections } from '@/features/collections/collections.queries';
 import { CollectionCard } from '@/components/CollectionCard';
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import Form from 'next/form';
+import Link from '@/components/NavigationLink';
+import Form from '@/components/NavigationForm';
 import { buildPageMetadata, catalogPath, categorySeoPath, hasCatalogFacets } from '@/lib/seo';
 import { breadcrumbData } from '@/lib/structured-data';
 import { JsonLd } from '@/components/JsonLd';
