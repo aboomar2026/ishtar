@@ -1,4 +1,5 @@
 'use client';
+import { WhatsAppContact } from './WhatsAppContact';
 import { CatalogImage } from '@/components/CatalogImage';
 import { PRODUCT_THUMB_IMAGE } from '@/lib/cloudinary-image';
 import { IconX } from './Icons';
@@ -304,6 +305,7 @@ export function TrackOrderForm({ initialOrderNumber = '' }: { initialOrderNumber
                     >
                       {isTracking ? 'جاري التتبع...' : 'تتبع الطلب'}
                     </button>
+                    <WhatsAppContact className="fullWidth" context={{ kind: 'order', orderNumber: savedOrder.orderNumber }} label="استفسار عبر واتساب" />
                     <button type="button" className="ghostButton fullWidth" onClick={() => void copyOrderNumber(savedOrder.orderNumber)}>
                       {copiedOrderNumber === savedOrder.orderNumber ? 'تم النسخ' : 'نسخ الرقم'}
                     </button>
@@ -338,6 +340,7 @@ export function TrackOrderForm({ initialOrderNumber = '' }: { initialOrderNumber
         <button type="submit" className="primaryButton fullWidth" disabled={Boolean(loadingKey)} style={{ marginTop: 14 }}>
           {loadingKey === 'manual' ? 'جاري البحث...' : 'تتبع الطلب'}
         </button>
+        <WhatsAppContact className="fullWidth" label="مساعدة بتتبع الطلب عبر واتساب" />
       </form>
 
       {order && (
@@ -363,6 +366,7 @@ export function TrackOrderForm({ initialOrderNumber = '' }: { initialOrderNumber
             </ol>
           )}
 
+          <WhatsAppContact context={{ kind: 'order', orderNumber: order.orderNumber }} label="استفسار عن الطلب عبر واتساب" />
           <div className="summaryDivider" />
           {order.items.map((item) => (
             <div className="miniOrderItem" key={item.id}>

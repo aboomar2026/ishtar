@@ -1,3 +1,4 @@
+import { WhatsAppContact } from '@/components/WhatsAppContact';
 import { IconCheck } from '@/components/Icons';
 import Link from '@/components/NavigationLink';
 import { getOrderSuccessSummaryByNumber } from '@/features/orders/order.queries';
@@ -25,6 +26,7 @@ export default async function OrderSuccessPage({ searchParams }: { searchParams?
           <div className="heroActions center">
             <Link href="/" className="primaryButton">العودة للرئيسية</Link>
             <Link href="/track-order" className="ghostButton">تتبع الطلب</Link>
+            <WhatsAppContact />
           </div>
         </div>
       </div>
@@ -88,6 +90,7 @@ export default async function OrderSuccessPage({ searchParams }: { searchParams?
 
       <div className="heroActions center">
         <Link href={`/track-order?order=${encodeURIComponent(order.orderNumber)}`} className="primaryButton">تتبع هذا الطلب</Link>
+        <WhatsAppContact context={{ kind: 'order', orderNumber: order.orderNumber }} label="استفسار عن الطلب عبر واتساب" />
         <Link href="/category/new-in" className="ghostButton">تسوقي المزيد</Link>
         <Link href="/" className="ghostButton">العودة للرئيسية</Link>
       </div>

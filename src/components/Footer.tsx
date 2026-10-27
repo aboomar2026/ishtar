@@ -1,5 +1,7 @@
 'use client';
 
+import { WhatsAppContact } from './WhatsAppContact';
+
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import Link from '@/components/NavigationLink';
@@ -12,7 +14,6 @@ import {
   IconSparkle,
   IconPin,
   IconPhone,
-  IconMail,
   IconClock,
   IconLeaf, IconArrowLeft, IconInstagram, IconFacebook, IconTikTok,
   IconWhatsApp
@@ -172,10 +173,7 @@ export function Footer() {
                   </a>
                 </li> : null}
                 {brand.contact.whatsappNumber && brand.contact.inquiryText ? <li>
-                  <span className="footerContactIcon" aria-hidden="true"><IconMail size={18} /></span>
-                  <a className="footerContactLink" href={`https://wa.me/${brand.contact.whatsappNumber}`} target="_blank" rel="noopener noreferrer">
-                    {brand.contact.inquiryText}
-                  </a>
+                  <WhatsAppContact label={brand.contact.inquiryText} />
                 </li> : null}
                 {brand.contact.hoursPrimary ? <li>
                   <span className="footerContactIcon" aria-hidden="true"><IconClock size={18} /></span>

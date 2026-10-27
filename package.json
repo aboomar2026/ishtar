@@ -25,6 +25,7 @@
     "test:checkout-client": "node --import tsx --test tests/checkout-recovery.test.tsx",
     "test:commerce": "node --import tsx --test tests/commerce.test.ts",
     "test:integration": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/checkout.integration.test.ts",
+    "test:whatsapp": "node --import tsx --test tests/whatsapp.test.tsx",
     "test:hero": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/hero-settings.test.ts tests/hero-render.test.tsx tests/hero-rotation.test.tsx tests/hero-editor.test.tsx tests/hero-view-rotation.test.tsx",
     "test:admin-safety": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/admin-permissions.test.ts tests/postgres-target.test.ts",
     "test:concurrency": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/checkout.concurrency.test.ts",

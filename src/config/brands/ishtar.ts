@@ -58,9 +58,9 @@ export const ishtarBrand: BrandProfile = {
     packingSlipSubtitle: 'عشتار — ورقة تجهيز الطلب',
     adminCatalogDescription: 'سجّل الدخول لإدارة متجر عشتار.'
   },
-  // Business contact details are unconfirmed. Never copy sample numbers from other brands.
-  contact: { whatsappNumber: '', phoneDisplay: '', addressAr: 'فلسطين', addressEn: 'Palestine',
-    hoursPrimary: '', hoursSecondary: '', inquiryText: '' },
+  // Owner-confirmed WhatsApp contact.
+  contact: { whatsappNumber: '970598079482', phoneDisplay: '+970 598 079 482', addressAr: 'فلسطين', addressEn: 'Palestine',
+    hoursPrimary: '', hoursSecondary: '', inquiryText: 'تواصلي معنا عبر واتساب' },
   social: {
     instagram: 'https://www.instagram.com/ishtarr_3/',
     facebook: 'https://www.facebook.com/profile.php?id=61591305881099',

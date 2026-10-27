@@ -36,7 +36,7 @@ for (const ref of refs) {
 for (const ref of [...new Set([...logo.matchAll(/['"](\/brand\/ishtar\/[^'"\s]+)['"]/g)].map(x => x[1]))]) {
   check(`Existing logo component asset ${ref}`, fs.existsSync(path.join(root, 'public', ref.slice(1))));
 }
-check('No inherited demo phone', !/\+?970[\d\s-]{7,}/.test(profile));
+check('Owner-confirmed contact, no inherited demo phone', profile.includes("whatsappNumber: '970598079482'") && !profile.includes('970590000000'));
 check('Brand kit assets available', fs.existsSync(brandDir) && fs.readdirSync(brandDir).length >= 10);
 for (const item of checks) console.log(`${item.pass ? 'PASS' : 'FAIL'} ${item.name}${item.detail ? ': ' + item.detail : ''}`);
 const passed = checks.filter(x => x.pass).length;

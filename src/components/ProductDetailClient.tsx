@@ -1,4 +1,5 @@
 'use client';
+import { WhatsAppContact } from './WhatsAppContact';
 import { ShareProductButton } from './ShareProductButton';
 import { WishlistButton } from './WishlistButton';
 import { IconStar, IconCheck } from './Icons';
@@ -159,6 +160,10 @@ export function ProductDetailClient({ product, shareOrigin, compact = false }: {
           {isOutOfStock ? 'نفدت الكمية' : added ? <><IconCheck size={20} /> تمت الإضافة للسلة</> : 'أضيفي للسلة'}
         </button>
 
+        {!compact && <WhatsAppContact className="fullWidth" label="اسألي عن المنتج عبر واتساب" context={{
+          kind: 'product', name: product.name, sku: selectedVariant?.sku,
+          url: shareOrigin ? `${shareOrigin}/product/${encodeURIComponent(product.slug)}` : undefined
+        }} />}
         <p role="alert">{addFailed ? "وصلتِ للكمية المتاحة في السلة." : ""}</p>
         <span className="srOnly" role="status">{added ? "تمت الإضافة للسلة" : ""}</span>
         {!compact && <div className="productStoryCard">

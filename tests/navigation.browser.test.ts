@@ -9,7 +9,7 @@ import { chromium, type Page } from 'playwright-core';
 
 // Production Next + fresh local fixture only. No live orders, accounts, uploads
 // or third-party traffic. RSC gates simulate slow responses, not Web Vitals.
-test('hero rotation and navigation feedback in production Chromium on desktop and mobile', { timeout: 240000 }, async t => {
+test('hero rotation and navigation feedback in production Chromium on desktop and mobile', { timeout: 300000 }, async t => {
   const db = new PGlite();
   await db.exec(execFileSync(process.execPath, ['node_modules/prisma/build/index.js', 'migrate', 'diff', '--from-empty', '--to-schema-datamodel', 'prisma/schema.prisma', '--script'], { encoding: 'utf8' }));
   await db.exec(readFileSync('scripts/sql/ishtar-test-products-100.sql', 'utf8'));
@@ -105,6 +105,50 @@ test('hero rotation and navigation feedback in production Chromium on desktop an
     } finally { held.release(); await held.cleanup(); }
   }
 
+  await t.test('WhatsApp contacts use the confirmed number on desktop and touch mobile without sending messages', async () => {
+    await db.query(`INSERT INTO "Order" (id,"orderNumber",subtotal,total,"customerName","customerPhone",city,area,address,"updatedAt") VALUES ('wa-fixture','IS-WA-FIXTURE',0,0,'Synthetic fixture','0590000000','Fixture','Fixture','Fixture',NOW())`);
+    try {
+      for (const mobile of [false,true]) {
+        const { context,page,errors } = await session(mobile);
+        try {
+          for (const [path,label] of [
+            [`/product/${products[0].slug}`,'اسألي عن المنتج عبر واتساب'],
+            ['/cart','مساعدة بالسلة عبر واتساب'],
+            ['/track-order','مساعدة بتتبع الطلب عبر واتساب'],
+            ['/order-success','تواصلي معنا عبر واتساب'],
+            ['/order-success?order=IS-WA-FIXTURE','استفسار عن الطلب عبر واتساب']
+          ]) {
+            await page.goto(`${origin}${path}`);
+            const link = page.locator('main').getByRole('link',{ name:`${label} (يفتح في تبويب جديد)`,exact:true });
+            await link.waitFor(); await link.scrollIntoViewIfNeeded();
+            assert.equal(await link.isVisible(),true);
+            const href = new URL((await link.getAttribute('href'))!);
+            assert.equal(href.origin+href.pathname,'https://wa.me/970598079482');
+            assert.ok(href.searchParams.get('text'));
+            assert.equal(await link.getAttribute('target'),'_blank');
+            assert.ok((await link.boundingBox())!.height >= 44);
+            assert.equal(await indicator(page).count(),0);
+            const footerLink = page.locator('footer .whatsappContact');
+            assert.equal(await footerLink.count(),1);
+            assert.equal(new URL((await footerLink.getAttribute('href'))!).pathname,'/970598079482');
+            assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth),false);
+          }
+          await page.goto(`${origin}/track-order`);
+          await page.evaluate(() => localStorage.setItem('ishtar:recent-orders',JSON.stringify([{ orderNumber:'IS-WA-FIXTURE',phone:'0590000000',createdAt:'2026-01-01' }])));
+          await page.reload();
+          const saved = page.locator('.recentOrderActions .whatsappContact');
+          await saved.waitFor();
+          const text = new URL((await saved.getAttribute('href'))!).searchParams.get('text')!;
+          assert.match(text,/IS-WA-FIXTURE/); assert.doesNotMatch(text,/0590000000|Fixture/);
+          await page.locator('.recentOrderActions button.primaryButton').click();
+          const result = page.locator('#track-order-result .whatsappContact'); await result.waitFor();
+          assert.equal(new URL((await result.getAttribute('href'))!).searchParams.get('text'),text);
+          assert.deepEqual(errors,[]);
+        } finally { await context.close(); }
+      }
+    } finally { await db.query(`DELETE FROM "Order" WHERE id='wa-fixture'`); }
+  });
+
   const heroLayout = (page: Page) => page.locator('.shopHero').first().getAttribute('class').then(value => value!.match(/shopHero--(classic|signature|campaign)/)![1]);
   const following = { classic: 'signature', signature: 'campaign', campaign: 'classic' } as Record<string,string>;
   await t.test('a REAL minute changes each design on desktop and touch mobile, with visible effects and no toolbar', async () => {
@@ -117,12 +161,13 @@ test('hero rotation and navigation feedback in production Chromium on desktop an
         assert.equal(await page.locator('.shopHeroTemplateControls').count(),0);
         assert.notEqual(await page.locator('.shopHero').first().getAttribute('data-motion'),'none');
         const scene = page.locator('.shopHeroMainMotion').first();
-        await page.locator('.shopHeroScene').first().evaluate(element => element.scrollIntoView({ block:'center' }));
+        await page.locator('.shopHeroScene').first().evaluate(element => element.scrollIntoView({ block:'center', behavior:'instant' }));
         await page.waitForTimeout(350);
         if (mobile) {
           const stamp = page.locator('.shopHeroSceneStamp').first();
-          await stamp.evaluate(element => element.scrollIntoView({ block:'center' }));
+          await stamp.evaluate(element => element.scrollIntoView({ block:'center', behavior:'instant' }));
           const box = await stamp.boundingBox(); assert.ok(box);
+          assert.equal(await stamp.evaluate(element => { const r = element.getBoundingClientRect(); return element.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)); }),true,'Tap must hit the decorative stamp after scrolling');
           await page.touchscreen.tap(box.x+box.width/2,box.y+box.height/2);
         }
         else { const box = await scene.boundingBox(); assert.ok(box); await page.mouse.move(box.x+box.width/2,box.y+box.height/2); }
