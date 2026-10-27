@@ -26,7 +26,7 @@ export default function HeroCarousel({ banners, settings, products, content }: H
     if (!element) return;
     let intersecting = false;
     const sync = () => setVisible(intersecting && !document.hidden);
-    const observer = new IntersectionObserver(([entry]) => { intersecting = entry.isIntersecting; sync(); }, { threshold: .25 });
+    const observer = new IntersectionObserver(([entry]) => { intersecting = entry.isIntersecting; sync(); }, { threshold: 0 });
     observer.observe(element);
     document.addEventListener('visibilitychange', sync);
     return () => { observer.disconnect(); document.removeEventListener('visibilitychange', sync); };

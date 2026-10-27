@@ -9,7 +9,7 @@ import { chromium, type Page } from 'playwright-core';
 
 // Production Next + fresh local fixture only. No live orders, accounts, uploads
 // or third-party traffic. RSC gates simulate slow responses, not Web Vitals.
-test('navigation feedback in production Chromium on desktop and mobile', { timeout: 180000 }, async t => {
+test('hero rotation and navigation feedback in production Chromium on desktop and mobile', { timeout: 240000 }, async t => {
   const db = new PGlite();
   await db.exec(execFileSync(process.execPath, ['node_modules/prisma/build/index.js', 'migrate', 'diff', '--from-empty', '--to-schema-datamodel', 'prisma/schema.prisma', '--script'], { encoding: 'utf8' }));
   await db.exec(readFileSync('scripts/sql/ishtar-test-products-100.sql', 'utf8'));
@@ -20,6 +20,10 @@ test('navigation feedback in production Chromium on desktop and mobile', { timeo
   // "عرض المنتج" CTA is covered as well as title/image links.
   await db.query(`UPDATE "ProductVariant" SET quantity=5 WHERE "productId" IN (SELECT id FROM "Product" WHERE slug=$1)`,[products[0].slug]);
   await db.query(`INSERT INTO "ProductVariant" (id,"productId",sku,price,quantity,"updatedAt") SELECT 'nav-alternate',id,'NAV-ALTERNATE',"basePrice",5,NOW() FROM "Product" WHERE slug=$1`,[products[0].slug]);
+  // Keep fixture media local: CDN interception can race a document navigation
+  // on restricted hosts. Unique URLs preserve image/collage/slider semantics.
+  await db.exec(`UPDATE "ProductImage" SET url='/mock-products/bag-camel.svg?fixture=' || id;
+    UPDATE "Category" SET "imageUrl"='/mock-products/gift-box.svg';`);
   const socket = new PGLiteSocketServer({ db, host: '127.0.0.1', port: 0, maxConnections: 5 });
   await socket.start();
   const address = socket.getServerConn();
@@ -100,6 +104,74 @@ test('navigation feedback in production Chromium on desktop and mobile', { timeo
       assert.equal(await documentId(page),id,'Internal navigation must preserve the document');
     } finally { held.release(); await held.cleanup(); }
   }
+
+  const heroLayout = (page: Page) => page.locator('.shopHero').first().getAttribute('class').then(value => value!.match(/shopHero--(classic|signature|campaign)/)![1]);
+  const following = { classic: 'signature', signature: 'campaign', campaign: 'classic' } as Record<string,string>;
+  await t.test('a REAL minute changes each design on desktop and touch mobile, with visible effects and no toolbar', async () => {
+    // Test one foreground page at a time: changing active browser tabs would
+    // intentionally pause animations/rotation through document.hidden.
+    for (const mobile of [false,true]) {
+      const { context,page,errors } = await session(mobile);
+      try {
+        await page.goto(origin);
+        assert.equal(await page.locator('.shopHeroTemplateControls').count(),0);
+        assert.notEqual(await page.locator('.shopHero').first().getAttribute('data-motion'),'none');
+        const scene = page.locator('.shopHeroMainMotion').first();
+        await page.locator('.shopHeroScene').first().evaluate(element => element.scrollIntoView({ block:'center' }));
+        await page.waitForTimeout(350);
+        if (mobile) {
+          const stamp = page.locator('.shopHeroSceneStamp').first();
+          await stamp.evaluate(element => element.scrollIntoView({ block:'center' }));
+          const box = await stamp.boundingBox(); assert.ok(box);
+          await page.touchscreen.tap(box.x+box.width/2,box.y+box.height/2);
+        }
+        else { const box = await scene.boundingBox(); assert.ok(box); await page.mouse.move(box.x+box.width/2,box.y+box.height/2); }
+        assert.equal(await page.evaluate(() => document.hidden),false);
+        const before = await scene.evaluate(element => getComputedStyle(element).transform);
+        await page.waitForTimeout(600);
+        const after = await scene.evaluate(element => getComputedStyle(element).transform);
+        assert.notEqual(before,after,'Visible foreground hero effects must actually move');
+        const initial = await heroLayout(page);
+        // Real wall-clock time, never Playwright clock acceleration in this case.
+        await new Promise(resolve => setTimeout(resolve,61000));
+        assert.equal(await heroLayout(page),following[initial],mobile ? 'mobile' : 'desktop');
+        console.log(`${mobile ? 'Mobile' : 'Desktop'} real-minute hero: ${initial} → ${following[initial]}`);
+        assert.deepEqual(errors,[]);
+      } finally { await context.close(); }
+    }
+  });
+  for (const mobile of [false,true]) await t.test(`${mobile ? 'mobile' : 'desktop'} hero completes the three-design loop; keyboard focus resumes on blur`, async () => {
+    const { context,page,errors } = await session(mobile);
+    try {
+      await page.clock.install(); await page.goto(origin); await page.waitForTimeout(300);
+      let expected = await heroLayout(page);
+      for (let cycle=0; cycle<3; cycle++) {
+        expected = following[expected]; await page.clock.fastForward(60010);
+        await page.waitForFunction(layout => !!document.querySelector(`.shopHero--${layout}`),expected);
+      }
+      if (!mobile) {
+        await page.keyboard.press('Tab');
+        const link = page.locator('.shopHero a').first(); await link.focus();
+        assert.equal(await link.evaluate(element => element.matches(':focus-visible')),true);
+        await page.waitForTimeout(50); await page.clock.fastForward(60010);
+        assert.equal(await heroLayout(page),expected,'Keep the focused keyboard target stable');
+        await page.locator('a.brandLink').focus(); await page.waitForTimeout(50);
+        expected = following[expected]; await page.clock.fastForward(60010);
+        await page.waitForFunction(layout => !!document.querySelector(`.shopHero--${layout}`),expected);
+      }
+      assert.equal(await page.locator('.shopHeroTemplateControls').count(),0);
+      assert.deepEqual(errors,[]);
+    } finally { await context.close(); }
+  });
+  await t.test('system reduced-motion preference keeps the public hero stable', async () => {
+    const { context,page,errors } = await session(true);
+    try {
+      await page.emulateMedia({ reducedMotion:'reduce' }); await page.clock.install();
+      await page.goto(origin); await page.waitForTimeout(300);
+      const initial = await heroLayout(page); await page.clock.fastForward(180010);
+      assert.equal(await heroLayout(page),initial); assert.deepEqual(errors,[]);
+    } finally { await context.close(); }
+  });
 
   for (const mobile of [false,true]) await t.test(`${mobile ? 'mobile' : 'desktop'}: product, collection, related, filters, pagination and search`, async () => {
     const { context,page,errors } = await session(mobile);

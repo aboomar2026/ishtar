@@ -43,6 +43,12 @@ export const heroSettingsSchema = z.object({
   })).default({})
 });
 export type HeroSettings = z.infer<typeof heroSettingsSchema>;
+/** Storefront policy: always cycle; the saved layout is the starting design.
+ * Retain legacy schema fields for old records and isolated editor previews.
+ */
+export function storefrontHeroSettings(settings: HeroSettings): HeroSettings {
+  return { ...settings, mode: 'rotate', motion: settings.motion === 'none' ? 'lively' : settings.motion, autoplay: true };
+}
 export const DEFAULT_HERO_SETTINGS: HeroSettings = heroSettingsSchema.parse({});
 export function parseHeroSettings(input: unknown): HeroSettings {
   const result = heroSettingsSchema.safeParse(input);

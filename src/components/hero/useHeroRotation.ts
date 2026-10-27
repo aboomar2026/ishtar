@@ -9,6 +9,6 @@ export function useHeroRotation(initial: HeroLayout, enabled: boolean, paused: b
     if (!enabled || paused) return;
     const timer = setInterval(() => setLayout(previous => nextHeroLayout(previous)), HERO_ROTATION_MS);
     return () => clearInterval(timer);
-  }, [enabled, paused, layout]);
+  }, [initial, enabled, paused]);
   return { layout, next: () => setLayout(previous => nextHeroLayout(previous)) };
 }

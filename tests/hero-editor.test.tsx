@@ -26,7 +26,6 @@ test('admin edits each template independently, selects minute rotation and saves
   await change('hero-title-0', 'عنوان المميز الخاص');
   await change('hero-edit-layout', 'campaign');
   await change('hero-title-0', 'عنوان الحملة الخاص');
-  await change('hero-mode', 'rotate');
   await change('hero-edit-layout', 'classic');
   assert.equal(view.root.findByProps({ id: 'hero-title-0' }).props.value, 'عنوان الكلاسيكي الخاص');
   const save = view.root.findAllByType('button').find(node => node.children.join('') === 'حفظ تصميم الواجهة');

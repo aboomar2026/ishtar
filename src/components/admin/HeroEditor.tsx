@@ -2,7 +2,7 @@
 import { IconReplay } from '@/components/Icons';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { HERO_LAYOUTS, type HeroLayout, type HeroSettings } from '@/features/hero/hero-config';
+import { HERO_LAYOUTS, storefrontHeroSettings, type HeroLayout, type HeroSettings } from '@/features/hero/hero-config';
 import { saveHeroSettingsAction } from '@/features/hero/hero.actions';
 import type { CatalogBanner } from '@/features/catalog/catalog.types';
 import { HeroView } from '@/components/hero/HeroView';
@@ -11,8 +11,8 @@ import { HeroContentEditor } from './HeroContentEditor';
 import { getHeroContent } from '@/features/hero/hero-content';
 
 export function HeroEditor({ initial, banners, products }: { initial: HeroSettings; banners: CatalogBanner[]; products: HeroProduct[] }) {
-  const [settings, setSettings] = useState(initial);
-  const [saved, setSaved] = useState(JSON.stringify(initial));
+  const [settings, setSettings] = useState(() => storefrontHeroSettings(initial));
+  const [saved, setSaved] = useState(JSON.stringify(storefrontHeroSettings(initial)));
   const [editingLayout, setEditingLayout] = useState<HeroLayout>(initial.layout);
   const content = getHeroContent(settings, editingLayout, banners, products);
   const [device, setDevice] = useState<'desktop' | 'mobile'>('mobile');
@@ -33,18 +33,16 @@ export function HeroEditor({ initial, banners, products }: { initial: HeroSettin
     });
   }
   return <section className="adminCard heroEditor" aria-labelledby="hero-editor-title">
-    <div className="adminCardHeader"><div><h2 id="hero-editor-title">تصميم واجهة المتجر</h2><p className="adminMuted">اختَر تصميماً ثابتاً أو تبديلاً كل دقيقة، وخصّص محتوى كل تصميم ثم احفظ. المعاينة لا تغيّر المتجر قبل الحفظ.</p></div><span className="adminBadge">{dirty ? 'تعديلات غير محفوظة' : 'الإعدادات المحفوظة'}</span></div>
-    <fieldset disabled={pending} className="heroControlsFieldset"><legend>طريقة عرض الواجهة</legend><div className="adminField"><label htmlFor="hero-mode">طريقة العرض</label><select id="hero-mode" value={settings.mode} onChange={e => patch({ mode: e.target.value as HeroSettings['mode'] })}><option value="fixed">تصميم ثابت</option><option value="rotate">تبديل التصاميم الثلاثة كل دقيقة</option></select><small>التبديل يبدأ بالتصميم المحدد أدناه ويكرر التصاميم بالترتيب. يتوقف أثناء التفاعل أو إخفاء الصفحة، ويحترم تقليل الحركة.</small></div></fieldset>
-    <fieldset className="heroLayoutPicker" disabled={pending}><legend>{settings.mode === 'rotate' ? 'التصميم الأول في الدورة' : 'التصميم الثابت'}</legend>{HERO_LAYOUTS.map(layout => <label className={`heroLayoutChoice ${settings.layout === layout.value ? 'isSelected' : ''}`} key={layout.value}>
+    <div className="adminCardHeader"><div><h2 id="hero-editor-title">تصميم واجهة المتجر</h2><p className="adminMuted">الواجهة تبدّل بين التصاميم الثلاثة تلقائياً كل دقيقة. اختَر تصميم البداية وخصّص محتوى كل تصميم ثم احفظ. المعاينة ثابتة للتعديل ولا تغيّر المتجر قبل الحفظ.</p></div><span className="adminBadge">{dirty ? 'تعديلات غير محفوظة' : 'الإعدادات المحفوظة'}</span></div>
+    <fieldset className="heroLayoutPicker" disabled={pending}><legend>التصميم الأول في الدورة</legend>{HERO_LAYOUTS.map(layout => <label className={`heroLayoutChoice ${settings.layout === layout.value ? 'isSelected' : ''}`} key={layout.value}>
       <input type="radio" name="hero-layout" value={layout.value} checked={settings.layout === layout.value} onChange={() => { patch({ layout: layout.value }); setEditingLayout(layout.value); }} />
       <span className={`heroLayoutMini heroLayoutMini--${layout.value}`} aria-hidden="true"><i /><i /><i /></span><strong>{layout.title}</strong><span>{layout.description}</span>
     </label>)}</fieldset>
     <fieldset disabled={pending} className="heroControlsFieldset"><legend>الحركة والعرض</legend><div className="adminFormGrid two">
-      <div className="adminField"><label htmlFor="hero-motion">مستوى الحركة</label><select id="hero-motion" value={settings.motion} onChange={e => patch({ motion: e.target.value as HeroSettings['motion'] })}><option value="calm">هادئة — دخول متتابع</option><option value="lively">حيوية — دخول وطفو واضح على الموبايل والكمبيوتر</option><option value="none">بدون مؤثرات إضافية</option></select></div>
+      <div className="adminField"><label htmlFor="hero-motion">مستوى الحركة</label><select id="hero-motion" value={settings.motion} onChange={e => patch({ motion: e.target.value as HeroSettings['motion'] })}><option value="calm">هادئة — دخول متتابع</option><option value="lively">حيوية — دخول وطفو واضح على الموبايل والكمبيوتر</option></select></div>
       {(settings.layout === 'campaign' || settings.mode === 'rotate' || editingLayout === 'campaign') && <>
         <div className="adminField"><label className="adminCheck"><input type="checkbox" checked={settings.productSlides} onChange={e => patch({ productSlides: e.target.checked })} />إكمال السلايدر بمنتجات المتجر</label><small>يضيف صور منتجات وروابط صفحاتها حتى أربع شرائح، بعد البنرات المخصصة. ألغِ الخيار لعرض شرائحك فقط.</small></div>
         <div className="adminField"><label htmlFor="hero-transition">انتقال الشرائح</label><select id="hero-transition" value={settings.transition} onChange={e => patch({ transition: e.target.value as HeroSettings['transition'] })}><option value="slide">انزلاق مع السحب</option><option value="fade">تلاشي ناعم</option></select></div>
-        <div className="adminField"><label className="adminCheck"><input type="checkbox" checked={settings.autoplay} onChange={e => patch({ autoplay: e.target.checked })} />تشغيل شرائح الحملات تلقائياً</label></div>
         {settings.autoplay && <div className="adminField"><label htmlFor="hero-interval">مدة شريحة الحملة بالثواني</label><input id="hero-interval" type="number" min="5" max="12" value={settings.interval} onChange={e => patch({ interval: Number(e.target.value) })} /></div>}
       </>}
     </div></fieldset>

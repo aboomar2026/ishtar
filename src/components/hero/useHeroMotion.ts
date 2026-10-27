@@ -5,7 +5,7 @@ import type { HeroSettings } from '@/features/hero/hero-config';
 
 export function useHeroMotion(settings: HeroSettings) {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { amount: .12 });
+  const inView = useInView(ref, { amount: 'some' });
   const reduced = useReducedMotion();
   const [foreground, setForeground] = useState(true);
   useEffect(() => {
