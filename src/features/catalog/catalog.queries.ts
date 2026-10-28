@@ -1,3 +1,4 @@
+import { collectionsReady } from '@/features/collections/collections.storage';
 import { cache } from 'react';
 import { Prisma, type BannerPlacement } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
@@ -5,7 +6,7 @@ import type { CatalogProductFilters, CategoryProductsResult, HomeCatalogResult }
 import { mapBanner, mapCategory, mapProductCard, mapProductDetail } from './catalog.mappers';
 import { getVirtualCategory } from './catalog.utils';
 
-const productListInclude = {
+export const productListInclude = {
   category: true,
   images: { orderBy: [{ isPrimary: 'desc' }, { sortOrder: 'asc' }] },
   variants: { where: { isActive: true }, orderBy: [{ colorName: 'asc' }, { size: 'asc' }] }
@@ -103,19 +104,28 @@ async function getProductPage(filters: CatalogProductFilters = {}) {
   else if (filters.categorySlug && !['all', 'sale'].includes(filters.categorySlug)) conditions.push(Prisma.sql`c.slug = ${filters.categorySlug}`);
   if (filters.q) {
     const pattern = `%${filters.q.replace(/[\\%_]/g, (char) => `\\${char}`)}%`;
-    conditions.push(Prisma.sql`(p.name ILIKE ${pattern} OR p.subtitle ILIKE ${pattern} OR p.description ILIKE ${pattern} OR p.brand ILIKE ${pattern} OR ${filters.q} = ANY(p.tags))`);
+    const collectionMatch = await collectionsReady() ? Prisma.sql`OR EXISTS (SELECT 1 FROM "CollectionProduct" cp JOIN "Collection" co ON co.id = cp."collectionId" WHERE cp."productId" = p.id AND co."isActive" AND (co.name ILIKE ${pattern} OR ${filters.q} = ANY(co.keywords)))` : Prisma.empty;
+    conditions.push(Prisma.sql`(p.name ILIKE ${pattern} OR p.subtitle ILIKE ${pattern} OR p.description ILIKE ${pattern} OR p.brand ILIKE ${pattern} OR ${filters.q} = ANY(p.tags) ${collectionMatch})`);
   }
   if (filters.availability === 'in-stock') conditions.push(Prisma.sql`v.stock > 0`);
   if (filters.minPrice != null) conditions.push(Prisma.sql`v.price >= ${filters.minPrice}`);
   if (filters.maxPrice != null) conditions.push(Prisma.sql`v.price <= ${filters.maxPrice}`);
   if (filters.categorySlug === 'sale') conditions.push(Prisma.sql`EXISTS (SELECT 1 FROM "ProductVariant" d WHERE d."productId" = p.id AND d."isActive" AND d.price = v.price AND (d.quantity > 0 OR v.stock = 0) AND COALESCE(d."compareAtPrice", p."compareAtPrice") > d.price)`);
+  const salesJoin = Prisma.sql`LEFT JOIN LATERAL (SELECT COALESCE(SUM(i.quantity),0) AS sold FROM "OrderItem" i JOIN "Order" o ON o.id = i."orderId" WHERE i."productId" = p.id AND o.status <> 'CANCELED') sales ON true`;
+  const rankBySales = filters.sort === 'best-sellers';
   const from = Prisma.sql`FROM "Product" p JOIN "Category" c ON c.id = p."categoryId"
     JOIN LATERAL (SELECT COALESCE(MIN(price) FILTER (WHERE quantity > 0), MIN(price), p."basePrice") AS price, COALESCE(SUM(quantity),0) AS stock
       FROM "ProductVariant" WHERE "productId" = p.id AND "isActive" = true) v ON true
-    LEFT JOIN LATERAL (SELECT COALESCE(SUM(i.quantity),0) AS sold FROM "OrderItem" i JOIN "Order" o ON o.id = i."orderId" WHERE i."productId" = p.id AND o.status <> 'CANCELED') sales ON true
+    ${rankBySales ? salesJoin : Prisma.empty}
     WHERE ${Prisma.join(conditions, ' AND ')}`;
   const order = filters.sort === 'price-asc' ? Prisma.sql`v.price ASC` : filters.sort === 'price-desc' ? Prisma.sql`v.price DESC` : filters.sort === 'best-sellers' ? Prisma.sql`sales.sold DESC` : Prisma.sql`p."createdAt" DESC`;
-  const rows = await prisma.$queryRaw<{ id: string; total: bigint; sold: bigint }[]>(Prisma.sql`SELECT p.id, COUNT(*) OVER() AS total, sales.sold ${from} ORDER BY ${order}, p."createdAt" DESC, p.id ASC LIMIT ${limit} OFFSET ${(page - 1) * limit}`);
+  const rows = await prisma.$queryRaw<{ id: string; total: bigint; sold: bigint }[]>(rankBySales
+    ? Prisma.sql`SELECT p.id, COUNT(*) OVER() AS total, sales.sold ${from} ORDER BY ${order}, p."createdAt" DESC, p.id ASC LIMIT ${limit} OFFSET ${(page - 1) * limit}`
+    : Prisma.sql`WITH page AS MATERIALIZED (
+        SELECT p.id, COUNT(*) OVER() AS total, ROW_NUMBER() OVER (ORDER BY ${order}, p."createdAt" DESC, p.id ASC) AS position
+        ${from} ORDER BY ${order}, p."createdAt" DESC, p.id ASC LIMIT ${limit} OFFSET ${(page - 1) * limit}
+      ) SELECT page.id, page.total, COALESCE((SELECT SUM(i.quantity) FROM "OrderItem" i JOIN "Order" o ON o.id = i."orderId"
+        WHERE i."productId" = page.id AND o.status <> 'CANCELED'),0) AS sold FROM page ORDER BY page.position`);
   const total = rows.length ? Number(rows[0].total) : Number((await prisma.$queryRaw<{ total: bigint }[]>(Prisma.sql`SELECT COUNT(*) AS total ${from}`))[0]?.total ?? 0);
   const products = rows.length ? await prisma.product.findMany({ where: { id: { in: rows.map((row) => row.id) } }, include: productListInclude }) : [];
   const byId = new Map(products.map((product) => [product.id, product]));

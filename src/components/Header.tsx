@@ -4,11 +4,11 @@ import { useDialog } from './useDialog';
 import { storeLinks } from '@/lib/store-navigation';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 import { brand } from '@/lib/brand';
 import { useCart } from './CartProvider';
 import { BrandLogo } from './BrandLogo';
-import { IconCart, IconMenu } from './Icons';
+import { IconCart, IconMenu, IconX } from './Icons';
 import { SearchBar } from './SearchBar';
 
 const navLinks = storeLinks;
@@ -76,7 +76,7 @@ export function Header() {
                 aria-label="إغلاق القائمة"
                 onClick={() => setMenuOpen(false)}
               >
-                ✕
+                <IconX size={22} />
               </button>
             </div>
             <nav className="storeDrawerNav" aria-label="القائمة الرئيسية">

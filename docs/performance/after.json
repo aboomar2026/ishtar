@@ -1,0 +1,707 @@
+{
+  "label": "after",
+  "source": "PR #3 28a3ac3 plus current working diff",
+  "runtime": "v24.22.1",
+  "platform": "linux",
+  "samples": 7,
+  "environment": "Next production start, loopback HTTP, fresh PGlite WASM, 100 repository fixture products, single DB connection; no browser/network throttling",
+  "limitations": [
+    "Not Netlify/serverless or Supabase measurements",
+    "Cold means first request per route in this process, not a function cold start",
+    "No LCP/CLS/TBT/INP, navigation paint, image transfer or route-specific browser JS measured",
+    "DB duration observes local protocol execution, not remote DB/network latency",
+    "HTML size is decoded response bytes, not wire transfer",
+    "7 warm samples: medians only, no p95 claim"
+  ],
+  "buildJs": {
+    "files": 44,
+    "bytes": 1885805,
+    "gzipBytes": 558288
+  },
+  "privacy": {
+    "unauthenticatedAdminRedirect": true,
+    "heroTagInvalidationHttp": true
+  },
+  "results": [
+    {
+      "path": "/",
+      "cold": {
+        "ttfbMs": 283.32670700000017,
+        "completeMs": 291.689609,
+        "decodedHtmlBytes": 170129,
+        "dbStatements": 27,
+        "dbExecuteMs": 12.413083999999344
+      },
+      "warmMedian": {
+        "ttfbMs": 52.9270190000002,
+        "completeMs": 59.42116799999985,
+        "decodedHtmlBytes": 170129,
+        "dbStatements": 26,
+        "dbExecuteMs": 9.525845999999547
+      },
+      "warmSamples": [
+        {
+          "ttfbMs": 65.53666199999998,
+          "completeMs": 72.36411499999986,
+          "decodedHtmlBytes": 170129,
+          "dbStatements": 26,
+          "dbExecuteMs": 10.66403899999932
+        },
+        {
+          "ttfbMs": 70.9334200000003,
+          "completeMs": 78.50743000000011,
+          "decodedHtmlBytes": 170129,
+          "dbStatements": 26,
+          "dbExecuteMs": 11.142278000000715
+        },
+        {
+          "ttfbMs": 52.9270190000002,
+          "completeMs": 59.42116799999985,
+          "decodedHtmlBytes": 170129,
+          "dbStatements": 26,
+          "dbExecuteMs": 9.525845999999547
+        },
+        {
+          "ttfbMs": 55.23823300000004,
+          "completeMs": 66.42431399999987,
+          "decodedHtmlBytes": 170129,
+          "dbStatements": 26,
+          "dbExecuteMs": 10.66904599999998
+        },
+        {
+          "ttfbMs": 48.59272800000008,
+          "completeMs": 57.133346000000074,
+          "decodedHtmlBytes": 170129,
+          "dbStatements": 26,
+          "dbExecuteMs": 8.766127000000324
+        },
+        {
+          "ttfbMs": 44.61744699999963,
+          "completeMs": 50.45740099999966,
+          "decodedHtmlBytes": 170129,
+          "dbStatements": 26,
+          "dbExecuteMs": 9.262136000001192
+        },
+        {
+          "ttfbMs": 43.23278300000038,
+          "completeMs": 49.85423400000036,
+          "decodedHtmlBytes": 170129,
+          "dbStatements": 26,
+          "dbExecuteMs": 9.1962410000001
+        }
+      ]
+    },
+    {
+      "path": "/product/ishtar-beauty-1-1",
+      "cold": {
+        "ttfbMs": 44.126697000000604,
+        "completeMs": 48.46194100000048,
+        "decodedHtmlBytes": 70704,
+        "dbStatements": 13,
+        "dbExecuteMs": 3.580562999999529
+      },
+      "warmMedian": {
+        "ttfbMs": 28.600742000000537,
+        "completeMs": 32.909513000000516,
+        "decodedHtmlBytes": 70704,
+        "dbStatements": 13,
+        "dbExecuteMs": 3.586753999998109
+      },
+      "warmSamples": [
+        {
+          "ttfbMs": 29.667833999999857,
+          "completeMs": 32.95143499999995,
+          "decodedHtmlBytes": 70704,
+          "dbStatements": 13,
+          "dbExecuteMs": 3.4822919999978694
+        },
+        {
+          "ttfbMs": 28.600742000000537,
+          "completeMs": 34.99731299999985,
+          "decodedHtmlBytes": 70704,
+          "dbStatements": 13,
+          "dbExecuteMs": 3.707216000000699
+        },
+        {
+          "ttfbMs": 28.114478999999847,
+          "completeMs": 32.909513000000516,
+          "decodedHtmlBytes": 70704,
+          "dbStatements": 13,
+          "dbExecuteMs": 3.086629999998877
+        },
+        {
+          "ttfbMs": 45.01518599999963,
+          "completeMs": 48.62172999999984,
+          "decodedHtmlBytes": 70704,
+          "dbStatements": 13,
+          "dbExecuteMs": 4.991269000000102
+        },
+        {
+          "ttfbMs": 29.456312999999682,
+          "completeMs": 32.50763299999926,
+          "decodedHtmlBytes": 70704,
+          "dbStatements": 13,
+          "dbExecuteMs": 3.629159000000982
+        },
+        {
+          "ttfbMs": 22.215830000000096,
+          "completeMs": 26.842671999999766,
+          "decodedHtmlBytes": 70704,
+          "dbStatements": 13,
+          "dbExecuteMs": 3.586753999998109
+        },
+        {
+          "ttfbMs": 20.62344100000064,
+          "completeMs": 24.368915000000015,
+          "decodedHtmlBytes": 70704,
+          "dbStatements": 13,
+          "dbExecuteMs": 2.9909409999991112
+        }
+      ]
+    },
+    {
+      "path": "/collections/beauty-touch",
+      "cold": {
+        "ttfbMs": 35.18966100000034,
+        "completeMs": 42.41283400000066,
+        "decodedHtmlBytes": 169604,
+        "dbStatements": 8,
+        "dbExecuteMs": 2.884187000001475
+      },
+      "warmMedian": {
+        "ttfbMs": 27.247967000000244,
+        "completeMs": 35.663346000000274,
+        "decodedHtmlBytes": 169604,
+        "dbStatements": 8,
+        "dbExecuteMs": 3.200456999999915
+      },
+      "warmSamples": [
+        {
+          "ttfbMs": 33.946985999999924,
+          "completeMs": 43.37771199999952,
+          "decodedHtmlBytes": 169604,
+          "dbStatements": 8,
+          "dbExecuteMs": 2.9573679999994056
+        },
+        {
+          "ttfbMs": 27.951383999999962,
+          "completeMs": 35.663346000000274,
+          "decodedHtmlBytes": 169604,
+          "dbStatements": 8,
+          "dbExecuteMs": 3.427962999999181
+        },
+        {
+          "ttfbMs": 30.41870200000085,
+          "completeMs": 38.982695000000604,
+          "decodedHtmlBytes": 169604,
+          "dbStatements": 8,
+          "dbExecuteMs": 3.529631000000336
+        },
+        {
+          "ttfbMs": 27.247967000000244,
+          "completeMs": 35.28352300000006,
+          "decodedHtmlBytes": 169604,
+          "dbStatements": 8,
+          "dbExecuteMs": 3.200456999999915
+        },
+        {
+          "ttfbMs": 27.15219200000047,
+          "completeMs": 36.604583000000275,
+          "decodedHtmlBytes": 169604,
+          "dbStatements": 8,
+          "dbExecuteMs": 3.0594020000016826
+        },
+        {
+          "ttfbMs": 25.019014999999854,
+          "completeMs": 32.98946099999921,
+          "decodedHtmlBytes": 169604,
+          "dbStatements": 8,
+          "dbExecuteMs": 3.5521950000020297
+        },
+        {
+          "ttfbMs": 24.08310100000017,
+          "completeMs": 31.50513200000023,
+          "decodedHtmlBytes": 169604,
+          "dbStatements": 8,
+          "dbExecuteMs": 2.658975000001192
+        }
+      ]
+    },
+    {
+      "path": "/category/collection-beauty",
+      "cold": {
+        "ttfbMs": 31.366847000000234,
+        "completeMs": 36.60116199999993,
+        "decodedHtmlBytes": 121382,
+        "dbStatements": 7,
+        "dbExecuteMs": 1.7539050000013958
+      },
+      "warmMedian": {
+        "ttfbMs": 21.462392999999793,
+        "completeMs": 26.0734480000001,
+        "decodedHtmlBytes": 121382,
+        "dbStatements": 7,
+        "dbExecuteMs": 1.4011060000002544
+      },
+      "warmSamples": [
+        {
+          "ttfbMs": 22.65230999999949,
+          "completeMs": 26.879530999999588,
+          "decodedHtmlBytes": 121382,
+          "dbStatements": 7,
+          "dbExecuteMs": 1.1010440000000017
+        },
+        {
+          "ttfbMs": 20.567383999999947,
+          "completeMs": 24.990927999999258,
+          "decodedHtmlBytes": 121382,
+          "dbStatements": 7,
+          "dbExecuteMs": 1.4534560000001875
+        },
+        {
+          "ttfbMs": 21.909695000000283,
+          "completeMs": 26.0734480000001,
+          "decodedHtmlBytes": 121382,
+          "dbStatements": 7,
+          "dbExecuteMs": 2.0322439999999915
+        },
+        {
+          "ttfbMs": 20.965092999999797,
+          "completeMs": 25.794573000000128,
+          "decodedHtmlBytes": 121382,
+          "dbStatements": 7,
+          "dbExecuteMs": 1.248052000001735
+        },
+        {
+          "ttfbMs": 18.784367000000202,
+          "completeMs": 23.984355999999934,
+          "decodedHtmlBytes": 121382,
+          "dbStatements": 7,
+          "dbExecuteMs": 1.3893609999995533
+        },
+        {
+          "ttfbMs": 22.033572000000277,
+          "completeMs": 26.632474000000002,
+          "decodedHtmlBytes": 121382,
+          "dbStatements": 7,
+          "dbExecuteMs": 1.4011060000002544
+        },
+        {
+          "ttfbMs": 21.462392999999793,
+          "completeMs": 26.616489,
+          "decodedHtmlBytes": 121382,
+          "dbStatements": 7,
+          "dbExecuteMs": 1.4562469999991663
+        }
+      ]
+    },
+    {
+      "path": "/category/all?q=عطر",
+      "cold": {
+        "ttfbMs": 33.222743000000264,
+        "completeMs": 36.83089000000018,
+        "decodedHtmlBytes": 115937,
+        "dbStatements": 8,
+        "dbExecuteMs": 5.106926999997995
+      },
+      "warmMedian": {
+        "ttfbMs": 24.67370799999935,
+        "completeMs": 28.784552999999505,
+        "decodedHtmlBytes": 115937,
+        "dbStatements": 8,
+        "dbExecuteMs": 3.0369280000004437
+      },
+      "warmSamples": [
+        {
+          "ttfbMs": 26.20927699999993,
+          "completeMs": 30.432942999999796,
+          "decodedHtmlBytes": 115937,
+          "dbStatements": 8,
+          "dbExecuteMs": 2.9692489999979443
+        },
+        {
+          "ttfbMs": 31.38850999999977,
+          "completeMs": 36.93006500000047,
+          "decodedHtmlBytes": 115937,
+          "dbStatements": 8,
+          "dbExecuteMs": 5.478964000000815
+        },
+        {
+          "ttfbMs": 26.531765000000632,
+          "completeMs": 30.857245000000148,
+          "decodedHtmlBytes": 115937,
+          "dbStatements": 8,
+          "dbExecuteMs": 3.428592999999637
+        },
+        {
+          "ttfbMs": 22.935080000000198,
+          "completeMs": 26.91816800000015,
+          "decodedHtmlBytes": 115937,
+          "dbStatements": 8,
+          "dbExecuteMs": 2.7362569999977495
+        },
+        {
+          "ttfbMs": 24.67370799999935,
+          "completeMs": 28.784552999999505,
+          "decodedHtmlBytes": 115937,
+          "dbStatements": 8,
+          "dbExecuteMs": 3.158128000000943
+        },
+        {
+          "ttfbMs": 22.337252000000262,
+          "completeMs": 28.32800700000007,
+          "decodedHtmlBytes": 115937,
+          "dbStatements": 8,
+          "dbExecuteMs": 3.0369280000004437
+        },
+        {
+          "ttfbMs": 21.466980999999578,
+          "completeMs": 26.013715999999476,
+          "decodedHtmlBytes": 115937,
+          "dbStatements": 8,
+          "dbExecuteMs": 2.74015099999815
+        }
+      ]
+    },
+    {
+      "path": "/cart",
+      "cold": {
+        "ttfbMs": 3.759689999999864,
+        "completeMs": 4.30514999999923,
+        "decodedHtmlBytes": 40512,
+        "dbStatements": 0,
+        "dbExecuteMs": 0
+      },
+      "warmMedian": {
+        "ttfbMs": 2.680213999999978,
+        "completeMs": 3.206275999999889,
+        "decodedHtmlBytes": 40512,
+        "dbStatements": 0,
+        "dbExecuteMs": 0
+      },
+      "warmSamples": [
+        {
+          "ttfbMs": 2.680213999999978,
+          "completeMs": 3.206275999999889,
+          "decodedHtmlBytes": 40512,
+          "dbStatements": 0,
+          "dbExecuteMs": 0
+        },
+        {
+          "ttfbMs": 2.450386999999864,
+          "completeMs": 2.881811000000198,
+          "decodedHtmlBytes": 40512,
+          "dbStatements": 0,
+          "dbExecuteMs": 0
+        },
+        {
+          "ttfbMs": 2.3031169999994745,
+          "completeMs": 2.8156890000000203,
+          "decodedHtmlBytes": 40512,
+          "dbStatements": 0,
+          "dbExecuteMs": 0
+        },
+        {
+          "ttfbMs": 3.8483500000002095,
+          "completeMs": 4.36879399999998,
+          "decodedHtmlBytes": 40512,
+          "dbStatements": 0,
+          "dbExecuteMs": 0
+        },
+        {
+          "ttfbMs": 3.1278220000003785,
+          "completeMs": 3.7921770000002653,
+          "decodedHtmlBytes": 40512,
+          "dbStatements": 0,
+          "dbExecuteMs": 0
+        },
+        {
+          "ttfbMs": 2.9427400000004127,
+          "completeMs": 3.446469000000434,
+          "decodedHtmlBytes": 40512,
+          "dbStatements": 0,
+          "dbExecuteMs": 0
+        },
+        {
+          "ttfbMs": 2.1972350000005463,
+          "completeMs": 2.9474470000004658,
+          "decodedHtmlBytes": 40512,
+          "dbStatements": 0,
+          "dbExecuteMs": 0
+        }
+      ]
+    },
+    {
+      "path": "/checkout",
+      "cold": {
+        "ttfbMs": 6.88190300000042,
+        "completeMs": 8.031135000000177,
+        "decodedHtmlBytes": 40822,
+        "dbStatements": 0,
+        "dbExecuteMs": 0
+      },
+      "warmMedian": {
+        "ttfbMs": 2.161087000000407,
+        "completeMs": 2.89349299999958,
+        "decodedHtmlBytes": 40822,
+        "dbStatements": 0,
+        "dbExecuteMs": 0
+      },
+      "warmSamples": [
+        {
+          "ttfbMs": 3.647163999999975,
+          "completeMs": 4.279371999999967,
+          "decodedHtmlBytes": 40822,
+          "dbStatements": 0,
+          "dbExecuteMs": 0
+        },
+        {
+          "ttfbMs": 2.4197229999999763,
+          "completeMs": 3.0371390000000247,
+          "decodedHtmlBytes": 40822,
+          "dbStatements": 0,
+          "dbExecuteMs": 0
+        },
+        {
+          "ttfbMs": 2.161087000000407,
+          "completeMs": 2.655974000000242,
+          "decodedHtmlBytes": 40822,
+          "dbStatements": 0,
+          "dbExecuteMs": 0
+        },
+        {
+          "ttfbMs": 2.7187059999996563,
+          "completeMs": 3.139393999999811,
+          "decodedHtmlBytes": 40822,
+          "dbStatements": 0,
+          "dbExecuteMs": 0
+        },
+        {
+          "ttfbMs": 2.0080779999998413,
+          "completeMs": 2.435215000000426,
+          "decodedHtmlBytes": 40822,
+          "dbStatements": 0,
+          "dbExecuteMs": 0
+        },
+        {
+          "ttfbMs": 2.0345569999999498,
+          "completeMs": 2.4761960000005274,
+          "decodedHtmlBytes": 40822,
+          "dbStatements": 0,
+          "dbExecuteMs": 0
+        },
+        {
+          "ttfbMs": 2.1112050000001545,
+          "completeMs": 2.89349299999958,
+          "decodedHtmlBytes": 40822,
+          "dbStatements": 0,
+          "dbExecuteMs": 0
+        }
+      ]
+    },
+    {
+      "path": "/admin/orders",
+      "cold": {
+        "ttfbMs": 29.33374399999957,
+        "completeMs": 31.330831000000217,
+        "decodedHtmlBytes": 29825,
+        "dbStatements": 3,
+        "dbExecuteMs": 0.44474299999910727
+      },
+      "warmMedian": {
+        "ttfbMs": 10.485524000000623,
+        "completeMs": 12.317293000000063,
+        "decodedHtmlBytes": 29825,
+        "dbStatements": 3,
+        "dbExecuteMs": 0.27528499999880296
+      },
+      "warmSamples": [
+        {
+          "ttfbMs": 10.652818999999909,
+          "completeMs": 12.625810999999885,
+          "decodedHtmlBytes": 29825,
+          "dbStatements": 3,
+          "dbExecuteMs": 0.5900560000000041
+        },
+        {
+          "ttfbMs": 9.312832999999955,
+          "completeMs": 11.217733999999837,
+          "decodedHtmlBytes": 29825,
+          "dbStatements": 3,
+          "dbExecuteMs": 0.36086900000009337
+        },
+        {
+          "ttfbMs": 10.858484999999746,
+          "completeMs": 13.203182999999626,
+          "decodedHtmlBytes": 29825,
+          "dbStatements": 3,
+          "dbExecuteMs": 0.38508399999955145
+        },
+        {
+          "ttfbMs": 11.725938999999926,
+          "completeMs": 13.574978999999985,
+          "decodedHtmlBytes": 29825,
+          "dbStatements": 3,
+          "dbExecuteMs": 0.21171099999992293
+        },
+        {
+          "ttfbMs": 9.055659999999989,
+          "completeMs": 12.005400000000009,
+          "decodedHtmlBytes": 29825,
+          "dbStatements": 3,
+          "dbExecuteMs": 0.17807000000084372
+        },
+        {
+          "ttfbMs": 8.508931999999731,
+          "completeMs": 10.755799999999908,
+          "decodedHtmlBytes": 29825,
+          "dbStatements": 3,
+          "dbExecuteMs": 0.23667699999987235
+        },
+        {
+          "ttfbMs": 10.485524000000623,
+          "completeMs": 12.317293000000063,
+          "decodedHtmlBytes": 29825,
+          "dbStatements": 3,
+          "dbExecuteMs": 0.27528499999880296
+        }
+      ]
+    },
+    {
+      "path": "/admin/products",
+      "cold": {
+        "ttfbMs": 48.16774400000031,
+        "completeMs": 57.5922700000001,
+        "decodedHtmlBytes": 162080,
+        "dbStatements": 7,
+        "dbExecuteMs": 2.149225000000115
+      },
+      "warmMedian": {
+        "ttfbMs": 25.984988000000158,
+        "completeMs": 34.14756600000055,
+        "decodedHtmlBytes": 162080,
+        "dbStatements": 7,
+        "dbExecuteMs": 1.545868000000155
+      },
+      "warmSamples": [
+        {
+          "ttfbMs": 27.005936000000474,
+          "completeMs": 34.14756600000055,
+          "decodedHtmlBytes": 162080,
+          "dbStatements": 7,
+          "dbExecuteMs": 1.415896999999859
+        },
+        {
+          "ttfbMs": 27.458615999999893,
+          "completeMs": 51.24952900000062,
+          "decodedHtmlBytes": 162080,
+          "dbStatements": 7,
+          "dbExecuteMs": 1.4279260000002978
+        },
+        {
+          "ttfbMs": 24.099758000000293,
+          "completeMs": 31.75963899999988,
+          "decodedHtmlBytes": 162080,
+          "dbStatements": 7,
+          "dbExecuteMs": 1.545868000000155
+        },
+        {
+          "ttfbMs": 25.984988000000158,
+          "completeMs": 33.02120699999978,
+          "decodedHtmlBytes": 162080,
+          "dbStatements": 7,
+          "dbExecuteMs": 1.5680920000004335
+        },
+        {
+          "ttfbMs": 32.0433120000007,
+          "completeMs": 38.507792000000336,
+          "decodedHtmlBytes": 162080,
+          "dbStatements": 7,
+          "dbExecuteMs": 1.4693779999997787
+        },
+        {
+          "ttfbMs": 24.842241000000286,
+          "completeMs": 32.35896099999991,
+          "decodedHtmlBytes": 162080,
+          "dbStatements": 7,
+          "dbExecuteMs": 1.5524479999994583
+        },
+        {
+          "ttfbMs": 25.921218999999837,
+          "completeMs": 40.16259199999968,
+          "decodedHtmlBytes": 162080,
+          "dbStatements": 7,
+          "dbExecuteMs": 2.0679530000006707
+        }
+      ]
+    },
+    {
+      "path": "/admin/collections",
+      "cold": {
+        "ttfbMs": 34.13801699999931,
+        "completeMs": 38.973815999999715,
+        "decodedHtmlBytes": 91012,
+        "dbStatements": 8,
+        "dbExecuteMs": 1.5906850000001214
+      },
+      "warmMedian": {
+        "ttfbMs": 21.679016000000047,
+        "completeMs": 26.19108899999992,
+        "decodedHtmlBytes": 91012,
+        "dbStatements": 8,
+        "dbExecuteMs": 1.987317000000985
+      },
+      "warmSamples": [
+        {
+          "ttfbMs": 21.466253999999935,
+          "completeMs": 23.931322999999793,
+          "decodedHtmlBytes": 91012,
+          "dbStatements": 8,
+          "dbExecuteMs": 2.5310839999992822
+        },
+        {
+          "ttfbMs": 23.72233099999994,
+          "completeMs": 27.496623,
+          "decodedHtmlBytes": 91012,
+          "dbStatements": 8,
+          "dbExecuteMs": 2.002880000000914
+        },
+        {
+          "ttfbMs": 20.792489999999816,
+          "completeMs": 24.343377999999575,
+          "decodedHtmlBytes": 91012,
+          "dbStatements": 8,
+          "dbExecuteMs": 2.03134399999999
+        },
+        {
+          "ttfbMs": 21.679016000000047,
+          "completeMs": 24.342767000000094,
+          "decodedHtmlBytes": 91012,
+          "dbStatements": 8,
+          "dbExecuteMs": 1.6367860000000292
+        },
+        {
+          "ttfbMs": 23.078811999999743,
+          "completeMs": 27.09290499999952,
+          "decodedHtmlBytes": 91012,
+          "dbStatements": 8,
+          "dbExecuteMs": 1.9511650000013105
+        },
+        {
+          "ttfbMs": 23.365420999999515,
+          "completeMs": 26.19108899999992,
+          "decodedHtmlBytes": 91012,
+          "dbStatements": 8,
+          "dbExecuteMs": 1.7556769999991957
+        },
+        {
+          "ttfbMs": 21.478571999999986,
+          "completeMs": 27.558437999999114,
+          "decodedHtmlBytes": 91012,
+          "dbStatements": 8,
+          "dbExecuteMs": 1.987317000000985
+        }
+      ]
+    }
+  ]
+}

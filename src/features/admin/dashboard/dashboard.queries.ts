@@ -1,8 +1,7 @@
 import 'server-only';
-import { startOfBusinessDay } from '@/lib/business-time';
+import { dashboardPeriodRange } from './dashboard-period';
 import type { DeliveryFeeStatus, OrderStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
-import { variantStockState } from '@/features/admin/shared/admin-format';
 import { decimalToNumber } from '@/features/orders/order.mappers';
 
 export type DashboardRecentOrder = {
@@ -45,7 +44,8 @@ export type DashboardOverview = {
   activeBanners: number;
   pendingOrders: number;
   deliveryPendingOrders: number;
-  inProgressOrders: number;
+  confirmedOrders: number;
+  processingOrders: number;
   shippedOrders: number;
   deliveredOrders: number;
   canceledOrders: number;
@@ -56,12 +56,11 @@ export type DashboardOverview = {
   stockAlerts: DashboardStockAlert[];
 };
 
-function startOfToday(): Date {
-  return startOfBusinessDay();
-}
-
 export async function getDashboardOverview(): Promise<DashboardOverview> {
-  const today = startOfToday();
+  const range = dashboardPeriodRange();
+  const createdAt = { gte: range.start, lt: range.end };
+  const publishedStock = { isActive: true, product: { status: 'ACTIVE' as const, category: { isActive: true } } };
+  const lowQuantity = { gt: 0, lte: prisma.productVariant.fields.lowStockThreshold };
   const [
     totalProducts,
     activeProducts,
@@ -71,7 +70,9 @@ export async function getDashboardOverview(): Promise<DashboardOverview> {
     totalCategories,
     activeCategories,
     activeBanners,
-    activeVariants,
+    totalVariants,
+    outOfStockVariants,
+    lowStockVariants,
     stockWatchVariants,
     orderGroups,
     todayOrders,
@@ -88,32 +89,26 @@ export async function getDashboardOverview(): Promise<DashboardOverview> {
     prisma.category.count(),
     prisma.category.count({ where: { isActive: true } }),
     prisma.banner.count({ where: { isActive: true } }),
-    prisma.productVariant.findMany({ where: { isActive: true }, select: { quantity: true, lowStockThreshold: true } }),
+    prisma.productVariant.count({ where: { isActive: true } }),
+    prisma.productVariant.count({ where: { ...publishedStock, quantity: { lte: 0 } } }),
+    prisma.productVariant.count({ where: { ...publishedStock, quantity: lowQuantity } }),
     prisma.productVariant.findMany({
-      where: { isActive: true, product: { status: 'ACTIVE' } },
-      orderBy: [{ quantity: 'asc' }, { updatedAt: 'desc' }],
-      take: 100,
+      where: { ...publishedStock, OR: [{ quantity: { lte: 0 } }, { quantity: lowQuantity }] },
+      orderBy: [{ quantity: 'asc' }, { updatedAt: 'desc' }, { id: 'asc' }],
+      take: 6,
       include: { product: { select: { id: true, name: true } } }
     }),
     prisma.order.groupBy({ by: ['status'], _count: { _all: true } }),
-    prisma.order.count({ where: { createdAt: { gte: today } } }),
-    prisma.order.count({ where: { createdAt: { gte: today }, status: 'PENDING' } }),
+    prisma.order.count({ where: { createdAt } }),
+    prisma.order.count({ where: { createdAt, status: 'PENDING' } }),
     prisma.order.count({ where: { deliveryFeeStatus: 'PENDING', status: { notIn: ['CANCELED', 'DELIVERED'] } } }),
-    prisma.order.aggregate({ _sum: { total: true }, where: { createdAt: { gte: today }, status: { not: 'CANCELED' } } }),
+    prisma.order.aggregate({ _sum: { total: true }, where: { createdAt, status: { not: 'CANCELED' } } }),
     prisma.order.findMany({
-      orderBy: { createdAt: 'desc' },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       take: 6,
       include: { _count: { select: { items: true } } }
     })
   ]);
-
-  let outOfStockVariants = 0;
-  let lowStockVariants = 0;
-  for (const variant of activeVariants) {
-    const state = variantStockState(variant.quantity, variant.lowStockThreshold);
-    if (state === 'out-of-stock') outOfStockVariants += 1;
-    else if (state === 'low-stock') lowStockVariants += 1;
-  }
 
   const orderCountByStatus = (status: OrderStatus) => orderGroups.find((group) => group.status === status)?._count._all ?? 0;
 
@@ -125,13 +120,14 @@ export async function getDashboardOverview(): Promise<DashboardOverview> {
     activeProductsWithoutVariants,
     totalCategories,
     activeCategories,
-    totalVariants: activeVariants.length,
+    totalVariants,
     outOfStockVariants,
     lowStockVariants,
     activeBanners,
     pendingOrders: orderCountByStatus('PENDING'),
     deliveryPendingOrders,
-    inProgressOrders: orderCountByStatus('CONFIRMED') + orderCountByStatus('PROCESSING'),
+    confirmedOrders: orderCountByStatus('CONFIRMED'),
+    processingOrders: orderCountByStatus('PROCESSING'),
     shippedOrders: orderCountByStatus('SHIPPED'),
     deliveredOrders: orderCountByStatus('DELIVERED'),
     canceledOrders: orderCountByStatus('CANCELED'),
@@ -153,8 +149,6 @@ export async function getDashboardOverview(): Promise<DashboardOverview> {
       createdAt: order.createdAt
     })),
     stockAlerts: stockWatchVariants
-      .filter((variant) => variant.quantity <= variant.lowStockThreshold)
-      .slice(0, 6)
       .map((variant) => ({
         id: variant.id,
         productId: variant.product.id,

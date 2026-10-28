@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 import type { Category } from '@/lib/types';
 
 export function CategoryStrip({ categories, activeSlug }: { categories: Category[]; activeSlug?: string }) {

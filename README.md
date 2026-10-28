@@ -8,6 +8,10 @@ Read the latest [runtime verification report](docs/ISHTAR-RUNTIME-VERIFICATION.m
 
 See [batch implementation and verification](docs/ISHTAR-BATCH-IMPLEMENTATION.md). Checkout now requires the additive database change in `scripts/sql/ishtar-checkout-idempotency.sql` before this version is deployed against an existing database. The store owner has confirmed applying this SQL to the connected database; this environment has not independently inspected the production schema. See [release batch](docs/ISHTAR-RELEASE-BATCH.md).
 
+## Database reference
+
+See [the SQL execution ledger and database transfer guide](docs/database/README.md) for owner-applied changes, optional fixture/repair scripts, their known execution status, and backup/restore steps. These files are not run automatically during deployment.
+
 ## Identity
 
 - Default brand: `ishtar`, including when `NEXT_PUBLIC_STORE_BRAND` is absent or unrecognized.

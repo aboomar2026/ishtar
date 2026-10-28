@@ -14,20 +14,41 @@ export type CloudinaryTransformOptions = {
   gravity?: string;
 };
 
+function isCloudinaryUpload(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'https:' && parsed.hostname === 'res.cloudinary.com' && parsed.pathname.includes('/image/upload/');
+  } catch { return false; }
+}
+
+/** A bounded set of delivery variants, shared by foreground/backdrop images.
+ * External/local assets must not get a srcset advertising identical originals.
+ */
+export function getCloudinaryResponsiveSource(url: string, options: CloudinaryTransformOptions, widths: readonly number[], sizes: string) {
+  const src = getCloudinaryTransformedUrl(url, options);
+  if (!isCloudinaryUpload(url)) return { src };
+  const baseWidth = options.width ?? 800;
+  const ratio = (options.height ?? 1000) / baseWidth;
+  const candidates = [...new Set(widths)].filter(width => Number.isInteger(width) && width > 0 && width <= baseWidth).sort((a, b) => a - b);
+  return { src, srcSet: candidates.map(width => `${getCloudinaryTransformedUrl(url, { ...options, width, height: Math.round(width * ratio) })} ${width}w`).join(', ') || undefined, sizes };
+}
+
 export function getCloudinaryTransformedUrl(
   url: string,
   options: CloudinaryTransformOptions = {}
 ): string {
-  if (!url || !url.includes('res.cloudinary.com') || !url.includes('/upload/')) return url;
+  if (!isCloudinaryUpload(url)) return url;
 
   const width = options.width ?? 800;
   const height = options.height ?? 1000;
   const crop = options.crop ?? 'fill';
   const gravity = options.gravity ?? 'auto';
+  // Fit/limit resize the whole image; Cloudinary rejects auto gravity with them.
+  const gravityTransform = crop === 'fill' ? `,g_${gravity}` : '';
 
   return url.replace(
     '/upload/',
-    `/upload/f_auto,q_auto,w_${width},h_${height},c_${crop},g_${gravity}/`
+    `/upload/f_auto,q_auto,w_${width},h_${height},c_${crop}${gravityTransform}/`
   );
 }
 

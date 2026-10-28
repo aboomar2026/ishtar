@@ -1,5 +1,8 @@
+import { getCollections } from '@/features/collections/collections.queries';
+import { CollectionCard } from '@/components/CollectionCard';
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
+import Form from '@/components/NavigationForm';
 import { buildPageMetadata, catalogPath, categorySeoPath, hasCatalogFacets } from '@/lib/seo';
 import { breadcrumbData } from '@/lib/structured-data';
 import { JsonLd } from '@/components/JsonLd';
@@ -36,6 +39,7 @@ export default async function CategoryPage({
   const filters = result.filters;
 
   const query = filters.q ?? '';
+  const matchingGroups = query.length >= 2 ? await getCollections({ q: query, limit: 3 }) : [];
   function pageHref(page: number) {
     const values = new URLSearchParams();
     for (const [key, value] of Object.entries(resolvedSearchParams)) if (value && key !== 'page') values.set(key, Array.isArray(value) ? value[0] : value);
@@ -59,9 +63,10 @@ export default async function CategoryPage({
         <h1>{query ? `نتائج البحث: ${query}` : result.category.name}</h1>
         <p>{query ? brand.copy.categorySearchDescription : result.category.description}</p>
       </section>
+      {matchingGroups.length > 0 && <section className="contentSection"><h2>مجموعات تناسب بحثك</h2><div className="collectionGrid">{matchingGroups.map(collection => <CollectionCard key={collection.id} collection={collection} />)}</div></section>}
       <CategoryStrip categories={result.categories} activeSlug={slug} />
-      <form className="filterRow" action={`/category/${slug}`}>
-        <ClearableSearchInput name="q" defaultValue={query} placeholder="بحث داخل التصنيف" ariaLabel="بحث داخل التصنيف" submitOnClear />
+      <Form className="filterRow" action={`/category/${slug}`}>
+        <ClearableSearchInput key={query} name="q" defaultValue={query} placeholder="بحث داخل التصنيف" ariaLabel="بحث داخل التصنيف" submitOnClear />
         <select name="sort" defaultValue={filters.sort ?? 'newest'} aria-label="ترتيب المنتجات">
           <option value="newest">الأحدث</option>
           <option value="best-sellers">الأكثر مبيعاً</option>
@@ -73,14 +78,14 @@ export default async function CategoryPage({
           <option value="in-stock">المتوفر فقط</option>
         </select>
         <button type="submit">تطبيق</button>
-        {isFiltered ? <a className="filterClear" href={`/category/${slug}`}>مسح الكل</a> : null}
+        {isFiltered ? <Link className="filterClear" href={`/category/${slug}`}>مسح الكل</Link> : null}
         <span className="filterCount">{result.total} منتج</span>
-      </form>
+      </Form>
       <ProductGrid products={result.products} />
       {result.pageCount > 1 && <nav className="catalogPagination" aria-label="صفحات المنتجات">
-        {result.page > 1 && <a className="ghostButton" href={pageHref(result.page - 1)}>السابق</a>}
+        {result.page > 1 && <Link className="ghostButton" href={pageHref(result.page - 1)}>السابق</Link>}
         <span>صفحة {result.page} من {result.pageCount} · {result.total} منتج</span>
-        {result.page < result.pageCount && <a className="ghostButton" href={pageHref(result.page + 1)}>التالي</a>}
+        {result.page < result.pageCount && <Link className="ghostButton" href={pageHref(result.page + 1)}>التالي</Link>}
       </nav>}
     </div>
   );

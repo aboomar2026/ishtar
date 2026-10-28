@@ -1,10 +1,12 @@
 'use client';
+import { CatalogImage } from '@/components/CatalogImage';
+import { PRODUCT_THUMB_IMAGE } from '@/lib/cloudinary-image';
 
 import { brandStorageKeys } from '@/lib/brand-storage';
 
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 import { FormEvent, useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useNavigationRouter as useRouter } from '@/components/NavigationProvider';
 import { CartSummary } from './CartSummary';
 import { EmptyState } from './EmptyState';
 import { useCart } from './CartProvider';
@@ -272,7 +274,7 @@ export function CheckoutForm() {
           <h2>منتجاتك</h2><Link href="/cart">تعديل السلة والكميات</Link>
           {lines.map((line) => (
             <div className="miniOrderItem" key={line.variantId}>
-              <img src={line.image} alt={line.name} />
+              <CatalogImage src={line.image} alt={line.name}  transform={{ ...PRODUCT_THUMB_IMAGE, crop: 'fit' }} sizes="100px" loading="lazy" />
               <div>
                 <strong>{line.name}</strong>
                 <span>

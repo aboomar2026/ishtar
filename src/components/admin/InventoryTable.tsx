@@ -1,7 +1,9 @@
 'use client';
+import { CatalogImage } from '@/components/CatalogImage';
+import { PRODUCT_THUMB_IMAGE } from '@/lib/cloudinary-image';
 
 import { useState, useTransition } from 'react';
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 import { useRouter } from 'next/navigation';
 import type { InventoryRow } from '@/features/admin/inventory/inventory-admin.queries';
 import {
@@ -65,7 +67,7 @@ function InventoryCard({ row }: { row: InventoryRow }) {
   return (
     <div className="adminInventoryCard">
       <div className="adminInventoryHead">
-        <img className="adminThumb" src={row.image ?? '/mock-products/gift-box.svg'} alt={row.productName} />
+        <CatalogImage className="adminThumb" src={row.image ?? '/mock-products/gift-box.svg'} alt={row.productName}  transform={{ ...PRODUCT_THUMB_IMAGE, crop: 'fit' }} sizes="100px" loading="lazy" />
         <div style={{ minWidth: 0, flex: 1 }}>
           <Link href={`/admin/products/${row.productId}/edit`}><strong>{row.productName}</strong></Link>
           <div className="adminMuted" style={{ fontSize: 12 }}>{row.sku}</div>

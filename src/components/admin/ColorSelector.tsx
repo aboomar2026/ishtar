@@ -1,4 +1,5 @@
 'use client';
+import { IconEyedropper } from '@/components/Icons';
 
 import { useEffect, useRef, useState } from 'react';
 
@@ -155,7 +156,7 @@ export function ColorSelector({ colorName, colorValue, onChange }: Props) {
               onClick={openEyeDropper}
               title="التقاط لون من الشاشة"
             >
-              🎯 التقاط
+              <IconEyedropper size={18} /> التقاط
             </button>
           </div>
         )}

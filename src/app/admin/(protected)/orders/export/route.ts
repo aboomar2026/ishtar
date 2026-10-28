@@ -1,3 +1,4 @@
+import { hasAdminPermission } from '@/features/admin/auth/admin-permissions';
 import { type NextRequest } from 'next/server';
 import { brand } from '@/lib/brand';
 import type { OrderStatus } from '@prisma/client';
@@ -13,6 +14,10 @@ export async function GET(request: NextRequest) {
   const session = await getAdminSession();
   if (!session) {
     return new Response('Unauthorized', { status: 401 });
+  }
+
+  if (!hasAdminPermission(session.role, 'orders')) {
+    return new Response('Forbidden', { status: 403 });
   }
 
   const { searchParams } = new URL(request.url);

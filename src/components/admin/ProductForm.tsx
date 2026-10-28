@@ -1,10 +1,11 @@
 'use client';
+import { IconPackage } from '@/components/Icons';
 
 import { useUnsavedChanges } from './useUnsavedChanges';
 import { useDialog } from '@/components/useDialog';
 
 import { useMemo, useState, useTransition, type FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
+import { useNavigationRouter as useRouter } from '@/components/NavigationProvider';
 import { createProductAction, updateProductAction, type ActionIssue } from '@/features/admin/products/product-admin.actions';
 import type { ProductInput } from '@/features/admin/products/product-admin.validation';
 import { slugify } from '@/features/admin/shared/admin-format';
@@ -706,7 +707,7 @@ export function ProductForm({ mode, productId, categories, initial }: {
 
         {variants.length === 0 ? (
           <div className="adminEmptyState">
-            <span className="adminEmptyIcon">📦</span>
+            <span className="adminEmptyIcon"><IconPackage size={40} /></span>
             <strong className="adminEmptyTitle">لا توجد خيارات بعد</strong>
             <p className="adminEmptyDesc">استخدم منشئ الخيارات أعلاه لتوليد مجموعة ألوان ومقاسات، أو أضف خياراً يدوياً.</p>
           </div>

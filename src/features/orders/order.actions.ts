@@ -10,6 +10,8 @@ import { calcLineTotal, calcOrderTotals, roundMoney } from './order-pricing';
 import { buildOrderNumber, invoiceNumberForOrder, orderNumberDatePrefix } from './order-number';
 import { getOrderByNumberAndPhone } from './order.queries';
 import { notifyAdminAboutNewOrder } from './order-notifications';
+import { orderOutboxEnabled } from '@/features/notifications/notification-config';
+import { dispatchOrderNotification } from '@/features/notifications/notification-dispatcher';
 import type { CheckoutInput, CreateOrderResult, OrderStockError, OrderView } from './order.types';
 
 /** Internal error used to abort the transaction and surface stock problems. */
@@ -226,6 +228,8 @@ export async function createCodOrderAction(input: CheckoutInput): Promise<Create
           await tx.product.update({ where: { id: productId }, data: { soldCount: { increment: quantity } } });
         }
 
+        if (orderOutboxEnabled()) await tx.orderNotification.create({ data: { orderId: order.id } });
+
         return {
           reused: false,
           orderId: order.id,
@@ -248,7 +252,13 @@ export async function createCodOrderAction(input: CheckoutInput): Promise<Create
       } catch (cacheError) { console.error('Order committed; cache refresh failed', cacheError); }
 
       try {
-        if (!result.reused) await notifyAdminAboutNewOrder(result.orderId);
+        if (!result.reused) {
+          if (orderOutboxEnabled()) await dispatchOrderNotification(result.orderId);
+          else {
+            const delivery = await notifyAdminAboutNewOrder(result.orderId);
+            if (!delivery.ok) console.warn('Telegram order alert not confirmed', { orderId: result.orderId, code: delivery.skipped ? 'MISSING_CONFIG' : delivery.code });
+          }
+        }
       } catch (notificationError) {
         console.error('notifyAdminAboutNewOrder failed', notificationError);
       }

@@ -1,5 +1,5 @@
 import { formatMoney } from '@/lib/numbers';
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 
 export function CartSummary({
   subtotal,

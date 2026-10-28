@@ -1,7 +1,11 @@
-import Link from 'next/link';
+import { CatalogImage } from '@/components/CatalogImage';
+import { PRODUCT_THUMB_IMAGE } from '@/lib/cloudinary-image';
+import Link from '@/components/NavigationLink';
+import { redirect } from 'next/navigation';
+import { requireAdmin } from '@/features/admin/auth/admin-auth';
 import type { ProductStatus } from '@prisma/client';
 import {
-  getAdminProducts,
+  getAdminProductPage,
   getCategoryOptions,
   type AdminProductListItem,
   type AdminProductSort,
@@ -42,13 +46,15 @@ function Flags({ item }: { item: AdminProductListItem }) {
   );
 }
 
-type SearchParams = Promise<{ q?: string; status?: string; category?: string; stock?: string; sort?: string }>;
+type SearchParams = Promise<{ q?: string; status?: string; category?: string; stock?: string; sort?: string; page?: string }>;
 
 export default async function AdminProductsPage({ searchParams }: { searchParams: SearchParams }) {
+  await requireAdmin();
   const sp = await searchParams;
-  const [products, categories] = await Promise.all([
-    getAdminProducts({
+  const [result, categories] = await Promise.all([
+    getAdminProductPage({
       q: sp.q,
+      page: Number(sp.page) || 1,
       status: (sp.status as ProductStatus | 'ALL') ?? 'ALL',
       categoryId: sp.category ?? 'ALL',
       stock: (sp.stock as AdminProductStockFilter) ?? 'all',
@@ -57,12 +63,20 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
     getCategoryOptions()
   ]);
 
+  const products = result.items;
+  function pageHref(page: number) {
+    const values = new URLSearchParams();
+    for (const [key, value] of Object.entries(sp)) if (value && key !== 'page') values.set(key, value);
+    if (page > 1) values.set('page', String(page));
+    return `/admin/products${values.size ? `?${values}` : ''}`;
+  }
+  if (sp.page !== undefined && sp.page !== String(result.page)) redirect(pageHref(result.page));
   return (
     <div>
       <div className="adminPageHeader">
         <div>
           <h1>المنتجات</h1>
-          <p className="adminMuted">عرض {products.length} منتج.</p>
+          <p className="adminMuted">عرض {products.length} من {result.total} منتج.</p>
         </div>
         <Link href="/admin/products/new" className="adminBtn adminBtnPrimary">+ إضافة منتج</Link>
       </div>
@@ -95,7 +109,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
                     <tr key={item.id}>
                       <td>
                         <div className="adminCellMain">
-                          <img className="adminThumb" src={item.image ?? '/mock-products/gift-box.svg'} alt={item.name} />
+                          <CatalogImage className="adminThumb" src={item.image ?? '/mock-products/gift-box.svg'} alt={item.name}  transform={{ ...PRODUCT_THUMB_IMAGE, crop: 'fit' }} sizes="100px" loading="lazy" />
                           <div>
                             <strong>{item.name}</strong>
                             <small>{item.slug}</small>
@@ -122,7 +136,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
             {products.map((item) => (
               <div key={item.id} className="adminRecordCard">
                 <div className="adminRecordTop">
-                  <img className="adminThumb" src={item.image ?? '/mock-products/gift-box.svg'} alt={item.name} />
+                  <CatalogImage className="adminThumb" src={item.image ?? '/mock-products/gift-box.svg'} alt={item.name}  transform={{ ...PRODUCT_THUMB_IMAGE, crop: 'fit' }} sizes="100px" loading="lazy" />
                   <div style={{ minWidth: 0 }}>
                     <strong>{item.name}</strong>
                     <div className="adminMuted" style={{ fontSize: 12 }}>{item.slug}</div>
@@ -144,6 +158,11 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
           </div>
         </>
       )}
+      {result.pageCount > 1 && <nav className="catalogPagination" aria-label="صفحات منتجات الإدارة">
+        {result.page > 1 && <Link className="adminBtn adminBtnGhost" href={pageHref(result.page - 1)}>السابق</Link>}
+        <span>صفحة {result.page} من {result.pageCount}</span>
+        {result.page < result.pageCount && <Link className="adminBtn adminBtnGhost" href={pageHref(result.page + 1)}>التالي</Link>}
+      </nav>}
     </div>
   );
 }

@@ -7,7 +7,7 @@ import {
   type OrderStatus,
 } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/features/admin/auth/admin-auth";
+import { requireOrderAdmin } from "@/features/admin/auth/admin-auth";
 import { calcOrderTotals, roundMoney } from "@/features/orders/order-pricing";
 import {
   isAllowedTransition,
@@ -61,7 +61,7 @@ export async function updateOrderStatusAction(
   toStatus: OrderStatus,
   note?: string,
 ): Promise<OrderActionResult> {
-  await requireAdmin();
+  await requireOrderAdmin();
 
   const trimmedNote = note?.trim() || undefined;
   const affectedProductSlugs = new Set<string>();
@@ -195,7 +195,7 @@ export async function updateOrderDeliveryFeeAction(
   orderId: string,
   input: { mode: "SET" | "FREE"; fee?: number | string },
 ): Promise<DeliveryFeeActionResult> {
-  await requireAdmin();
+  await requireOrderAdmin();
 
   const mode = input.mode;
   const parsedFee =
@@ -268,7 +268,7 @@ export async function updateOrderAdminNoteAction(
   orderId: string,
   adminNote: string,
 ): Promise<OrderActionResult> {
-  await requireAdmin();
+  await requireOrderAdmin();
   const order = await prisma.order.findUnique({
     where: { id: orderId },
     select: { id: true },

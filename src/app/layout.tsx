@@ -1,3 +1,4 @@
+import { NavigationProvider } from '@/components/NavigationProvider';
 import { buildPageMetadata } from '@/lib/seo';
 import { publicSiteUrl } from '@/lib/site-url';
 import type { Metadata, Viewport } from 'next';
@@ -5,6 +6,9 @@ import { Tajawal, El_Messiri } from 'next/font/google';
 import { activeBrandKey, brand, getBrandCssVariables } from '@/lib/brand';
 import './globals.css';
 import './ishtar.css';
+import './hero.css';
+import './controls.css';
+import './collections.css';
 
 const tajawal = Tajawal({
   subsets: ['arabic', 'latin'],
@@ -47,7 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       data-scroll-behavior="smooth"
       style={getBrandCssVariables()}
     >
-      <body>{children}</body>
+      <body><NavigationProvider>{children}</NavigationProvider></body>
     </html>
   );
 }

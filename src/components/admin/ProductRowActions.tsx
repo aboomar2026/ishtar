@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 import { useRouter } from 'next/navigation';
 import type { ProductStatus } from '@prisma/client';
 import { setProductStatusAction } from '@/features/admin/products/product-admin.actions';

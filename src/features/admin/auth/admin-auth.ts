@@ -1,9 +1,11 @@
 import 'server-only';
+import { cache } from 'react';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import bcrypt from 'bcryptjs';
 import type { AdminRole } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
+import { hasAdminPermission } from './admin-permissions';
 import {
   ADMIN_SESSION_COOKIE,
   ADMIN_SESSION_MAX_AGE_SECONDS,
@@ -51,7 +53,9 @@ export async function clearAdminSessionCookie(): Promise<void> {
  * Resolve the current admin session: verify the cookie, then confirm the admin
  * still exists and is active. Returns null when there is no valid session.
  */
-export async function getAdminSession(): Promise<AdminSession | null> {
+// React cache is request scoped: layout/page guards share one current-DB check.
+// Never use a persistent/public cache for session or permission decisions.
+export const getAdminSession = cache(async (): Promise<AdminSession | null> => {
   const cookieStore = await cookies();
   const token = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;
   const payload = verifySessionToken(token);
@@ -64,12 +68,19 @@ export async function getAdminSession(): Promise<AdminSession | null> {
 
   if (!admin || !admin.isActive) return null;
   return { id: admin.id, name: admin.name, email: admin.email, role: admin.role };
-}
+});
 
 /** Guard for protected admin pages/actions: redirects to login when unauthenticated. */
 export async function requireAdmin(): Promise<AdminSession> {
   const session = await getAdminSession();
-  if (!session) redirect('/admin/login');
+  if (!session || !hasAdminPermission(session.role, 'catalog')) redirect('/admin/login');
+  return session;
+}
+
+/** Guard each order page/action before reading or changing private order data. */
+export async function requireOrderAdmin(): Promise<AdminSession> {
+  const session = await requireAdmin();
+  if (!hasAdminPermission(session.role, 'orders')) redirect('/admin/products');
   return session;
 }
 

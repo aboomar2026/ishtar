@@ -1,4 +1,8 @@
-import Link from 'next/link';
+import { DashboardAnalytics } from '@/components/admin/DashboardAnalytics';
+import { getDashboardAnalytics } from '@/features/admin/dashboard/dashboard-analytics.queries';
+import { requireOrderAdmin } from '@/features/admin/auth/admin-auth';
+import { IconReceipt, IconTruck, IconPlus, IconPackage, IconBag, IconImages } from '@/components/Icons';
+import Link from '@/components/NavigationLink';
 import { getDashboardOverview } from '@/features/admin/dashboard/dashboard.queries';
 import { formatCurrency, formatDateTime } from '@/features/admin/shared/admin-format';
 import { OrderStatusBadge } from '@/components/admin/OrderStatusBadge';
@@ -27,8 +31,10 @@ function StatCard({ stat }: { stat: Stat }) {
   );
 }
 
-export default async function AdminDashboardPage() {
-  const overview = await getDashboardOverview();
+export default async function AdminDashboardPage({ searchParams }: { searchParams: Promise<{ period?: string | string[] }> }) {
+  await requireOrderAdmin();
+  const params = await searchParams;
+  const [overview, analytics] = await Promise.all([getDashboardOverview(), getDashboardAnalytics(typeof params.period === 'string' ? params.period : undefined)]);
 
   const priorityStats: Stat[] = [
     { label: 'طلبات تحتاج تأكيد', value: overview.pendingOrders, tone: overview.pendingOrders ? 'warn' : undefined, href: '/admin/orders?status=PENDING', hint: 'ابدأ بها أولاً' },
@@ -40,7 +46,7 @@ export default async function AdminDashboardPage() {
   const todayStats: Stat[] = [
     { label: 'طلبات اليوم', value: overview.todayOrders },
     { label: 'طلبات اليوم الجديدة', value: overview.todayPendingOrders, tone: overview.todayPendingOrders ? 'warn' : undefined, href: '/admin/orders?status=PENDING&date=today' },
-    { label: 'قيمة اليوم', value: formatCurrency(overview.todayOrderValue), hint: 'عدا الملغي' }
+    { label: 'قيمة طلبات اليوم', value: formatCurrency(overview.todayOrderValue), hint: 'عدا الملغي؛ تشمل رسوم التوصيل المحددة فقط' }
   ];
 
   const catalogStats: Stat[] = [
@@ -53,19 +59,20 @@ export default async function AdminDashboardPage() {
   ];
 
   const orderStats: Stat[] = [
-    { label: 'مؤكد / قيد التجهيز', value: overview.inProgressOrders, href: '/admin/orders?status=CONFIRMED' },
+    { label: 'مؤكد', value: overview.confirmedOrders, href: '/admin/orders?status=CONFIRMED' },
+    { label: 'قيد التجهيز', value: overview.processingOrders, href: '/admin/orders?status=PROCESSING' },
     { label: 'تم الشحن', value: overview.shippedOrders, href: '/admin/orders?status=SHIPPED' },
     { label: 'تم التسليم', value: overview.deliveredOrders, tone: 'success', href: '/admin/orders?status=DELIVERED' },
     { label: 'ملغي', value: overview.canceledOrders, tone: overview.canceledOrders ? 'danger' : undefined, href: '/admin/orders?status=CANCELED' }
   ];
 
   const quickLinks = [
-    { href: '/admin/orders?status=PENDING', label: 'مراجعة الطلبات الجديدة', icon: '🧾' },
-    { href: '/admin/orders?delivery=PENDING', label: 'تحديد أسعار التوصيل', icon: '🚚' },
-    { href: '/admin/products/new', label: 'إضافة منتج', icon: '➕' },
-    { href: '/admin/inventory', label: 'فحص المخزون', icon: '📦' },
-    { href: '/admin/products', label: 'إدارة المنتجات', icon: '🛍️' },
-    { href: '/admin/banners', label: 'إدارة البنرات', icon: '🏷️' }
+    { href: '/admin/orders?status=PENDING', label: 'مراجعة الطلبات الجديدة', icon: <IconReceipt size={28} /> },
+    { href: '/admin/orders?delivery=PENDING', label: 'تحديد أسعار التوصيل', icon: <IconTruck size={28} /> },
+    { href: '/admin/products/new', label: 'إضافة منتج', icon: <IconPlus size={28} /> },
+    { href: '/admin/inventory', label: 'فحص المخزون', icon: <IconPackage size={28} /> },
+    { href: '/admin/products', label: 'إدارة المنتجات', icon: <IconBag size={28} /> },
+    { href: '/admin/banners', label: 'إدارة البنرات', icon: <IconImages size={28} /> }
   ];
 
   return (
@@ -103,6 +110,8 @@ export default async function AdminDashboardPage() {
           {priorityStats.map((stat) => <StatCard key={stat.label} stat={stat} />)}
         </div>
       </div>
+
+      <DashboardAnalytics analytics={analytics} />
 
       <div className="adminDashboardSplit">
         <div className="adminCard">
@@ -145,7 +154,7 @@ export default async function AdminDashboardPage() {
           <div className="adminCardHeader">
             <div>
               <h2>تنبيهات المخزون</h2>
-              <p>أقل الخيارات المتاحة حسب حد المخزون المنخفض.</p>
+              <p>الخيارات النشطة لمنتجات وأقسام منشورة، حسب حد كل خيار.</p>
             </div>
             <Link href="/admin/inventory" className="adminBtn adminBtnGhost adminBtnSm">فتح المخزون</Link>
           </div>

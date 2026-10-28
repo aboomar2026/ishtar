@@ -1,0 +1,246 @@
+path	bytes	client_boundary	segment_setting	query_symbols	database_operations_in_source	image_elements	link_elements
+.github/workflows/commerce-safety.yml	1811	False			0	0	0
+netlify/functions/order-notification-dispatch.mts	958	False			0	0	0
+prisma/additive/collections.sql	3026	False			0	0	0
+prisma/additive/hero-settings.sql	302	False			0	0	0
+prisma/additive/order-notifications.sql	2907	False			0	0	0
+prisma/schema.prisma	12656	False			0	0	0
+prisma/seed.ts	28966	False			0	0	0
+scripts/apply-demo-media.ts	3769	False			0	0	0
+scripts/apply-demo-pexels-media.ts	3570	False			0	0	0
+scripts/audit-commerce-integrity.ts	12482	False			8	0	0
+scripts/backfill-delivery-fee-status.ts	1285	False			0	0	0
+scripts/backfill-inventory-ledger.ts	2214	False			2	0	0
+scripts/backfill-sold-count.ts	1422	False			1	0	0
+scripts/check-ishtar-brand.mjs	2580	False			0	0	0
+scripts/demo-pexels-media.ts	12692	False			0	0	0
+scripts/generate-test-products-sql.ts	12464	False			0	0	0
+scripts/performance-benchmark.mjs	9635	False		getServerConn(,getStats(	0	0	0
+scripts/sql/ishtar-admin-display-name.sql	418	False			0	0	0
+scripts/sql/ishtar-checkout-idempotency.sql	469	False			0	0	0
+scripts/sql/ishtar-collections-from-products-100.sql	10815	False			0	0	0
+scripts/sql/ishtar-database-reference-check.sql	1622	False			0	0	0
+scripts/sql/ishtar-notification-rls.sql	497	False			0	0	0
+scripts/sql/ishtar-product-content-repair-100.sql	162292	False			0	0	0
+scripts/sql/ishtar-remove-legacy-collection-details.sql	1298	False			0	0	0
+scripts/sql/ishtar-test-products-100.sql	164527	False			0	0	0
+scripts/test-telegram.ts	1908	False			0	0	0
+scripts/upload-demo-media.ts	8600	False			0	0	0
+src/app/(storefront)/cart/layout.tsx	225	False			0	0	0
+src/app/(storefront)/cart/page.tsx	330	False			0	0	0
+src/app/(storefront)/category/[slug]/page.tsx	5424	False	'force-dynamic'	getCategoryPage(,getCollections(	0	0	4
+src/app/(storefront)/checkout/layout.tsx	225	False			0	0	0
+src/app/(storefront)/checkout/page.tsx	486	False			0	0	0
+src/app/(storefront)/collections/[slug]/page.tsx	3176	False	"""force-dynamic"""	getCollection(,getCollectionSummary(	0	0	4
+src/app/(storefront)/collections/page.tsx	1420	False	"""force-dynamic"""	getCollections(	0	0	0
+src/app/(storefront)/layout.tsx	682	False			0	0	0
+src/app/(storefront)/not-found.tsx	312	False			0	0	0
+src/app/(storefront)/order-success/layout.tsx	225	False			0	0	0
+src/app/(storefront)/order-success/page.tsx	4764	False	'force-dynamic'	getOrderSuccessSummaryByNumber(	0	0	5
+src/app/(storefront)/page.tsx	5464	False	'force-dynamic'	getCloudinaryTransformedUrl(,getCollections(,getHomeCatalog(,getPublicHeroSettings(	0	1	7
+src/app/(storefront)/product/[slug]/page.tsx	3364	False	'force-dynamic'	getCollectionRecommendations(,getProductBySlug(,getProductCollectionLinks(,getRelatedProducts(	0	0	2
+src/app/(storefront)/track-order/layout.tsx	225	False			0	0	0
+src/app/(storefront)/track-order/page.tsx	683	False	'force-dynamic'		0	0	0
+src/app/(storefront)/wishlist/page.tsx	434	False			0	0	0
+src/app/admin/(protected)/banners/page.tsx	1327	False	'force-dynamic'	getActiveBanners(,getAdminBanners(,getFeaturedProducts(,getHeroSettings(,getNewArrivals(	0	0	0
+src/app/admin/(protected)/categories/page.tsx	816	False	'force-dynamic'	getAdminCategories(,getParentCategoryOptions(	0	0	0
+src/app/admin/(protected)/collections/page.tsx	1565	False	"""force-dynamic"""	getCollectionEditors(	0	0	0
+src/app/admin/(protected)/inventory/page.tsx	953	False	'force-dynamic'	getInventoryVariants(	0	0	0
+src/app/admin/(protected)/layout.tsx	418	False	'force-dynamic'		0	0	0
+src/app/admin/(protected)/notifications/page.tsx	4129	False	'force-dynamic'	getNotifications(	0	0	3
+src/app/admin/(protected)/orders/[id]/invoice/page.tsx	1118	False	'force-dynamic'	getOrderForPrint(	0	0	0
+src/app/admin/(protected)/orders/[id]/packing-slip/page.tsx	833	False	'force-dynamic'	getOrderForPrint(	0	0	0
+src/app/admin/(protected)/orders/[id]/page.tsx	9385	False	'force-dynamic'	getAdminOrderById(	0	1	1
+src/app/admin/(protected)/orders/export/route.ts	1744	False	'force-dynamic'	getAdminSession(,getOrdersForExport(	0	0	0
+src/app/admin/(protected)/orders/page.tsx	8475	False	'force-dynamic'	getAdminOrderPage(	0	0	5
+src/app/admin/(protected)/page.tsx	11809	False	'force-dynamic'	getDashboardAnalytics(,getDashboardOverview(	0	0	10
+src/app/admin/(protected)/products/[id]/edit/page.tsx	3474	False	'force-dynamic'	getAdminProductById(,getCategoryOptions(	2	0	2
+src/app/admin/(protected)/products/new/page.tsx	1210	False	'force-dynamic'	getCategoryOptions(	0	0	1
+src/app/admin/(protected)/products/page.tsx	7411	False	'force-dynamic'	getAdminProductPage(,getCategoryOptions(	0	2	3
+src/app/admin/api/order-activity/route.ts	810	False	'force-dynamic'	getAdminSession(,getOrderActivity(	0	0	0
+src/app/admin/api/uploads/delete/route.ts	1528	False	'nodejs','force-dynamic'	getAdminSession(	0	0	0
+src/app/admin/api/uploads/route.ts	2077	False	'nodejs','force-dynamic'	getAdminSession(	0	0	0
+src/app/admin/layout.tsx	219	False			0	0	0
+src/app/admin/login/page.tsx	1012	False	'force-dynamic'	getAdminSession(	0	0	0
+src/app/admin/logout/route.ts	416	False			0	0	0
+src/app/api/catalog/saved-products/route.ts	894	False	'force-dynamic'	getWishlistProducts(	0	0	0
+src/app/api/catalog/suggestions/route.ts	1061	False	'force-dynamic'	getCollections(,getSearchSuggestions(	0	0	0
+src/app/api/internal/order-notifications/dispatch/route.ts	1250	False	'force-dynamic'		0	0	0
+src/app/collections.css	6419	False			0	0	0
+src/app/controls.css	13308	False			0	0	0
+src/app/error.tsx	441	True			0	0	1
+src/app/globals.css	117325	False			0	0	0
+src/app/hero.css	19980	False			0	0	0
+src/app/ishtar.css	23727	False			0	0	0
+src/app/layout.tsx	1721	False		getBrandCssVariables(	0	0	0
+src/app/robots.ts	534	False	'force-dynamic'		0	0	0
+src/app/sitemap.ts	2348	False	'force-dynamic'	getCollections(,getProductsByCategorySlug(,getTime(	2	0	0
+src/components/BrandLogo.tsx	6506	False			0	11	0
+src/components/CartPageClient.tsx	3412	True			0	1	2
+src/components/CartProvider.tsx	7070	True		getCartAvailability(,getItem(,getLinePrice(	0	0	0
+src/components/CartSummary.tsx	1351	False			0	0	1
+src/components/CatalogImage.tsx	1012	True		getCloudinaryResponsiveSource(	0	1	0
+src/components/CategoryStrip.tsx	784	False			0	0	3
+src/components/CheckoutForm.tsx	15654	True		getItem(	0	1	2
+src/components/ClearableSearchInput.tsx	1438	True			0	0	0
+src/components/CollectionCard.tsx	2254	True			0	1	1
+src/components/EmptyState.tsx	480	False			0	0	1
+src/components/Footer.tsx	11670	True		getFullYear(	0	0	7
+src/components/Header.tsx	3554	True			0	0	4
+src/components/Icons.tsx	10952	False			0	0	0
+src/components/JsonLd.tsx	236	False			0	0	0
+src/components/MobileBottomNav.tsx	1535	True			0	0	1
+src/components/OrderSuccessRecentOrderSaver.tsx	318	True			0	0	0
+src/components/Price.tsx	621	False			0	0	0
+src/components/ProductCard.tsx	5567	True			0	2	3
+src/components/ProductDetailClient.tsx	8794	True		getKey(	0	0	0
+src/components/ProductGrid.tsx	623	False			0	0	0
+src/components/ProductMediaGallery.tsx	2890	True			0	3	0
+src/components/PromoBanner.tsx	1029	False			0	0	1
+src/components/QuantitySelector.tsx	2236	True			0	0	0
+src/components/QuickView.tsx	4638	True		getClientRects(	0	0	2
+src/components/QuickViewProvider.tsx	1636	True			0	0	0
+src/components/RecentlyViewed.tsx	4567	True		getItem(	0	0	0
+src/components/SaleBadge.tsx	354	False			0	0	0
+src/components/SearchBar.tsx	7164	True		getCloudinaryTransformedUrl(	0	1	2
+src/components/ShareProductButton.tsx	1370	True			0	0	0
+src/components/Skeleton.tsx	459	False			0	0	0
+src/components/TrackOrderForm.tsx	17857	True		getElementById(,getRecentOrders(,getTime(	0	1	0
+src/components/VariantSelector.tsx	1052	True			0	0	0
+src/components/WishlistButton.tsx	760	True			0	0	0
+src/components/WishlistPageClient.tsx	3908	True			0	0	0
+src/components/WishlistProvider.tsx	3625	True		getItem(	0	0	0
+src/components/admin/AdminEmptyState.tsx	881	False			0	0	1
+src/components/admin/AdminOrderActivity.tsx	2081	True			0	0	2
+src/components/admin/AdminShell.tsx	5473	True			0	0	2
+src/components/admin/BannerManager.tsx	13485	True			0	2	0
+src/components/admin/CategoryManager.tsx	12411	True			0	0	0
+src/components/admin/CollectionManager.tsx	14247	True			0	0	1
+src/components/admin/CollectionProductPicker.tsx	6895	True		searchCollectionProducts(	0	2	0
+src/components/admin/ColorSelector.tsx	6357	True			0	0	0
+src/components/admin/DashboardAnalytics.tsx	3597	False			0	0	1
+src/components/admin/HeroContentEditor.tsx	7193	True			0	0	0
+src/components/admin/HeroEditor.tsx	8914	True		getHeroContent(	0	0	0
+src/components/admin/ImageUploadButton.tsx	2166	True			0	0	0
+src/components/admin/InventoryFilters.tsx	1602	True			0	0	0
+src/components/admin/InventoryTable.tsx	5830	True			0	1	1
+src/components/admin/LoginForm.tsx	1796	True			0	0	0
+src/components/admin/NotificationActions.tsx	3020	True			0	0	0
+src/components/admin/OrderDeliveryFeeForm.tsx	4696	True			0	0	0
+src/components/admin/OrderFilters.tsx	2708	True			0	0	0
+src/components/admin/OrderNotesForm.tsx	2745	True			0	0	0
+src/components/admin/OrderOperations.tsx	3140	True			0	0	2
+src/components/admin/OrderStatusActions.tsx	3236	True			0	0	0
+src/components/admin/OrderStatusBadge.tsx	539	False			0	0	0
+src/components/admin/OrderWorkflowChecklist.tsx	3612	False			0	0	0
+src/components/admin/PrintTrigger.tsx	1691	True			0	0	1
+src/components/admin/PrintableInvoice.tsx	4083	False			0	1	0
+src/components/admin/PrintablePackingSlip.tsx	3172	False			0	1	0
+src/components/admin/ProductCollections.tsx	3757	True			0	0	2
+src/components/admin/ProductFilters.tsx	3207	True			0	0	0
+src/components/admin/ProductForm.tsx	38128	True		getValidBulkQuantity(	0	1	0
+src/components/admin/ProductRowActions.tsx	1981	True			0	0	2
+src/components/admin/ResetTestOrders.tsx	4074	True			0	0	0
+src/components/admin/VariantBuilder.tsx	19359	True			0	0	0
+src/components/admin/useOrderActivity.ts	3216	True			0	0	0
+src/components/admin/useUnsavedChanges.ts	1170	True			0	0	0
+src/components/hero/HeroAtmosphere.tsx	2422	True			0	0	0
+src/components/hero/HeroCarousel.tsx	6451	True		getBoundingClientRect(	0	0	0
+src/components/hero/HeroView.tsx	6975	True		getBoundingClientRect(	0	0	0
+src/components/hero/HeroVisuals.tsx	7581	True		getCloudinaryTransformedUrl(	0	4	5
+src/components/hero/useHeroMotion.ts	803	True			0	0	0
+src/components/hero/useHeroRotation.ts	662	True			0	0	0
+src/components/useDialog.ts	1972	True		getClientRects(	0	0	0
+src/config/brands/bab-al-hara.ts	4339	False			0	0	0
+src/config/brands/index.ts	3973	False		getBrandCssVariables(	0	0	0
+src/config/brands/ishtar.ts	4191	False			0	0	0
+src/config/brands/madar.ts	4232	False			0	0	0
+src/config/brands/obbeh.ts	4141	False			0	0	0
+src/config/brands/saad.ts	4689	False			0	0	0
+src/config/brands/types.ts	2278	False			0	0	0
+src/features/admin/auth/admin-actions.ts	1163	False			0	0	0
+src/features/admin/auth/admin-auth.ts	3862	False		getAdminSession(	2	0	0
+src/features/admin/auth/admin-permissions.ts	575	False			0	0	0
+src/features/admin/auth/admin-session.ts	2823	False		getSessionSecret(	0	0	0
+src/features/admin/banners/banner-admin.actions.ts	3192	False			1	0	0
+src/features/admin/banners/banner-admin.queries.ts	2222	False		getAdminBannerById(,getAdminBanners(,getTime(,getTimezoneOffset(	2	0	0
+src/features/admin/banners/banner-admin.validation.ts	1882	False		getTime(	0	0	0
+src/features/admin/categories/category-admin.actions.ts	4537	False			3	0	0
+src/features/admin/categories/category-admin.queries.ts	1944	False		getAdminCategories(,getAdminCategoryById(,getParentCategoryOptions(	3	0	0
+src/features/admin/categories/category-admin.validation.ts	1476	False			0	0	0
+src/features/admin/dashboard/dashboard-analytics.queries.ts	2458	False		getDashboardAnalytics(	1	0	0
+src/features/admin/dashboard/dashboard-period.ts	1689	False			0	0	0
+src/features/admin/dashboard/dashboard.queries.ts	5710	False		getDashboardOverview(	18	0	0
+src/features/admin/inventory/inventory-admin.actions.ts	6309	False			0	0	0
+src/features/admin/inventory/inventory-admin.queries.ts	2360	False		getInventoryVariants(	1	0	0
+src/features/admin/orders/order-admin.actions.ts	9523	False			1	0	0
+src/features/admin/orders/order-admin.queries.ts	8080	False		getAdminOrderById(,getAdminOrderPage(,getAdminOrders(,getDate(,getOrdersForExport(	5	0	0
+src/features/admin/orders/order-admin.validation.ts	1071	False			0	0	0
+src/features/admin/orders/order-csv.ts	1277	False			0	0	0
+src/features/admin/orders/order-list-params.ts	1128	False			0	0	0
+src/features/admin/orders/order-operations.actions.ts	2834	False			3	0	0
+src/features/admin/orders/order-operations.validation.ts	455	False			0	0	0
+src/features/admin/orders/order-print.queries.ts	1637	False		getAdminOrderById(,getOrderForPrint(	0	0	0
+src/features/admin/orders/order-reset.actions.ts	1598	False		getTestOrderResetPreview(	0	0	0
+src/features/admin/orders/order-reset.ts	5367	False		getTestOrderResetPreview(	1	0	0
+src/features/admin/products/product-admin.actions.ts	13160	False			5	0	0
+src/features/admin/products/product-admin.queries.ts	7343	False		getAdminProductById(,getAdminProductPage(,getCategoryOptions(,getStockState(	4	0	0
+src/features/admin/products/product-admin.validation.ts	5890	False			0	0	0
+src/features/admin/shared/admin-format.ts	2445	False		getTime(	0	0	0
+src/features/admin/uploads/upload-constants.ts	2604	False			0	0	0
+src/features/admin/uploads/use-image-upload.ts	1815	True			0	0	0
+src/features/catalog/catalog-page.ts	416	False		getProductsByCategorySlug(	0	0	0
+src/features/catalog/catalog.filters.ts	1365	False			0	0	0
+src/features/catalog/catalog.mappers.ts	6745	False		getDiscountPercent(,getStockState(	0	0	0
+src/features/catalog/catalog.queries.ts	12016	False		getActiveBanners(,getActiveCategories(,getBestSellers(,getCategoryBySlug(,getFeaturedProducts(,getHomeCatalog(,getNewArrivals(,getProductList(,getProductPage(,getProductsByCategorySlug(,getRelatedProducts(,getVirtualCategory(,searchProducts(	11	0	0
+src/features/catalog/catalog.types.ts	2454	False			0	0	0
+src/features/catalog/catalog.utils.ts	2249	False		getDiscountPercent(,getProductPrimaryImage(,getStockState(,getVirtualCategory(	0	0	0
+src/features/catalog/search-suggestions.queries.ts	1728	False		getSearchSuggestions(	1	0	0
+src/features/catalog/search-suggestions.ts	358	False			0	0	0
+src/features/collections/collection-images.ts	1026	False			0	0	0
+src/features/collections/collections.actions.ts	3699	False		searchCollectionProducts(	0	0	0
+src/features/collections/collections.admin.ts	6893	False		getCollectionEditors(,getTime(	2	0	0
+src/features/collections/collections.queries.ts	8024	False		getCollection(,getCollectionRecommendations(,getCollectionSummary(,getCollections(,getProductCollectionLinks(	8	0	0
+src/features/collections/collections.storage.ts	513	False			1	0	0
+src/features/collections/collections.types.ts	1871	False			0	0	0
+src/features/hero/hero-config.ts	3564	False			0	0	0
+src/features/hero/hero-content.ts	3109	False		getHeroContent(	0	0	0
+src/features/hero/hero.actions.ts	822	False			0	0	0
+src/features/hero/hero.queries.ts	981	False		getHeroSettings(	1	0	0
+src/features/notifications/notification-config.ts	428	False			0	0	0
+src/features/notifications/notification-dispatcher.ts	4000	False		getTime(	0	0	0
+src/features/notifications/notification.actions.ts	3915	False			1	0	0
+src/features/notifications/notification.queries.ts	2588	False		getNotifications(,getOrderActivity(	9	0	0
+src/features/orders/cart.actions.ts	794	False		getCartAvailability(	1	0	0
+src/features/orders/delivery-fee.labels.ts	397	False			0	0	0
+src/features/orders/order-notifications.ts	3481	False			1	0	0
+src/features/orders/order-number.ts	874	False		getDate(,getFullYear(,getMonth(	0	0	0
+src/features/orders/order-pricing.ts	1437	False			0	0	0
+src/features/orders/order-status.labels.ts	932	False			0	0	0
+src/features/orders/order-stock.ts	677	False			0	0	0
+src/features/orders/order.actions.ts	13802	False		getOrderByNumberAndPhone(	1	0	0
+src/features/orders/order.mappers.ts	2273	False			0	0	0
+src/features/orders/order.queries.ts	2239	False		getOrderByNumber(,getOrderByNumberAndPhone(,getOrderSuccessSummaryByNumber(	3	0	0
+src/features/orders/order.types.ts	1712	False			0	0	0
+src/features/orders/order.validation.ts	2276	False			0	0	0
+src/features/orders/recent-orders.client.ts	3516	False		getItem(,getRecentOrders(,getTime(	0	0	0
+src/features/recent-products/recent-storage.ts	590	False			0	0	0
+src/features/wishlist/wishlist-storage.ts	529	False			0	0	0
+src/features/wishlist/wishlist.queries.ts	875	False		getWishlistProducts(	1	0	0
+src/lib/brand-storage.ts	508	False			0	0	0
+src/lib/brand.ts	421	False			0	0	0
+src/lib/business-time.ts	1014	False			0	0	0
+src/lib/catalog-display.ts	150	False			0	0	0
+src/lib/cloudinary-image.ts	2830	False		getCloudinaryResponsiveSource(,getCloudinaryTransformedUrl(	0	0	0
+src/lib/cloudinary.ts	3948	False			0	0	0
+src/lib/demo-media-manifest.ts	9644	False			0	0	0
+src/lib/mock-data.ts	649	False		getCategory(,getProduct(,getProductsByCategory(,searchProducts(	0	0	0
+src/lib/numbers.ts	438	False			0	0	0
+src/lib/prisma.ts	360	False			0	0	0
+src/lib/seo.ts	2852	False			0	0	0
+src/lib/share-product.ts	644	False			0	0	0
+src/lib/site-url.ts	1120	False			0	0	0
+src/lib/store-navigation.ts	538	False			0	0	0
+src/lib/structured-data.ts	2529	False			0	0	0
+src/lib/telegram.ts	2846	False			0	0	0
+src/lib/types.ts	516	False			0	0	0

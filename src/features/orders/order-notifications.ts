@@ -2,7 +2,7 @@ import 'server-only';
 
 import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
-import { sendTelegramMessage } from '@/lib/telegram';
+import { sendTelegramMessage, type TelegramSendResult } from '@/lib/telegram';
 import { brand } from '@/lib/brand';
 import { publicSiteUrl } from '@/lib/site-url';
 import { decimalToNumber } from './order.mappers';
@@ -28,7 +28,7 @@ function clampTelegramMessage(text: string): string {
   return `${text.slice(0, TELEGRAM_SAFE_MESSAGE_LENGTH)}\n\n… تم اختصار الرسالة. افتح الطلب من لوحة الأدمن لعرض كل التفاصيل.`;
 }
 
-export async function notifyAdminAboutNewOrder(orderId: string): Promise<void> {
+export async function notifyAdminAboutNewOrder(orderId: string): Promise<TelegramSendResult> {
   const order = await prisma.order.findUnique({
     where: { id: orderId },
     include: {
@@ -40,7 +40,7 @@ export async function notifyAdminAboutNewOrder(orderId: string): Promise<void> {
 
   if (!order) {
     console.warn(`Telegram order notification skipped: order not found (${orderId})`);
-    return;
+    return { ok: false, skipped: false, status: 404, code: 'ORDER_MISSING' };
   }
 
   const siteUrl = publicSiteUrl();
@@ -90,5 +90,5 @@ export async function notifyAdminAboutNewOrder(orderId: string): Promise<void> {
     .filter((line): line is string => typeof line === 'string')
     .join('\n');
 
-  await sendTelegramMessage({ text: clampTelegramMessage(text) });
+  return sendTelegramMessage({ text: clampTelegramMessage(text) });
 }

@@ -1,4 +1,9 @@
-import Link from 'next/link';
+import { collectionsReady } from '@/features/collections/collections.queries';
+import { productOptions } from '@/features/collections/collections.admin';
+import { prisma } from '@/lib/prisma';
+import { ProductCollections } from '@/components/admin/ProductCollections';
+import { IconArrowRight } from '@/components/Icons';
+import Link from '@/components/NavigationLink';
 import { notFound } from 'next/navigation';
 import { getAdminProductById, getCategoryOptions } from '@/features/admin/products/product-admin.queries';
 import { ProductForm, type ProductFormInitial } from '@/components/admin/ProductForm';
@@ -11,6 +16,12 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
 
   if (!product) notFound();
 
+  const ready = await collectionsReady();
+  const [groups, targets] = ready ? await Promise.all([
+    prisma.collection.findMany({ select: { id: true, name: true, products: { where: { productId: id }, select: { productId: true } } }, orderBy: { sortOrder: 'asc' } }),
+    prisma.productComplement.findMany({ where: { productId: id }, orderBy: { sortOrder: 'asc' } }),
+  ]) : [[], []];
+  const complementProducts = ready ? await productOptions('', targets.map(target => target.targetId)) : [];
   const initial: ProductFormInitial = {
     id: product.id,
     name: product.name,
@@ -52,10 +63,11 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
         </div>
         <div className="adminBtnRow">
           <Link href={`/product/${product.slug}`} className="adminBtn adminBtnGhost" target="_blank">عرض في المتجر</Link>
-          <Link href="/admin/products" className="adminBtn adminBtnGhost">→ رجوع</Link>
+          <Link href="/admin/products" className="adminBtn adminBtnGhost"><IconArrowRight size={20} /> رجوع</Link>
         </div>
       </div>
       <ProductForm mode="edit" productId={product.id} categories={categories} initial={initial} />
+      {ready && <ProductCollections key={product.id} productId={product.id} groups={groups.map(group => ({ id: group.id, name: group.name, member: group.products.length > 0 }))} targets={targets.map(target => target.targetId)} products={complementProducts} />}
     </div>
   );
 }

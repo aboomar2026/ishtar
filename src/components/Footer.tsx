@@ -1,8 +1,10 @@
 'use client';
 
+import { WhatsAppContact } from './WhatsAppContact';
+
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 import { brand } from '@/lib/brand';
 import { BrandLogo } from './BrandLogo';
 import {
@@ -12,8 +14,8 @@ import {
   IconSparkle,
   IconPin,
   IconPhone,
-  IconMail,
   IconClock,
+  IconLeaf, IconArrowLeft, IconInstagram, IconFacebook, IconTikTok,
   IconWhatsApp
 } from './Icons';
 
@@ -50,30 +52,21 @@ const socialLinks = [
     label: 'Instagram',
     href: brand.social.instagram,
     icon: (
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
-        <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
-        <circle cx="12" cy="12" r="4" />
-        <circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none" />
-      </svg>
+      <IconInstagram size={20} />
     )
   }] : []),
   ...(brand.social.facebook ? [{
     label: 'Facebook',
     href: brand.social.facebook,
     icon: (
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
-        <path d="M14.5 8.5h2.2V5.4h-2.4c-2.1 0-3.3 1.3-3.3 3.5v1.7H8.8v3h2.2V21h3.2v-7.4h2.3l.4-3h-2.7V9.3c0-.6.2-.8.9-.8Z" fill="currentColor" stroke="none" />
-      </svg>
+      <IconFacebook size={20} />
     )
   }] : []),
   ...(brand.social.tiktok ? [{
     label: 'TikTok',
     href: brand.social.tiktok,
     icon: (
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" aria-hidden="true">
-        <path d="M14.5 3.5v9.7a3.3 3.3 0 1 1-3.3-3.3c.3 0 .6 0 .9.1" />
-        <path d="M14.5 3.5c.3 2.2 1.9 3.9 4.1 4.1" />
-      </svg>
+      <IconTikTok size={20} />
     )
   }] : []),
   ...(brand.contact.whatsappNumber ? [{
@@ -122,7 +115,7 @@ export function Footer() {
               <Link className="footerBadge" href="/category/new-in">
                 <IconSparkle size={15} />
                 <span>{brand.copy.footerBadge}</span>
-                <span className="footerBadgeArrow" aria-hidden="true">←</span>
+                <IconArrowLeft className="footerBadgeArrow" size={22} />
               </Link>
             </div>
 
@@ -180,10 +173,7 @@ export function Footer() {
                   </a>
                 </li> : null}
                 {brand.contact.whatsappNumber && brand.contact.inquiryText ? <li>
-                  <span className="footerContactIcon" aria-hidden="true"><IconMail size={18} /></span>
-                  <a className="footerContactLink" href={`https://wa.me/${brand.contact.whatsappNumber}`} target="_blank" rel="noopener noreferrer">
-                    {brand.contact.inquiryText}
-                  </a>
+                  <WhatsAppContact label={brand.contact.inquiryText} />
                 </li> : null}
                 {brand.contact.hoursPrimary ? <li>
                   <span className="footerContactIcon" aria-hidden="true"><IconClock size={18} /></span>
@@ -201,7 +191,7 @@ export function Footer() {
                 ) : (
                   <>
                   {subscribed ? (
-                  <p className="footerNewsletterSuccess" role="status">تم الاشتراك بنجاح، شكراً لكِ! 🌿</p>
+                  <p className="footerNewsletterSuccess" role="status">تم الاشتراك بنجاح، شكراً لكِ! <IconLeaf size={18} /></p>
                 ) : (
                   <form className="footerNewsletterForm" onSubmit={handleSubscribe} noValidate>
                     <label htmlFor="footerNewsletterEmail" className="srOnly">البريد الإلكتروني للاشتراك في النشرة</label>

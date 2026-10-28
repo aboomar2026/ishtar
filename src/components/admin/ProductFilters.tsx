@@ -1,6 +1,7 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+import { useNavigationRouter as useRouter } from '@/components/NavigationProvider';
 import { useEffect, useState } from 'react';
 
 type CategoryOption = { id: string; name: string };
@@ -17,6 +18,7 @@ export function ProductFilters({ categories }: { categories: CategoryOption[] })
 
   function update(next: Record<string, string>) {
     const params = new URLSearchParams(searchParams.toString());
+    params.delete('page');
     for (const [key, value] of Object.entries(next)) {
       if (value && value !== 'ALL' && value !== 'all') params.set(key, value);
       else params.delete(key);

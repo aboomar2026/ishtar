@@ -1,7 +1,8 @@
 'use client';
+import { IconArrowRight } from '@/components/Icons';
 
 import { useState, useTransition } from 'react';
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 import { markOrderPrintedAction } from '@/features/admin/orders/order-operations.actions';
 import type { PrintType } from '@/features/admin/orders/order-operations.validation';
 
@@ -38,7 +39,7 @@ export function PrintTrigger({
 
   return (
     <div className="printToolbar noPrint">
-      <Link href={backHref} className="adminBtn adminBtnGhost">← الرجوع للطلب</Link>
+      <Link href={backHref} className="adminBtn adminBtnGhost"><IconArrowRight size={20} /> الرجوع للطلب</Link>
       <button type="button" className="adminBtn adminBtnPrimary" onClick={print} disabled={pending || Boolean(disabledReason)} title={disabledReason}>
         {pending ? 'جاري التجهيز…' : 'فتح نافذة الطباعة'}
       </button>

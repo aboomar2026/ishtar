@@ -1,7 +1,9 @@
 'use client';
+import { CatalogImage } from '@/components/CatalogImage';
+import { PRODUCT_THUMB_IMAGE } from '@/lib/cloudinary-image';
 
 import { formatMoney } from '@/lib/numbers';
-import Link from 'next/link';
+import Link from '@/components/NavigationLink';
 import { useCart } from './CartProvider';
 import { CartSummary } from './CartSummary';
 import { EmptyState } from './EmptyState';
@@ -25,7 +27,7 @@ export function CartPageClient() {
       <section className="cartItems">
         {lines.map((line, index) => (
           <article className="cartItem" key={`${line.variantId}-${index}`}>
-            <Link href={`/product/${line.slug}`} className="cartItemImage"><img src={line.image} alt={line.name} /></Link>
+            <Link href={`/product/${line.slug}`} className="cartItemImage"><CatalogImage src={line.image} alt={line.name}  transform={{ ...PRODUCT_THUMB_IMAGE, crop: 'fit' }} sizes="100px" loading="lazy" /></Link>
             <div className="cartItemInfo">
               <Link href={`/product/${line.slug}`} className="cartItemTitle">{line.name}</Link>
               <p className="cartVariantLine">

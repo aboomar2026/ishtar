@@ -1,4 +1,5 @@
-import Link from 'next/link';
+import { IconArrowRight } from '@/components/Icons';
+import Link from '@/components/NavigationLink';
 import { getCategoryOptions } from '@/features/admin/products/product-admin.queries';
 import { ProductForm, type ProductFormInitial } from '@/components/admin/ProductForm';
 
@@ -33,7 +34,7 @@ export default async function NewProductPage() {
           <h1>منتج جديد</h1>
           <p className="adminMuted">أنشئ منتجاً، ثم أضف الصور والخيارات.</p>
         </div>
-        <Link href="/admin/products" className="adminBtn adminBtnGhost">→ رجوع</Link>
+        <Link href="/admin/products" className="adminBtn adminBtnGhost"><IconArrowRight size={20} /> رجوع</Link>
       </div>
       <ProductForm mode="create" categories={categories} initial={EMPTY} />
     </div>

@@ -1,3 +1,4 @@
+import { requireOrderAdmin } from '@/features/admin/auth/admin-auth';
 import { notFound } from 'next/navigation';
 import { getOrderForPrint } from '@/features/admin/orders/order-print.queries';
 import { PrintableInvoice } from '@/components/admin/PrintableInvoice';
@@ -6,6 +7,7 @@ import { PrintTrigger } from '@/components/admin/PrintTrigger';
 export const dynamic = 'force-dynamic';
 
 export default async function OrderInvoicePage({ params }: { params: Promise<{ id: string }> }) {
+  await requireOrderAdmin();
   const { id } = await params;
   const data = await getOrderForPrint(id);
   if (!data) notFound();

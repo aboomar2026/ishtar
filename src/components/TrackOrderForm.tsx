@@ -1,4 +1,8 @@
 'use client';
+import { WhatsAppContact } from './WhatsAppContact';
+import { CatalogImage } from '@/components/CatalogImage';
+import { PRODUCT_THUMB_IMAGE } from '@/lib/cloudinary-image';
+import { IconX } from './Icons';
 
 import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { trackOrderSchema } from '@/features/orders/order.validation';
@@ -273,7 +277,7 @@ export function TrackOrderForm({ initialOrderNumber = '' }: { initialOrderNumber
                     onClick={() => hideSavedOrder(savedOrder)}
                     aria-label={`إخفاء الطلب ${savedOrder.orderNumber} من هذا الجهاز`}
                   >
-                    ×
+                    <IconX size={20} />
                   </button>
                   <div className="recentOrderMain">
                     <span className="recentOrderLabel">رقم الطلب</span>
@@ -301,6 +305,7 @@ export function TrackOrderForm({ initialOrderNumber = '' }: { initialOrderNumber
                     >
                       {isTracking ? 'جاري التتبع...' : 'تتبع الطلب'}
                     </button>
+                    <WhatsAppContact className="fullWidth" context={{ kind: 'order', orderNumber: savedOrder.orderNumber }} label="استفسار عبر واتساب" />
                     <button type="button" className="ghostButton fullWidth" onClick={() => void copyOrderNumber(savedOrder.orderNumber)}>
                       {copiedOrderNumber === savedOrder.orderNumber ? 'تم النسخ' : 'نسخ الرقم'}
                     </button>
@@ -335,6 +340,7 @@ export function TrackOrderForm({ initialOrderNumber = '' }: { initialOrderNumber
         <button type="submit" className="primaryButton fullWidth" disabled={Boolean(loadingKey)} style={{ marginTop: 14 }}>
           {loadingKey === 'manual' ? 'جاري البحث...' : 'تتبع الطلب'}
         </button>
+        <WhatsAppContact className="fullWidth" label="مساعدة بتتبع الطلب عبر واتساب" />
       </form>
 
       {order && (
@@ -360,10 +366,11 @@ export function TrackOrderForm({ initialOrderNumber = '' }: { initialOrderNumber
             </ol>
           )}
 
+          <WhatsAppContact context={{ kind: 'order', orderNumber: order.orderNumber }} label="استفسار عن الطلب عبر واتساب" />
           <div className="summaryDivider" />
           {order.items.map((item) => (
             <div className="miniOrderItem" key={item.id}>
-              <img src={item.image ?? '/mock-products/gift-box.svg'} alt={item.productName} />
+              <CatalogImage src={item.image ?? '/mock-products/gift-box.svg'} alt={item.productName}  transform={{ ...PRODUCT_THUMB_IMAGE, crop: 'fit' }} sizes="100px" loading="lazy" />
               <div>
                 <strong>{item.productName}</strong>
                 <span>

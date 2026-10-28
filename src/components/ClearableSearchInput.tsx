@@ -34,6 +34,8 @@ export function ClearableSearchInput({ name, defaultValue = '', placeholder, ari
           aria-label="مسح"
           onClick={() => {
             setValue('');
+            // requestSubmit reads FormData before React commits this state update.
+            if (ref.current) ref.current.value = '';
             if (submitOnClear) ref.current?.form?.requestSubmit();
             else ref.current?.focus();
           }}

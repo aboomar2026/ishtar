@@ -1,3 +1,4 @@
+import { getCollections } from '@/features/collections/collections.queries';
 import type { MetadataRoute } from 'next';
 import { prisma } from '@/lib/prisma';
 import { absoluteUrl, categorySeoPath, catalogPath, isIndexingEnabled } from '@/lib/seo';
@@ -7,14 +8,16 @@ import { virtualCategories } from '@/features/catalog/catalog.utils';
 export const dynamic = 'force-dynamic';
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if (!isIndexingEnabled()) return [];
-  const [categories, products] = await Promise.all([
+  const [categories, products, collections] = await Promise.all([
     prisma.category.findMany({ where: { isActive: true }, select: { slug: true } }),
     prisma.product.findMany({ where: { status: 'ACTIVE', category: { isActive: true } }, select: {
       slug: true, updatedAt: true, images: { select: { url: true, updatedAt: true } },
       variants: { select: { updatedAt: true } }
-    } })
+    } }),
+    getCollections({ limit: 100 })
   ]);
   const entries: MetadataRoute.Sitemap = [{ url: absoluteUrl('/')! }];
+  entries.push({ url: absoluteUrl('/collections')! }, ...collections.map(collection => ({ url: absoluteUrl(`/collections/${encodeURIComponent(collection.slug)}`)! })));
   const slugs = new Set([...Object.keys(virtualCategories), ...categories.map((category) => category.slug)]);
   // Use the storefront's exact sale/availability rules; empty categories must not be submitted.
   for (const slug of slugs) {

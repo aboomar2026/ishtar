@@ -1,4 +1,8 @@
-import Link from 'next/link';
+import { CatalogImage } from '@/components/CatalogImage';
+import { PRODUCT_THUMB_IMAGE } from '@/lib/cloudinary-image';
+import { requireOrderAdmin } from '@/features/admin/auth/admin-auth';
+import { IconArrowRight, IconArrowLeft } from '@/components/Icons';
+import Link from '@/components/NavigationLink';
 import { notFound } from 'next/navigation';
 import { getAdminOrderById } from '@/features/admin/orders/order-admin.queries';
 import { STATUS_LABEL_AR } from '@/features/admin/orders/order-admin.validation';
@@ -13,6 +17,7 @@ import { OrderWorkflowChecklist } from '@/components/admin/OrderWorkflowChecklis
 export const dynamic = 'force-dynamic';
 
 export default async function AdminOrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  await requireOrderAdmin();
   const { id } = await params;
   const order = await getAdminOrderById(id);
   if (!order) notFound();
@@ -33,7 +38,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
           <h1>{order.orderNumber}</h1>
           <p className="adminMuted">تاريخ الطلب {formatDateTime(order.createdAt)} · <OrderStatusBadge status={order.status} /></p>
         </div>
-        <Link href="/admin/orders" className="adminBtn adminBtnGhost">→ رجوع</Link>
+        <Link href="/admin/orders" className="adminBtn adminBtnGhost"><IconArrowRight size={20} /> رجوع</Link>
       </div>
 
       <div className="adminCard">
@@ -117,7 +122,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                 <tr key={item.id}>
                   <td>
                     <div className="adminCellMain">
-                      <img className="adminThumb" src={item.image ?? '/mock-products/gift-box.svg'} alt={item.productName} />
+                      <CatalogImage className="adminThumb" src={item.image ?? '/mock-products/gift-box.svg'} alt={item.productName}  transform={{ ...PRODUCT_THUMB_IMAGE, crop: 'fit' }} sizes="100px" loading="lazy" />
                       <div><strong>{item.productName}</strong><small>{item.sku ?? '—'}</small></div>
                     </div>
                   </td>
@@ -144,7 +149,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
             <li key={entry.id}>
               <span className="adminTimelineDot" />
               <div>
-                <strong>{entry.fromStatus ? `${STATUS_LABEL_AR[entry.fromStatus]} → ` : ''}{STATUS_LABEL_AR[entry.toStatus]}</strong>
+                <strong>{entry.fromStatus ? <>{STATUS_LABEL_AR[entry.fromStatus]} <IconArrowLeft size={16} /> </> : null}{STATUS_LABEL_AR[entry.toStatus]}</strong>
                 <div className="adminMuted" style={{ fontSize: 12 }}>{formatDateTime(entry.createdAt)}{entry.note ? ` · ${entry.note}` : ''}</div>
               </div>
             </li>
