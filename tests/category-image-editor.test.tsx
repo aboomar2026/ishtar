@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
 import { createElement } from 'react';
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import type { AdminCategoryListItem } from '../src/features/admin/categories/category-admin.queries';
@@ -85,11 +86,13 @@ test('all eighteen categories have curated photos and custom administrator image
   const { CATEGORY_IMAGES, getCategoryImage, getCategoryDefaultImage } = await import('../src/lib/category-images');
   assert.equal(Object.keys(CATEGORY_IMAGES).length, 18);
   for (const [slug, image] of Object.entries(CATEGORY_IMAGES)) {
-    assert.ok(!image.includes('mock-products'));
+    assert.ok(image.startsWith('/category-images/'));
+    const bytes = readFileSync(`public${image}`);
+    assert.equal(bytes.subarray(4, 12).toString(), 'ftypavif');
     assert.equal(getCategoryImage(slug, null), image);
     assert.equal(getCategoryImage(slug, '/mock-products/gift-box.svg'), image);
     assert.equal(getCategoryImage(slug, 'https://example.com/custom.jpg'), 'https://example.com/custom.jpg');
   }
-  assert.equal(getCategoryImage('perfumes', 'https://images.pexels.com/photos/31823739/pexels-photo-31823739.jpeg?w=1000'), '/category-images/perfumes.jpg');
-  assert.ok(getCategoryDefaultImage('new-category').endsWith('.jpg'));
+  assert.equal(getCategoryImage('perfumes', 'https://images.pexels.com/photos/31823739/pexels-photo-31823739.jpeg?w=1000'), '/category-images/perfumes.avif');
+  assert.ok(getCategoryDefaultImage('new-category').endsWith('.avif'));
 });
