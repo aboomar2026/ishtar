@@ -80,3 +80,16 @@ test('broken previews explain the failure, a replacement retries, and removal sa
     assert.equal(saved.at(-1)?.input.imageUrl, undefined);
   } finally { await act(async () => view.unmount()); }
 });
+
+test('all eighteen categories have curated photos and custom administrator images take precedence', async () => {
+  const { CATEGORY_IMAGES, getCategoryImage, getCategoryDefaultImage } = await import('../src/lib/category-images');
+  assert.equal(Object.keys(CATEGORY_IMAGES).length, 18);
+  for (const [slug, image] of Object.entries(CATEGORY_IMAGES)) {
+    assert.ok(!image.includes('mock-products'));
+    assert.equal(getCategoryImage(slug, null), image);
+    assert.equal(getCategoryImage(slug, '/mock-products/gift-box.svg'), image);
+    assert.equal(getCategoryImage(slug, 'https://example.com/custom.jpg'), 'https://example.com/custom.jpg');
+  }
+  assert.equal(getCategoryImage('perfumes', 'https://images.pexels.com/photos/31823739/pexels-photo-31823739.jpeg?w=1000'), '/category-images/perfumes.jpg');
+  assert.ok(getCategoryDefaultImage('new-category').endsWith('.jpg'));
+});

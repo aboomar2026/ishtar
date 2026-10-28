@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { getCategoryImage } from '@/lib/category-images';
 import { ImageUploadButton } from './ImageUploadButton';
 import { MAX_UPLOAD_LABEL } from '@/features/admin/uploads/upload-constants';
 
@@ -12,19 +13,21 @@ function ImagePreview({ src }: { src: string }) {
   return <img src={src} alt="معاينة صورة التصنيف" onError={() => setFailed(true)} style={{ display: 'block', width: 192, maxWidth: '100%', aspectRatio: '4 / 5', objectFit: 'contain', borderRadius: 12 }} />;
 }
 
-export function CategoryImageEditor({ imageUrl, onChange, onUploadingChange }: {
+export function CategoryImageEditor({ imageUrl, slug = '', onChange, onUploadingChange }: {
   imageUrl: string;
+  slug?: string;
   onChange: (url: string) => void;
   onUploadingChange: (uploading: boolean) => void;
 }) {
-  const src = imageUrl.trim();
+  const src = getCategoryImage(slug, imageUrl);
   return (
     <div className="adminField">
       <span>صورة التصنيف</span>
       <ImagePreview key={src} src={src} />
+      {!imageUrl.trim() && <small>بدون صورة مخصصة، ستظهر الصورة الافتراضية المختارة لهذا التصنيف.</small>}
       <ImageUploadButton kind="banner" label="رفع صورة من الجهاز" onUploadingChange={onUploadingChange} onUploaded={(image) => onChange(image.secureUrl)} />
       <small>JPG، PNG، WebP أو AVIF، حتى {MAX_UPLOAD_LABEL}. اختَر صورة عمودية بنسبة 4:5. اضغط حفظ التصنيف لاعتماد التغيير.</small>
-      {src && <button type="button" className="adminBtn adminBtnGhost adminBtnSm" onClick={() => onChange('')}>إزالة صورة التصنيف</button>}
+      {imageUrl.trim() && <button type="button" className="adminBtn adminBtnGhost adminBtnSm" onClick={() => onChange('')}>إزالة صورة التصنيف</button>}
       <details>
         <summary>استخدام رابط صورة بدل الرفع</summary>
         <label htmlFor="categorymanager-4">رابط الصورة أو المسار</label>

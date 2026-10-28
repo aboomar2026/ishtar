@@ -166,6 +166,7 @@ export function CategoryManager({
             <div className="adminField">
               <CategoryImageEditor
                 key={editor.id ?? 'new'}
+                slug={editor.slug}
                 imageUrl={editor.imageUrl}
                 onChange={(imageUrl) => setEditor((current) => current ? { ...current, imageUrl } : null)}
                 onUploadingChange={setUploading}

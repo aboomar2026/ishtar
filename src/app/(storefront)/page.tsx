@@ -1,4 +1,5 @@
-import { getCloudinaryTransformedUrl } from '@/lib/cloudinary-image';
+import { CatalogImage } from '@/components/CatalogImage';
+import { getCategoryImage, getCategoryDefaultImage } from '@/lib/category-images';
 import { CollectionCard } from '@/components/CollectionCard';
 import { getCollections } from '@/features/collections/collections.queries';
 import { RecentlyViewed } from '@/components/RecentlyViewed';
@@ -43,7 +44,7 @@ export default async function HomePage() {
         <div className="categoryShowcaseGrid" role="region" aria-label="تصفّحي جميع التصنيفات" tabIndex={0}>
           {catalog.categories.map((category) => (
             <Link href={`/category/${category.slug}`} className="categoryShowcaseCard" key={category.slug}>
-              <img className="categoryShowcaseImg" src={getCloudinaryTransformedUrl(category.imageUrl ?? '/mock-products/gift-box.svg', { width: 480, height: 600, crop: 'fit' })} loading="lazy" decoding="async" alt={category.name} />
+              <CatalogImage className="categoryShowcaseImg" src={getCategoryImage(category.slug, category.imageUrl)} fallbackSrc={getCategoryDefaultImage(category.slug)} transform={{ width: 480, height: 600, crop: 'fit' }} widths={[240, 480]} sizes="(max-width: 767px) 160px, 240px" loading="lazy" alt={category.name} />
               <div className="categoryShowcaseOverlay">
                 <strong>{category.name}</strong>
                 <span>{category.productCount ?? 0} منتجات</span>
