@@ -1,15 +1,15 @@
-import { describe, expect, it } from 'vitest';
-import { ishtarDisplayCopy } from '@/lib/ishtar-display-copy';
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { ishtarDisplayCopy } from '../src/lib/ishtar-display-copy';
 
-describe('legacy banner brand sanitization', () => {
-  it('replaces obsolete Arabic and English store names', () => {
-    expect(ishtarDisplayCopy('جمالك يبدأ من سعد سنتر')).toBe('جمالك يبدأ من عشتار');
-    expect(ishtarDisplayCopy('SAAD CENTER')).toBe('ISHTAR');
-    expect(ishtarDisplayCopy('باب الحارة')).toBe('عشتار');
-    expect(ishtarDisplayCopy('Bab Al Hara')).toBe('ISHTAR');
-  });
-  it('leaves regular copy untouched', () => {
-    expect(ishtarDisplayCopy('جمالك يبدأ من عشتار')).toBe('جمالك يبدأ من عشتار');
-    expect(ishtarDisplayCopy(null)).toBe('');
-  });
+test('replaces obsolete Arabic and English store names', () => {
+  assert.equal(ishtarDisplayCopy('جمالك يبدأ من سعد سنتر'), 'جمالك يبدأ من عشتار');
+  assert.equal(ishtarDisplayCopy('SAAD CENTER'), 'ISHTAR');
+  assert.equal(ishtarDisplayCopy('باب الحارة'), 'عشتار');
+  assert.equal(ishtarDisplayCopy('Bab Al Hara'), 'ISHTAR');
+});
+
+test('leaves regular copy intact', () => {
+  assert.equal(ishtarDisplayCopy('جمالك يبدأ من عشتار'), 'جمالك يبدأ من عشتار');
+  assert.equal(ishtarDisplayCopy(null), '');
 });
