@@ -1,3 +1,4 @@
+import { ishtarDisplayCopy } from '@/lib/ishtar-display-copy';
 import type { Prisma } from '@prisma/client';
 import type {
   CatalogBanner,
@@ -206,12 +207,12 @@ function mapProduct(product: ProductLike): CatalogProduct {
 export function mapBanner(banner: BannerLike): CatalogBanner {
   return {
     id: banner.id,
-    title: banner.title,
-    subtitle: mapOptional(banner.subtitle),
-    eyebrow: mapOptional(banner.eyebrow),
+    title: ishtarDisplayCopy(banner.title),
+    subtitle: mapOptional(ishtarDisplayCopy(banner.subtitle)),
+    eyebrow: mapOptional(ishtarDisplayCopy(banner.eyebrow)),
     imageUrl: mapOptional(banner.imageUrl),
     href: mapOptional(banner.href),
-    ctaLabel: mapOptional(banner.ctaLabel),
+    ctaLabel: mapOptional(ishtarDisplayCopy(banner.ctaLabel)),
     placement: banner.placement
   };
 }
