@@ -1,3 +1,4 @@
+import { ishtarDisplayCopy } from '@/lib/ishtar-display-copy';
 import 'server-only';
 import type { BannerPlacement } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
@@ -34,11 +35,11 @@ export async function getAdminBanners(): Promise<AdminBannerListItem[]> {
   });
   return banners.map((banner) => ({
     id: banner.id,
-    title: banner.title,
-    subtitle: banner.subtitle ?? '',
-    eyebrow: banner.eyebrow ?? '',
+    title: ishtarDisplayCopy(banner.title),
+    subtitle: ishtarDisplayCopy(banner.subtitle),
+    eyebrow: ishtarDisplayCopy(banner.eyebrow),
     href: banner.href ?? '',
-    ctaLabel: banner.ctaLabel ?? '',
+    ctaLabel: ishtarDisplayCopy(banner.ctaLabel),
     placement: banner.placement,
     imageUrl: banner.imageUrl ?? '',
     cloudinaryPublicId: banner.cloudinaryPublicId ?? '',
@@ -57,13 +58,13 @@ export async function getAdminBannerById(id: string) {
   if (!banner) return null;
   return {
     id: banner.id,
-    title: banner.title,
-    subtitle: banner.subtitle ?? '',
-    eyebrow: banner.eyebrow ?? '',
+    title: ishtarDisplayCopy(banner.title),
+    subtitle: ishtarDisplayCopy(banner.subtitle),
+    eyebrow: ishtarDisplayCopy(banner.eyebrow),
     imageUrl: banner.imageUrl ?? '',
     cloudinaryPublicId: banner.cloudinaryPublicId ?? '',
     href: banner.href ?? '',
-    ctaLabel: banner.ctaLabel ?? '',
+    ctaLabel: ishtarDisplayCopy(banner.ctaLabel),
     placement: banner.placement,
     sortOrder: banner.sortOrder,
     isActive: banner.isActive,
