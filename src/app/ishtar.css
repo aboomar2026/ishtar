@@ -183,7 +183,7 @@
 [data-brand="ishtar"] .noRecentOrders .manualTrackForm { order:-1; }
 [data-brand="ishtar"] .recentOrdersEmpty { padding:12px; }
 .mediaMain { display:block; padding:0; width:100%; border:0; cursor:zoom-in; }
-.galleryZoomBackdrop { position:fixed; inset:0; background:rgba(45,36,40,.8); z-index:100; display:grid; place-items:center; padding:20px; }
+.galleryZoomBackdrop { position:fixed; inset:0; background:rgba(45,36,40,.8); z-index:2000; display:grid; place-items:center; padding:20px; overflow-y:auto; overscroll-behavior:contain; }
 .galleryZoom { max-width:100%; max-height:95dvh; background:var(--brand-bg); padding:16px; border-radius:16px; }
 .galleryZoom img { display:block; max-height:75dvh; max-width:85vw; object-fit:contain; }
 .galleryZoom button { display:block; min-height:44px; margin-bottom:8px; }

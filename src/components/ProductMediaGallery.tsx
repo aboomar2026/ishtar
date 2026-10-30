@@ -2,6 +2,7 @@
 
 import { useDialog } from './useDialog';
 import { useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import type { CatalogProductImage } from '@/features/catalog/catalog.types';
 import { FALLBACK_PRODUCT_IMAGE } from '@/features/catalog/catalog.utils';
 import { brand } from '@/lib/brand';
@@ -44,12 +45,12 @@ export function ProductMediaGallery({ images, title, allowZoom = true }: { image
           </button>
         ))}
       </div>
-      {zoomOpen && <div className="galleryZoomBackdrop" onClick={(event) => { if (event.target === event.currentTarget) setZoomOpen(false); }}>
+      {zoomOpen && createPortal(<div className="galleryZoomBackdrop" onClick={(event) => { if (event.target === event.currentTarget) setZoomOpen(false); }}>
         <div className="galleryZoom" role="dialog" aria-modal="true" aria-label={`صورة ${title}`} ref={zoomRef} tabIndex={-1}>
           <button type="button" className="ghostButton" onClick={() => setZoomOpen(false)}>إغلاق الصورة</button>
           <CatalogImage src={activeImage} transform={galleryTransform} sizes="90vw" alt={title} />
         </div>
-      </div>}
+      </div>, document.body)}
     </div>
   );
 }
