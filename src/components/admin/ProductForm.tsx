@@ -52,6 +52,12 @@ export function buildEmptyProduct(): ProductFormInitial {
   };
 }
 
+function simpleSku(value: string): string {
+  const cleaned = value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30);
+  const hash = Array.from(value).reduce((h, c) => (Math.imul(h, 31) + (c.codePointAt(0) || 0)) >>> 0, 7);
+  return `SIMPLE-${cleaned || 'PRODUCT'}-${hash.toString(36).toUpperCase()}`;
+}
+
 function numberOrUndefined(value: string): number | undefined {
   const t = value.trim();
   if (t === '') return undefined;
@@ -317,6 +323,13 @@ export function ProductForm({ mode, productId, categories, initial }: {
   const [uploading, setUploading] = useState(false);
   const [images, setImages] = useState<ImageState[]>(initial.images);
   const [variants, setVariants] = useState<VariantState[]>(initial.variants);
+  const initialSimple = initial.variants.filter(v => v.isActive).length <= 1 &&
+    initial.variants.every(v => !v.colorName && !v.colorValue && !v.size);
+  const [productType, setProductType] = useState<'simple' | 'variable'>(initialSimple ? 'simple' : 'variable');
+  const stockVariant = initial.variants.find(v => v.isActive);
+  const [simpleSkuValue, setSimpleSkuValue] = useState(stockVariant?.sku ?? '');
+  const [simpleQuantity, setSimpleQuantity] = useState(stockVariant?.quantity ?? '0');
+  const [simpleThreshold, setSimpleThreshold] = useState(stockVariant?.lowStockThreshold ?? '5');
 
   const [formMessage, setFormMessage] = useState<string | null>(null);
   const [issues, setIssues] = useState<Record<string, string>>({});
@@ -458,6 +471,13 @@ export function ProductForm({ mode, productId, categories, initial }: {
   }
 
   function buildPayload(): ProductInput {
+    const existing = variants.find(v => v.isActive);
+    const simple: VariantState = {
+      id: existing?.id, sku: simpleSkuValue.trim() || simpleSku(slug || name),
+      colorName: '', colorValue: '', size: '', price: basePrice, compareAtPrice,
+      quantity: simpleQuantity, lowStockThreshold: simpleThreshold, isActive: true
+    };
+    const payloadVariants = productType === 'simple' ? [simple] : variants;
     return {
       name: name.trim(),
       slug: slug.trim(),
@@ -482,7 +502,7 @@ export function ProductForm({ mode, productId, categories, initial }: {
         isPrimary: img.isPrimary,
         cloudinaryPublicId: img.cloudinaryPublicId?.trim() || undefined
       })),
-      variants: variants.map((variant) => ({
+      variants: payloadVariants.map((variant) => ({
         id: variant.id,
         sku: variant.sku.trim(),
         colorName: variant.colorName.trim() || undefined,
@@ -495,6 +515,17 @@ export function ProductForm({ mode, productId, categories, initial }: {
         isActive: variant.isActive
       }))
     };
+  }
+
+  function changeProductType(next: 'simple' | 'variable') {
+    if (next === productType) return;
+    if (next === 'simple' && (variants.length > 1 || variants.some(v => v.colorName || v.colorValue || v.size))) {
+      setFormMessage('لا يمكن التحويل تلقائياً ما دام هناك خيارات متعددة أو ألوان أو مقاسات. احتفظ بها لحماية سجلات الطلبات والمخزون.');
+      return;
+    }
+    setFormMessage(null);
+    setProductType(next);
+    if (next === 'variable' && !variants.some(v => v.id)) setVariants([]);
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -657,6 +688,27 @@ export function ProductForm({ mode, productId, categories, initial }: {
       </div>
 
       <div className="adminCard">
+        <h2>نوع المنتج</h2>
+        <p className="adminMuted">تظل جميع خصائص المنتج والصور والتصنيفات متاحة في الحالتين؛ الاختلاف فقط في إدارة المخزون والخيارات.</p>
+        <div className="adminBtnRow" role="group" aria-label="نوع المنتج">
+          <label className="adminCheck"><input type="radio" name="productType" checked={productType === 'simple'} onChange={() => changeProductType('simple')} /> منتج بسيط — بدون لون أو مقاس</label>
+          <label className="adminCheck"><input type="radio" name="productType" checked={productType === 'variable'} onChange={() => changeProductType('variable')} /> منتج متعدد الخيارات</label>
+        </div>
+      </div>
+      {productType === 'simple' ? (
+        <div className="adminCard">
+          <h2>المخزون والرقم التعريفي</h2>
+          <p className="adminMuted">يُستخدم السعر الأساسي للمنتج أعلاه، وتُسجَّل الكمية ضمن خيار مخزون داخلي واحد دون لون أو مقاس.</p>
+          <div className="adminRepeatGrid">
+            <div className="adminField"><label htmlFor="simple-sku">SKU (اختياري — يولد تلقائياً)</label><input id="simple-sku" value={simpleSkuValue} placeholder={simpleSku(slug || name)} onChange={e => setSimpleSkuValue(e.target.value)} />
+              {errorFor('variants.0.sku') && <span className="adminFieldError">{errorFor('variants.0.sku')}</span>}</div>
+            <div className="adminField"><label htmlFor="simple-quantity">الكمية *</label><input id="simple-quantity" type="number" min="0" step="1" value={simpleQuantity} onChange={e => setSimpleQuantity(e.target.value)} />
+              {errorFor('variants.0.quantity') && <span className="adminFieldError">{errorFor('variants.0.quantity')}</span>}</div>
+            <div className="adminField"><label htmlFor="simple-threshold">حد تنبيه المخزون المنخفض</label><input id="simple-threshold" type="number" min="0" step="1" value={simpleThreshold} onChange={e => setSimpleThreshold(e.target.value)} /></div>
+          </div>
+        </div>
+      ) : (<>
+      <div className="adminCard">
         <div className="adminCardHeader">
           <div>
             <h2>منشئ الخيارات</h2>
@@ -723,6 +775,8 @@ export function ProductForm({ mode, productId, categories, initial }: {
           />
         )}
       </div>
+
+      </>)}
 
       <div className="adminBtnRow">
         <button type="submit" className="adminBtn adminBtnPrimary" disabled={pending || uploading}>

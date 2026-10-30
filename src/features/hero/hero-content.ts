@@ -1,3 +1,4 @@
+import { ishtarDisplayCopy } from '@/lib/ishtar-display-copy';
 import { brand } from '@/lib/brand';
 import type { CatalogBanner } from '@/features/catalog/catalog.types';
 import type { HeroContent, HeroLayout, HeroSettings } from './hero-config';
@@ -6,7 +7,7 @@ type Product = { image: string; name: string; href: string };
 // Read legacy banner settings until an admin explicitly customizes this template.
 export function getHeroContent(settings: HeroSettings, layout: HeroLayout, banners: CatalogBanner[], products: Product[]): HeroContent {
   const saved = settings.profiles[layout];
-  if (saved) return saved;
+  if (saved) return { ...saved, banners: saved.banners.map(banner => ({ ...banner, title: ishtarDisplayCopy(banner.title), subtitle: ishtarDisplayCopy(banner.subtitle), eyebrow: ishtarDisplayCopy(banner.eyebrow), ctaLabel: ishtarDisplayCopy(banner.ctaLabel) })) };
   const source = banners.length ? banners : [{ id: 'default', title: brand.copy.heroTitle }];
   return {
     banners: source.slice(0, layout === 'campaign' ? 4 : 1).map(banner => {

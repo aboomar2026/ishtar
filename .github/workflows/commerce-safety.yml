@@ -41,6 +41,8 @@ jobs:
       - run: npm run test:notifications
       - run: npm run test:dashboard
       - run: npm run test:collections
+      - run: node --import tsx --test tests/ishtar-display-copy.test.ts
+      - run: npm run typecheck
       - run: npm run build
       - run: npm run test:performance
       - name: Install test Chromium
