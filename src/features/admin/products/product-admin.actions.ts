@@ -187,10 +187,10 @@ export async function updateProductAction(id: string, input: ProductInput): Prom
   await requireAdmin();
 
   const existing = await prisma.product.findUnique({
-    where: { id },
+    where: { id, deletedAt: null },
     select: { id: true, slug: true, category: { select: { slug: true } } }
   });
-  if (!existing) return fail('Product not found.');
+  if (!existing) return fail('المنتج غير موجود أو محذوف.');
 
   const parsed = productInputSchema.safeParse(input);
   if (!parsed.success) {
@@ -212,6 +212,7 @@ export async function updateProductAction(id: string, input: ProductInput): Prom
       // quantity edits consistent with the inventory ledger even if another admin
       // adjusts stock at the same time.
       await lockProductVariantsForUpdate(tx, id);
+      if (!(await tx.product.count({ where: { id, deletedAt: null } }))) throw new Error('PRODUCT_DELETED');
 
       const existingVariants = await tx.productVariant.findMany({
         where: { productId: id },
@@ -232,7 +233,7 @@ export async function updateProductAction(id: string, input: ProductInput): Prom
         .filter((variantId) => !incomingIdSet.has(variantId));
 
       await tx.product.update({
-        where: { id },
+        where: { id, deletedAt: null },
         data: { ...productScalarData(data), category: { connect: { id: data.categoryId } } }
       });
 
@@ -303,6 +304,7 @@ export async function updateProductAction(id: string, input: ProductInput): Prom
     }, PRODUCT_WRITE_TRANSACTION_OPTIONS);
 
   } catch (error) {
+    if (error instanceof Error && error.message === 'PRODUCT_DELETED') return fail('المنتج محذوف. أعِد تحميل الصفحة.');
     if (error instanceof Error && error.message === 'VARIANT_NOT_FOUND_FOR_PRODUCT') {
       return fail('Variant not found for this product. Please refresh the page and try again.');
     }
@@ -324,19 +326,24 @@ export async function updateProductAction(id: string, input: ProductInput): Prom
 
 export async function setProductStatusAction(id: string, status: ProductStatus): Promise<{ ok: boolean; message?: string }> {
   await requireAdmin();
+  if (!['ACTIVE', 'DRAFT', 'ARCHIVED'].includes(status)) return { ok: false, message: 'حالة غير صالحة.' };
+  const result = await prisma.$transaction(async (tx) => {
+    await lockProductVariantsForUpdate(tx, id);
+    if (status === 'ACTIVE' && !(await tx.productVariant.count({ where: { productId: id, isActive: true } })))
+      return { ok: false, message: 'لا يمكن تفعيل منتج بدون خيارات نشطة.' };
+    const changed = await tx.product.updateMany({ where: { id, deletedAt: null }, data: { status } });
+    return changed.count === 1 ? { ok: true } : { ok: false, message: 'المنتج غير موجود أو محذوف.' };
+  }, PRODUCT_WRITE_TRANSACTION_OPTIONS);
+  if (result.ok) revalidatePath('/', 'layout');
+  return result;
+}
 
-  if (status === 'ACTIVE') {
-    const activeVariants = await prisma.productVariant.count({ where: { productId: id, isActive: true } });
-    if (activeVariants === 0) {
-      return { ok: false, message: 'Cannot activate: product has no active variants.' };
-    }
-  }
-
-  const product = await prisma.product.update({
-    where: { id },
-    data: { status },
-    select: { slug: true, category: { select: { slug: true } } }
-  });
-  revalidateProductCatalog([product.slug], [product.category.slug]);
-  return { ok: true };
+export async function deleteProductAction(id: string, confirmation: string): Promise<{ ok: boolean; message?: string }> {
+  await requireAdmin();
+  if (typeof id !== 'string' || !id || id.length > 100 || confirmation !== 'حذف')
+    return { ok: false, message: 'اكتب حذف لتأكيد حذف المنتج.' };
+  const { deleteProduct } = await import('./product-deletion');
+  const result = await deleteProduct(id);
+  if (result.ok) revalidatePath('/', 'layout');
+  return result;
 }

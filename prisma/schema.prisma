@@ -99,6 +99,7 @@ model Product {
   tags             String[]      @default([])
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
+  deletedAt        DateTime?
 
   collections   CollectionProduct[]
   complements   ProductComplement[] @relation("ComplementSource")

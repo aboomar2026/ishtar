@@ -89,7 +89,7 @@ export async function createCodOrderAction(input: CheckoutInput): Promise<Create
         const stockErrors: OrderStockError[] = [];
         for (const [variantId, qty] of qtyByVariant) {
           const variant = variantMap.get(variantId);
-          if (!variant || !variant.isActive || variant.product.status !== 'ACTIVE' || !variant.product.category?.isActive) {
+          if (!variant || !variant.isActive || variant.product.deletedAt || variant.product.status !== 'ACTIVE' || !variant.product.category?.isActive) {
             stockErrors.push({ code: 'UNAVAILABLE', variantId, productName: variant?.product.name ?? 'منتج غير متوفر', available: 0 });
             continue;
           }

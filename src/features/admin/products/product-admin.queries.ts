@@ -46,7 +46,7 @@ export async function getAdminProductPage(params: AdminProductListParams = {}) {
   const { q, status = 'ALL', categoryId = 'ALL', stock = 'all', sort = 'updated' } = params;
   const requestedPage = Number.isFinite(params.page) ? Math.min(1_000_000, Math.max(1, Math.floor(params.page!))) : 1;
   const pageSize = 24;
-  const conditions: Prisma.Sql[] = [Prisma.sql`true`];
+  const conditions: Prisma.Sql[] = [Prisma.sql`p."deletedAt" IS NULL`];
   if (status !== 'ALL') conditions.push(Prisma.sql`p.status::text = ${status}`);
   if (categoryId !== 'ALL') conditions.push(Prisma.sql`p."categoryId" = ${categoryId}`);
   const term = q?.trim();
@@ -75,7 +75,7 @@ export async function getAdminProductPage(params: AdminProductListParams = {}) {
   const page = Math.min(pageCount, requestedPage);
   const ids = selection?.ids ?? [];
   const products = await prisma.product.findMany({
-    where: { id: { in: ids } },
+    where: { id: { in: ids }, deletedAt: null },
     include: {
       category: { select: { name: true } },
       images: { orderBy: [{ isPrimary: 'desc' }, { sortOrder: 'asc' }], take: 1 },
@@ -116,7 +116,7 @@ export type AdminProductDetail = NonNullable<Awaited<ReturnType<typeof getAdminP
 
 export async function getAdminProductById(id: string) {
   const product = await prisma.product.findUnique({
-    where: { id },
+    where: { id, deletedAt: null },
     include: {
       images: { orderBy: { sortOrder: 'asc' } },
       variants: { orderBy: [{ colorName: 'asc' }, { size: 'asc' }] }

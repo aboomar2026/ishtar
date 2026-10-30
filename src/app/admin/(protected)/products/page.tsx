@@ -123,7 +123,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
                       <td><StockBadge item={item} /></td>
                       <td><Flags item={item} /></td>
                       <td className="adminMuted">{formatDateTime(item.updatedAt)}</td>
-                      <td><ProductRowActions id={item.id} slug={item.slug} status={item.status} /></td>
+                      <td><ProductRowActions id={item.id} slug={item.slug} name={item.name} status={item.status} /></td>
                     </tr>
                   ))}
                 </tbody>
@@ -152,7 +152,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
                   <StockBadge item={item} />
                   <Flags item={item} />
                 </div>
-                <ProductRowActions id={item.id} slug={item.slug} status={item.status} />
+                <ProductRowActions id={item.id} slug={item.slug} name={item.name} status={item.status} />
               </div>
             ))}
           </div>
