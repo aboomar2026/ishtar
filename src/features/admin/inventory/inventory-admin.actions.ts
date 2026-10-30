@@ -33,7 +33,7 @@ async function readVariantForInventoryAction(
   variantId: string
 ): Promise<VariantForInventoryAction | null> {
   return tx.productVariant.findUnique({
-    where: { id: variantId },
+    where: { id: variantId, product: { deletedAt: null } },
     select: {
       id: true,
       productId: true,
@@ -106,11 +106,15 @@ export async function updateVariantThresholdAction(variantId: string, threshold:
   if (!Number.isFinite(value) || value < 0) {
     return { ok: false, message: 'حد المخزون يجب أن يكون عددًا صحيحًا لا يقل عن صفر.' };
   }
-  const variant = await prisma.productVariant.update({
-    where: { id: variantId },
-    data: { lowStockThreshold: value },
-    select: { quantity: true, product: { select: { slug: true, category: { select: { slug: true } } } } }
+  const variant = await prisma.$transaction(async (tx) => {
+    await lockVariantForUpdate(tx, variantId);
+    if (!(await readVariantForInventoryAction(tx, variantId))) return null;
+    return tx.productVariant.update({
+      where: { id: variantId }, data: { lowStockThreshold: value },
+      select: { quantity: true, product: { select: { slug: true, category: { select: { slug: true } } } } }
+    });
   });
+  if (!variant) return { ok: false, message: 'المنتج غير موجود أو محذوف.' };
   revalidateInventoryViews(variant.product.slug, variant.product.category?.slug ?? null);
   return { ok: true, quantity: variant.quantity };
 }
@@ -120,8 +124,9 @@ export async function setVariantActiveAction(variantId: string, isActive: boolea
 
   try {
     const variant = await prisma.$transaction(async (tx) => {
+      await lockVariantForUpdate(tx, variantId);
       const current = await tx.productVariant.findUnique({
-        where: { id: variantId },
+        where: { id: variantId, product: { deletedAt: null } },
         select: {
           id: true,
           productId: true,

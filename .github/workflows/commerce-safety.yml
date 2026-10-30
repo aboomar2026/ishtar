@@ -34,6 +34,7 @@ jobs:
       - run: npm run db:generate
       - run: npm run test:whatsapp
       - run: npm run test:hero
+      - run: npm run test:product-deletion
       - run: npm run test:category-images
       - run: npm run test:admin-safety
       - run: npm run test:order-reset

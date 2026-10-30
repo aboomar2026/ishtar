@@ -28,7 +28,7 @@ const FALLBACK_IMAGE = '/mock-products/gift-box.svg';
 export async function getInventoryVariants(params: { q?: string; filter?: InventoryFilter } = {}): Promise<InventoryRow[]> {
   const { q, filter = 'all' } = params;
 
-  const where: Prisma.ProductVariantWhereInput = {};
+  const where: Prisma.ProductVariantWhereInput = { product: { deletedAt: null } };
   const term = q?.trim();
   if (term) {
     where.OR = [

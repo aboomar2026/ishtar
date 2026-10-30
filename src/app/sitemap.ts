@@ -10,7 +10,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if (!isIndexingEnabled()) return [];
   const [categories, products, collections] = await Promise.all([
     prisma.category.findMany({ where: { isActive: true }, select: { slug: true } }),
-    prisma.product.findMany({ where: { status: 'ACTIVE', category: { isActive: true } }, select: {
+    prisma.product.findMany({ where: { deletedAt: null, status: 'ACTIVE', category: { isActive: true } }, select: {
       slug: true, updatedAt: true, images: { select: { url: true, updatedAt: true } },
       variants: { select: { updatedAt: true } }
     } }),

@@ -11,7 +11,7 @@ import { collectionsReady } from "./collections.queries";
 export async function getCollectionEditors(): Promise<CollectionEditorData[]> {
   const rows = await prisma.collection.findMany({
     include: {
-      products: { orderBy: [{ sortOrder: "asc" }, { productId: "asc" }] },
+      products: { where: { product: { deletedAt: null } }, orderBy: [{ sortOrder: "asc" }, { productId: "asc" }] },
     },
     orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
   });
@@ -29,7 +29,7 @@ export async function productOptions(
   ids?: string[],
 ): Promise<ProductOption[]> {
   const products = await prisma.product.findMany({
-    where: ids
+    where: { deletedAt: null, ...(ids
       ? { id: { in: ids.slice(0, 200) } }
       : q.trim().length >= 2
         ? {
@@ -42,7 +42,7 @@ export async function productOptions(
               },
             ],
           }
-        : {},
+        : {}) },
     select: {
       id: true,
       name: true,
@@ -90,7 +90,7 @@ export async function saveCollection(input: unknown) {
   const { id, version, productIds, ...data } = parsed.data;
   return prisma.$transaction(async (tx) => {
     if (
-      (await tx.product.count({ where: { id: { in: productIds } } })) !==
+      (await tx.product.count({ where: { deletedAt: null, id: { in: productIds } } })) !==
       productIds.length
     )
       throw new Error("أحد المنتجات حُذف. راجعي الاختيارات.");
@@ -99,6 +99,7 @@ export async function saveCollection(input: unknown) {
       !(await tx.product.count({
         where: {
           id: { in: productIds },
+          deletedAt: null,
           status: "ACTIVE",
           category: { isActive: true },
         },
@@ -159,6 +160,7 @@ export async function saveProductGroups(
       throw new Error("اختيارات غير صالحة.");
   return prisma.$transaction(
     async (tx) => {
+      if (!(await tx.product.count({ where: { id: productId, deletedAt: null } }))) throw new Error("المنتج محذوف.");
       const current = await tx.collectionProduct.findMany({
         where: { productId },
         select: { collectionId: true },

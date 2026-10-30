@@ -20,7 +20,7 @@ export async function getAdminCategories(): Promise<AdminCategoryListItem[]> {
     orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
     include: {
       parent: { select: { name: true } },
-      _count: { select: { products: true, children: true } }
+      _count: { select: { products: { where: { deletedAt: null } }, children: true } }
     }
   });
 

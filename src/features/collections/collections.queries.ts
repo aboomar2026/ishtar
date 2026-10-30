@@ -10,6 +10,7 @@ import type { CollectionCardData } from "./collections.types";
 import { collectionsReady } from "./collections.storage";
 export { collectionsReady } from "./collections.storage";
 export const publishedProduct = {
+  deletedAt: null,
   status: "ACTIVE",
   category: { isActive: true },
 } satisfies Prisma.ProductWhereInput;
@@ -31,7 +32,7 @@ async function cards(rows: CollectionRow[]): Promise<CollectionCardData[]> {
       FROM "CollectionProduct" cp JOIN "Product" p ON p.id = cp."productId"
       JOIN "Category" c ON c.id = p."categoryId"
       JOIN LATERAL (SELECT url FROM "ProductImage" WHERE "productId" = p.id AND url <> '' ORDER BY "isPrimary" DESC, "sortOrder", id LIMIT 1) image ON true
-      WHERE cp."collectionId" IN (${Prisma.join(automaticIds)}) AND p.status = 'ACTIVE' AND c."isActive"
+      WHERE cp."collectionId" IN (${Prisma.join(automaticIds)}) AND p."deletedAt" IS NULL AND p.status = 'ACTIVE' AND c."isActive"
     ), unique_images AS (
       SELECT DISTINCT ON ("collectionId", url) * FROM candidates ORDER BY "collectionId", url, CASE WHEN category_rank = 1 THEN 0 ELSE 1 END, CASE WHEN category_rank = 1 THEN "categoryId" END, "sortOrder", "productId"
     ), ranked AS (
@@ -172,7 +173,7 @@ export async function getCollectionRecommendations(productId: string) {
         EXISTS (SELECT 1 FROM "ProductVariant" v WHERE v."productId" = p.id AND v."isActive" AND v.quantity > 0) AS available,
         p."categoryId" = (SELECT "categoryId" FROM "Product" WHERE id = ${productId}) AS same_category
       FROM shared JOIN "Product" p ON p.id = shared."productId" JOIN "Category" c ON c.id = p."categoryId"
-      WHERE p.status = 'ACTIVE' AND c."isActive"
+      WHERE p."deletedAt" IS NULL AND p.status = 'ACTIVE' AND c."isActive"
     ), ranked AS (
       SELECT *, ROW_NUMBER() OVER (PARTITION BY "categoryId" ORDER BY available DESC, matches DESC, rank, id) AS category_position FROM candidates
     ) SELECT id FROM ranked ORDER BY available DESC, category_position, same_category, matches DESC, rank, id LIMIT 4`;

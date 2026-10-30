@@ -15,14 +15,14 @@ export const productListInclude = {
 const categoryInclude = {
   _count: {
     select: {
-      products: { where: { status: 'ACTIVE' } }
+      products: { where: { deletedAt: null, status: 'ACTIVE' } }
     }
   }
 } satisfies Prisma.CategoryInclude;
 
 function activeProductWhere(filters: CatalogProductFilters = {}): Prisma.ProductWhereInput {
   const where: Prisma.ProductWhereInput = {
-    status: 'ACTIVE',
+    deletedAt: null, status: 'ACTIVE',
     category: { isActive: true }
   };
 
@@ -98,7 +98,7 @@ async function withEffectiveSoldCounts<T extends { id: string; soldCount: number
 async function getProductPage(filters: CatalogProductFilters = {}) {
   const limit = Math.min(48, Math.max(1, filters.limit ?? 24));
   const page = Math.max(1, filters.page ?? 1);
-  const conditions = [Prisma.sql`p.status = 'ACTIVE' AND c."isActive" = true`];
+  const conditions = [Prisma.sql`p."deletedAt" IS NULL AND p.status = 'ACTIVE' AND c."isActive" = true`];
   if (filters.categorySlug === 'new-in') conditions.push(Prisma.sql`p."isNewArrival" = true`);
   else if (filters.categorySlug === 'featured') conditions.push(Prisma.sql`p."isFeatured" = true`);
   else if (filters.categorySlug && !['all', 'sale'].includes(filters.categorySlug)) conditions.push(Prisma.sql`c.slug = ${filters.categorySlug}`);
@@ -177,7 +177,7 @@ export async function getProductsByCategorySlug(slug: string, filters: CatalogPr
 
 export const getProductBySlug = cache(async (slug: string) => {
   const product = await prisma.product.findFirst({
-    where: { slug, status: 'ACTIVE', category: { isActive: true } },
+    where: { slug, deletedAt: null, status: 'ACTIVE', category: { isActive: true } },
     include: productListInclude
   });
 
@@ -191,7 +191,7 @@ export async function getRelatedProducts(productId: string, categoryId: string) 
     where: {
       id: { not: productId },
       categoryId,
-      status: 'ACTIVE',
+      deletedAt: null, status: 'ACTIVE',
       category: { isActive: true }
     },
     include: productListInclude,

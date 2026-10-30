@@ -11,7 +11,7 @@ export async function getSearchSuggestions(input: string): Promise<SearchSuggest
     WITH candidates AS (
       SELECT p.id, p.slug, p.name, p."basePrice", p."createdAt" FROM "Product" p
       JOIN "Category" c ON c.id = p."categoryId"
-      WHERE p.status = 'ACTIVE' AND c."isActive" = true
+      WHERE p."deletedAt" IS NULL AND p.status = 'ACTIVE' AND c."isActive" = true
         AND (p.name ILIKE ${pattern} OR p.subtitle ILIKE ${pattern} OR p.description ILIKE ${pattern}
           OR p.brand ILIKE ${pattern} OR ${query} = ANY(p.tags))
       ORDER BY p."createdAt" DESC, p.id ASC LIMIT ${SEARCH_SUGGESTION_LIMIT}

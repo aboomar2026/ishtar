@@ -55,10 +55,10 @@ export async function saveProductComplementsAction(
       // Lock the source so simultaneous replacements cannot interleave deletes/inserts.
       const source = await tx.$queryRaw<
         { id: string }[]
-      >`SELECT id FROM "Product" WHERE id = ${productId} FOR UPDATE`;
+      >`SELECT id FROM "Product" WHERE id = ${productId} AND "deletedAt" IS NULL FOR UPDATE`;
       if (
         !source.length ||
-        (await tx.product.count({ where: { id: { in: targets } } })) !==
+        (await tx.product.count({ where: { deletedAt: null, id: { in: targets } } })) !==
           targets.length
       )
         throw new Error("missing");

@@ -59,7 +59,7 @@ export type DashboardOverview = {
 export async function getDashboardOverview(): Promise<DashboardOverview> {
   const range = dashboardPeriodRange();
   const createdAt = { gte: range.start, lt: range.end };
-  const publishedStock = { isActive: true, product: { status: 'ACTIVE' as const, category: { isActive: true } } };
+  const publishedStock = { isActive: true, product: { deletedAt: null, status: 'ACTIVE' as const, category: { isActive: true } } };
   const lowQuantity = { gt: 0, lte: prisma.productVariant.fields.lowStockThreshold };
   const [
     totalProducts,
@@ -81,15 +81,15 @@ export async function getDashboardOverview(): Promise<DashboardOverview> {
     todayAgg,
     recentOrders
   ] = await Promise.all([
-    prisma.product.count(),
-    prisma.product.count({ where: { status: 'ACTIVE' } }),
-    prisma.product.count({ where: { status: 'DRAFT' } }),
-    prisma.product.count({ where: { status: 'ARCHIVED' } }),
-    prisma.product.count({ where: { status: 'ACTIVE', variants: { none: { isActive: true } } } }),
+    prisma.product.count({ where: { deletedAt: null } }),
+    prisma.product.count({ where: { deletedAt: null, status: 'ACTIVE' } }),
+    prisma.product.count({ where: { deletedAt: null, status: 'DRAFT' } }),
+    prisma.product.count({ where: { deletedAt: null, status: 'ARCHIVED' } }),
+    prisma.product.count({ where: { deletedAt: null, status: 'ACTIVE', variants: { none: { isActive: true } } } }),
     prisma.category.count(),
     prisma.category.count({ where: { isActive: true } }),
     prisma.banner.count({ where: { isActive: true } }),
-    prisma.productVariant.count({ where: { isActive: true } }),
+    prisma.productVariant.count({ where: { isActive: true, product: { deletedAt: null } } }),
     prisma.productVariant.count({ where: { ...publishedStock, quantity: { lte: 0 } } }),
     prisma.productVariant.count({ where: { ...publishedStock, quantity: lowQuantity } }),
     prisma.productVariant.findMany({
