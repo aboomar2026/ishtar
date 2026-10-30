@@ -1,11 +1,12 @@
 type SiteUrlEnvironment = {
   NEXT_PUBLIC_SITE_URL?: string;
-  URL?: string;
+  VERCEL_PROJECT_PRODUCTION_URL?: string;
+  VERCEL_URL?: string;
   NODE_ENV?: string;
 };
 
 export function resolvePublicSiteUrl(env: SiteUrlEnvironment): URL | undefined {
-  for (const configured of [env.NEXT_PUBLIC_SITE_URL, env.URL]) {
+  for (const configured of [env.NEXT_PUBLIC_SITE_URL, ...[env.VERCEL_PROJECT_PRODUCTION_URL, env.VERCEL_URL].map(host => host ? `https://${host}` : undefined)]) {
     if (!configured?.trim()) continue;
     try {
       const url = new URL(configured.trim());
@@ -23,7 +24,8 @@ export function resolvePublicSiteUrl(env: SiteUrlEnvironment): URL | undefined {
 export function publicSiteUrl(): URL | undefined {
   return resolvePublicSiteUrl({
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
-    URL: process.env.URL,
+    VERCEL_PROJECT_PRODUCTION_URL: process.env.VERCEL_PROJECT_PRODUCTION_URL,
+    VERCEL_URL: process.env.VERCEL_URL,
     NODE_ENV: process.env.NODE_ENV
   });
 }

@@ -2,15 +2,11 @@
 
 ISHTAR is an Arabic, RTL accessories and lifestyle storefront with a staff admin dashboard, built with Next.js App Router, TypeScript, PostgreSQL and Prisma. Its identity uses the approved burgundy, copper, cream and blush palette and official ISHTAR artwork.
 
-**Current status: consolidated batch with server integration verified; visual acceptance pending.** Dependencies, Prisma generation, TypeScript, ESLint, production build, 28 static brand checks, 9 commerce tests and 12 integration tests passed. Real Prisma order creation/replay/rollback and authenticated HTTP rendering were tested on disposable data. Browser/mobile UI, independent PostgreSQL concurrency and physical print acceptance remain pending. This is not production approval.
+## Hosting and database
 
-Read the latest [runtime verification report](docs/ISHTAR-RUNTIME-VERIFICATION.md), including the checkout lock fix discovered after the original batch.
+The deployment target is **Vercel + Prisma Postgres**, with Cloudinary for images. Follow [the deployment guide](docs/VERCEL-PRISMA.md) for the exact Vercel variables and first deployment. Production builds create the schema and initial administrator without demo products or orders. Preview builds do not change the schema.
 
-See [batch implementation and verification](docs/ISHTAR-BATCH-IMPLEMENTATION.md). Checkout now requires the additive database change in `scripts/sql/ishtar-checkout-idempotency.sql` before this version is deployed against an existing database. The store owner has confirmed applying this SQL to the connected database; this environment has not independently inspected the production schema. See [release batch](docs/ISHTAR-RELEASE-BATCH.md).
-
-## Database reference
-
-See [the SQL execution ledger and database transfer guide](docs/database/README.md) for owner-applied changes, optional fixture/repair scripts, their known execution status, and backup/restore steps. These files are not run automatically during deployment.
+The [SQL execution ledger](docs/database/README.md) and earlier implementation reports are historical references for the previous database; they are not setup steps for the new Prisma database.
 
 ## Identity
 
@@ -38,7 +34,7 @@ npm ci
 npm run db:generate
 ```
 
-For a new disposable test database, create the schema with `npm run db:push` or use the project's migration workflow. **`npm run db:seed` deletes existing commerce data before inserting demo records. Never run it against a live store.** Seeding is optional; it is not part of the read-only brand check.
+For a new disposable test database, set `DIRECT_URL` and create the schema with `npm run db:deploy`, then create staff access with `npm run db:bootstrap`. **`npm run db:seed` deletes existing commerce data before inserting demo records. Never run it against a live store.** Seeding is optional; it is not part of the read-only brand check.
 
 When ready for the final validation phase:
 
@@ -59,7 +55,9 @@ The checks listed in the current-status paragraph passed for this batch; `npm ru
 | Variable | Purpose |
 | --- | --- |
 | `NEXT_PUBLIC_STORE_BRAND` | Set to `ishtar`; default is also ISHTAR |
-| `DATABASE_URL` | PostgreSQL connection string; use a test database during QA |
+| `DATABASE_URL` | Prisma Postgres direct connection string |
+| `DATABASE_URL_POOLED` | Prisma Postgres pooled connection for application traffic |
+| `DIRECT_URL` | Direct connection for local Prisma CLI; Vercel build defaults it to `DATABASE_URL` |
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_NAME` | Staff account seed configuration |
 | `ADMIN_SESSION_SECRET` | Admin session signing secret |
 | `NEXT_PUBLIC_SITE_URL` | Site origin for order-tracking links and print QR codes |
