@@ -86,13 +86,14 @@ function toUploadedImage(result: UploadApiResponse): UploadedImage {
  * Upload an image buffer to Cloudinary using a signed server-side upload.
  * Returns the normalized image metadata for persistence.
  */
-export async function uploadImageBuffer(buffer: Buffer, kind: UploadKind): Promise<UploadedImage> {
+export async function uploadImageBuffer(buffer: Buffer, kind: UploadKind, publicId?: string): Promise<UploadedImage> {
   readEnv(); // ensures config + env validation
 
   const result = await new Promise<UploadApiResponse>((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {
         folder: folderForKind(kind),
+        ...(publicId ? { public_id: publicId } : {}),
         resource_type: 'image',
         // Defense in depth: only let Cloudinary accept real raster image formats.
         allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'avif'],

@@ -3,6 +3,7 @@ import {execFileSync} from 'node:child_process';
 import test from 'node:test';
 import {PGlite} from '@electric-sql/pglite';
 import {PGLiteSocketServer} from '@electric-sql/pglite-socket';
+import {catalogMediaSchema} from '../src/features/admin/products/catalog-media.validation';
 import {enrichmentSchema} from '../src/features/admin/products/catalog-enrichment.validation';
 
 test('catalog enrichment preserves commerce data and rejects stale edits',{timeout:90000},async t=>{
@@ -37,4 +38,26 @@ test('catalog enrichment preserves commerce data and rejects stale edits',{timeo
   assert.equal(enrichmentSchema.safeParse(input).success,true);
   for(const patch of [{careInstructions:''},{complementSkus:['IS-P001','IS-P002']},{salePrice:40,expectedRegularPrice:35}])assert.equal(enrichmentSchema.safeParse({...input,...patch}).success,false);
  });
+ await t.test('appends supplementary media once while preserving primary image, content and commerce',async()=>{
+  const {appendCatalogMedia}=await import('../src/features/admin/products/catalog-media');
+  const before=await prisma.product.findUniqueOrThrow({where:{id:'p1'},include:{images:true,variants:true}});
+  let uploads=0;
+  const upload=async(_buffer:Buffer,_kind:import('../src/features/admin/uploads/upload-constants').UploadKind,key?:string)=>{
+   uploads++;return {secureUrl:'https://res.cloudinary.com/store/image/upload/'+key+'.jpg',publicId:'store/products/'+key};
+  };
+  const media={mode:'media' as const,sku:'IS-P001',expectedPrimaryImageId:before.images[0].id,alt:'صورة إضافية للمنتج',mime:'image/jpeg' as const,base64:Buffer.alloc(100,42).toString('base64')};
+  assert.equal(catalogMediaSchema.safeParse(media).success,true);
+  await appendCatalogMedia(media,upload);await appendCatalogMedia(media,upload);
+  const after=await prisma.product.findUniqueOrThrow({where:{id:'p1'},include:{images:true,variants:true}});
+  assert.equal(uploads,1);assert.equal(after.images.length,2);
+  assert.deepEqual(after.images.find(i=>i.isPrimary),before.images[0]);
+  assert.deepEqual(after.variants,before.variants);assert.equal(after.description,before.description);
+  assert.equal(after.basePrice.toString(),before.basePrice.toString());assert.equal(after.compareAtPrice?.toString(),before.compareAtPrice?.toString());
+  assert.notEqual(after.updatedAt.toISOString(),before.updatedAt.toISOString());
+ });
+ await t.test('refuses changed image references before uploading',async()=>{
+  const {appendCatalogMedia}=await import('../src/features/admin/products/catalog-media');
+  await assert.rejects(appendCatalogMedia({mode:'media',sku:'IS-P001',expectedPrimaryImageId:'replaced-image',alt:'صورة إضافية',mime:'image/jpeg',base64:Buffer.alloc(100,43).toString('base64')},async()=>{throw new Error('must not upload');}),/تغيرت الصورة الرئيسية/);
+ });
+
 });

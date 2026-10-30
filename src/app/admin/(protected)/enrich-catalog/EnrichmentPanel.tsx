@@ -9,7 +9,7 @@ export function EnrichmentPanel(){
     try{const data:unknown=JSON.parse(text);items=Array.isArray(data)?data:[data];if(!items.length||items.length>200)throw new Error();}catch{setError('أدخل بيانات JSON صالحة.');return;}
     setBusy(true);setResults([]);
     try{
-      for(const item of items){const res=await fetch('/admin/api/catalog-enrichment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(item)});const data=await res.json();if(!res.ok||!data.ok)throw new Error(data.error||'تعذر الحفظ.');setResults(prev=>[...prev,data]);}
+      for(const item of items){const media=typeof item==='object'&&item!==null&&'mode' in item&&item.mode==='media';const res=await fetch(media?'/admin/api/catalog-media':'/admin/api/catalog-enrichment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(item)});const data=await res.json();if(!res.ok||!data.ok)throw new Error(data.error||'تعذر الحفظ.');setResults(prev=>[...prev,data]);}
       setText('');
     }catch(e){setError(e instanceof Error?e.message:'تعذر الحفظ.');}finally{setBusy(false);}
   }
