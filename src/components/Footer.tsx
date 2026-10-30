@@ -34,8 +34,8 @@ const trustItems = brand.key === 'ishtar' ? [
 const storeLinks = [
   { href: '/', label: 'الرئيسية' },
   { href: '/category/new-in', label: 'وصل حديثاً' },
-  { href: '/category/sale', label: 'العروض' },
-  { href: '/category/accessories', label: 'الإكسسوارات' },
+  { href: '/category/all', label: 'كل المنتجات' },
+  { href: '/category/care-accessories', label: 'الإكسسوارات' },
   { href: '/cart', label: 'السلة' },
   { href: '/track-order', label: 'تتبع الطلب' }
 ];
