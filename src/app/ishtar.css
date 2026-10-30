@@ -579,3 +579,5 @@
 @media (prefers-reduced-motion: reduce) {
   [data-brand="ishtar"] .footerSocialBtn:hover { transform: none; }
 }
+
+.mediaUsageCaption { margin: 0; padding: 10px 14px; border-radius: 12px; background: #f8f2eb; color: #503b42; font-size: 14px; line-height: 1.7; text-align: start; }
