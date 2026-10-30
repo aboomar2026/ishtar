@@ -310,7 +310,10 @@ test('hero rotation and navigation feedback in production Chromium on desktop an
       assert.equal(await page.locator('.navigationNotice .ishtarSpinner').evaluate(element => getComputedStyle(element).animationName),'none');
       await page.getByText('الانتقال أطول من المعتاد',{ exact:true }).waitFor({ timeout:16000 });
       assert.match(await indicator(page).innerText(),/قد يكون الاتصال بطيئًا/);
-      await page.locator('a[href="/collections"]:visible').first().click();
+      // A suspended RSC transition may replace the route subtree, so a
+      // storefront link is not guaranteed to stay mounted at this point.
+      // A fresh document navigation must clear the old pending indicator.
+      await page.goto(`${origin}/collections`);
       await page.waitForURL('**/collections'); await indicator(page).waitFor({ state:'detached',timeout:5000 });
       held.release(); await page.waitForTimeout(200);
       assert.equal(new URL(page.url()).pathname,'/collections'); assert.deepEqual(errors,[]);
