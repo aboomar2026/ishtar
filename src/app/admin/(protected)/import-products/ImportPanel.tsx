@@ -36,7 +36,7 @@ export function ImportPanel() {
     <h1 className="text-2xl font-semibold">استيراد المنتجات بالصور</h1>
     <p>إضافة المنتجات وصورها إلى الكتالوج باستخدام إعدادات المتجر الحالية. إعادة إرسال نفس المنتج لا تغيّر بياناته ولا تكرّره.</p>
     <label htmlFor="catalog-import">بيانات المنتجات</label>
-    <textarea id="catalog-import" value={text} onChange={e => setText(e.target.value)} disabled={busy} rows={8} className="block w-full rounded border p-3 font-mono text-sm" dir="ltr" />
+    <textarea id="catalog-import" wrap="off" spellCheck={false} value={text} onChange={e => setText(e.target.value)} disabled={busy} rows={8} className="block w-full rounded border p-3 font-mono text-sm" dir="ltr" />
     <button type="button" disabled={busy || !text.trim()} onClick={run} className="rounded bg-[#582e42] px-6 py-3 text-white disabled:opacity-50">{busy ? 'جارٍ الاستيراد…' : 'استيراد المنتجات'}</button>
     <div aria-live="polite" role="status">{busy ? 'جارٍ رفع الصور وحفظ المنتج…' : outcomes.length ? `اكتمل: ${outcomes.length}` : ''}</div>
     {error && <p role="alert" className="text-red-700">{error}</p>}

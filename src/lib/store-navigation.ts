@@ -1,11 +1,12 @@
 export const storeLinks = [
-  { href: '/collections', label: 'المجموعات' },
+  { href: '/category/all', label: 'كل المنتجات' },
   { href: '/category/new-in', label: 'وصل حديثاً' },
-  { href: '/category/bags', label: 'شنط' },
-  { href: '/category/perfumes', label: 'عطور' },
-  { href: '/category/creams-makeup', label: 'مكياج' },
-  { href: '/category/accessories', label: 'إكسسوارات' },
-  { href: '/category/sale', label: 'العروض' },
-  { href: '/wishlist', label: 'المفضّلة' },
+  { href: '/category/homewear', label: 'ملابس البيت' },
+  { href: '/category/intimates', label: 'الملابس الداخلية' },
+  { href: '/category/home-slippers', label: 'شباشب منزلية' },
+  { href: '/category/hair-care', label: 'العناية بالشعر' },
+  { href: '/category/body-care', label: 'العناية بالجسم' },
+  { href: '/category/fragrance-deodorants', label: 'عطور ومزيلات عرق' },
+  { href: '/category/care-accessories', label: 'أدوات وإكسسوارات' },
   { href: '/track-order', label: 'تتبع الطلب' }
 ];

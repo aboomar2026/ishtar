@@ -9,7 +9,7 @@ import { IconCart, IconGrid, IconHome, IconGift, IconHeart } from './Icons';
 const links = [
   { href: '/', label: 'الرئيسية', icon: IconHome },
   { href: '/category/new-in', label: 'الجديد', icon: IconGrid },
-  { href: '/category/sale', label: 'العروض', icon: IconGift },
+  { href: '/category/all', label: 'تسوّقي', icon: IconGift },
   { href: '/cart', label: 'السلة', icon: IconCart },
   { href: '/wishlist', label: 'المفضّلة', icon: IconHeart }
 ];

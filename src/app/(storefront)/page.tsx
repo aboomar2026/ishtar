@@ -54,7 +54,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="contentSection sectionPanel offersPanel">
+      {catalog.todayOffers.length > 0 && <section className="contentSection sectionPanel offersPanel">
         <div className="sectionHeader">
           <div>
             <span className="eyebrow">Today’s offers</span>
@@ -63,7 +63,7 @@ export default async function HomePage() {
           <Link href="/category/sale">مشاهدة الكل</Link>
         </div>
         <ProductGrid products={catalog.todayOffers} />
-      </section>
+      </section>}
 
       <section className="boutiqueBand">
         <div className="boutiqueWordmark">

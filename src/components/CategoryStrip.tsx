@@ -14,7 +14,7 @@ export function CategoryStrip({ categories, activeSlug }: { categories: Category
           {category.name}
         </Link>
       ))}
-      <Link href="/category/sale" className={activeSlug === 'sale' ? 'active saleChip' : 'saleChip'}>العروض</Link>
+      <Link href="/category/all" className={activeSlug === 'all' ? 'active saleChip' : 'saleChip'}>كل المنتجات</Link>
     </nav>
   );
 }
