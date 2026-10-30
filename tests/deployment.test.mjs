@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { PGlite } from '@electric-sql/pglite';
 import { deploymentEnvironment, buildSteps } from '../scripts/vercel-build.mjs';
 
@@ -23,7 +23,10 @@ test('production prepares the empty database before building; previews never app
 test('initial schema creates all application tables on a fresh PostgreSQL database without demo data', async () => {
   const db = new PGlite();
   try {
-    await db.exec(readFileSync('prisma/migrations/20261030000000_initial/migration.sql', 'utf8'));
+    for (const dir of readdirSync('prisma/migrations').filter(name => /^\d/.test(name)).sort()) {
+      await db.exec(readFileSync(`prisma/migrations/${dir}/migration.sql`, 'utf8'));
+    }
+    assert.equal((await db.query("SELECT column_name FROM information_schema.columns WHERE table_name='Product' AND column_name='deletedAt'")).rows.length, 1);
     const { rows } = await db.query("SELECT tablename FROM pg_tables WHERE schemaname='public'");
     const tables = rows.map(row => row.tablename);
     for (const name of ['Product', 'Order', 'AdminUser', 'Collection', 'HeroSettings', 'OrderNotification', 'OrderNotificationAttempt']) assert.ok(tables.includes(name), name);
@@ -38,7 +41,9 @@ test('fresh database bootstrap creates a working admin and preserves it on redep
   const db = new PGlite();
   let socket;
   try {
-    await db.exec(readFileSync('prisma/migrations/20261030000000_initial/migration.sql', 'utf8'));
+    for (const dir of readdirSync('prisma/migrations').filter(name => /^\d/.test(name)).sort()) {
+      await db.exec(readFileSync(`prisma/migrations/${dir}/migration.sql`, 'utf8'));
+    }
     socket = new PGLiteSocketServer({ db, host: '127.0.0.1', port: 0, maxConnections: 5 });
     await socket.start();
     const address = socket.getServerConn();
@@ -59,7 +64,13 @@ test('fresh database bootstrap creates a working admin and preserves it on redep
       child.once('exit', code => resolve({ code, output }));
       });
     };
-    assert.equal((await run('short')).code, 1);
+    const missing = await run('');
+    assert.equal(missing.code, 1);
+    assert.match(missing.output, /ADMIN_PASSWORD is missing/);
+    const short = await run('short');
+    assert.equal(short.code, 1);
+    assert.match(short.output, /ADMIN_PASSWORD must contain at least 12 characters/);
+    assert.ok(!short.output.includes('short'));
     const first = await run('test-password-long-enough');
     assert.equal(first.code, 0, first.output);
     const before = (await db.query('SELECT * FROM "AdminUser"')).rows[0];
