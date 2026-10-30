@@ -5,9 +5,8 @@ import { drainOrderNotifications } from '@/features/notifications/notification-d
 export const dynamic = 'force-dynamic';
 export const maxDuration = 25;
 
-export async function POST(request: Request) {
+async function dispatch(request: Request, expected: string | undefined) {
   const headers = { 'Cache-Control': 'no-store' };
-  const expected = process.env.ORDER_OUTBOX_WORKER_SECRET;
   if (!orderOutboxEnabled() || process.env.ORDER_OUTBOX_WORKER_ENABLED !== 'true' || !expected || expected.length < 32) {
     return Response.json({ error: 'DISABLED' }, { status: 404, headers });
   }
@@ -17,4 +16,14 @@ export async function POST(request: Request) {
   if (supplied.length > 512 || !timingSafeEqual(digest(supplied), digest(expected))) return Response.json({ error: 'UNAUTHORIZED' }, { status: 401, headers });
   try { return Response.json({ processed: await drainOrderNotifications() }, { headers }); }
   catch { return Response.json({ error: 'DISPATCH_UNAVAILABLE' }, { status: 503, headers }); }
+}
+
+// Vercel Cron invokes GET with Authorization: Bearer <CRON_SECRET>.
+export async function GET(request: Request) {
+  return dispatch(request, process.env.CRON_SECRET);
+}
+
+// Retain authenticated manual/external scheduler dispatch.
+export async function POST(request: Request) {
+  return dispatch(request, process.env.ORDER_OUTBOX_WORKER_SECRET);
 }

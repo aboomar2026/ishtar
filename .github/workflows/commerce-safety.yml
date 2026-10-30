@@ -32,6 +32,8 @@ jobs:
           exit 1
       - run: npm ci
       - run: npm run db:generate
+      - run: npm run test:deployment
+      - run: npm run test:seo
       - run: npm run test:whatsapp
       - run: npm run test:hero
       - run: npm run test:product-deletion

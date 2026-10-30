@@ -2,11 +2,11 @@ import type { Metadata } from 'next';
 import { brand } from './brand';
 import { publicSiteUrl } from './site-url';
 
-type SeoEnvironment = { SEO_NOINDEX?: string; CONTEXT?: string };
+type SeoEnvironment = { SEO_NOINDEX?: string; VERCEL_ENV?: string };
 
-export function isIndexingEnabled(site = publicSiteUrl(), env: SeoEnvironment = { SEO_NOINDEX: process.env.SEO_NOINDEX, CONTEXT: process.env.CONTEXT }): boolean {
+export function isIndexingEnabled(site = publicSiteUrl(), env: SeoEnvironment = { SEO_NOINDEX: process.env.SEO_NOINDEX, VERCEL_ENV: process.env.VERCEL_ENV }): boolean {
   return Boolean(site && env.SEO_NOINDEX !== 'true' &&
-    !['deploy-preview', 'branch-deploy', 'dev'].includes(env.CONTEXT ?? ''));
+    !['preview', 'development'].includes(env.VERCEL_ENV ?? ''));
 }
 
 export function catalogPath(kind: 'product' | 'category', slug: string): string {

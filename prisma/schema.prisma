@@ -1,9 +1,6 @@
 generator client {
   provider      = "prisma-client-js"
-  // Netlify runs SSR in serverless functions on Amazon Linux (OpenSSL 3.0),
-  // while the build host is Debian. Generate both engines so the runtime
-  // platform's query engine is available — otherwise every Server Component
-  // render fails to load Prisma at runtime.
+  // Include the Vercel serverless runtime engine alongside the build platform.
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 

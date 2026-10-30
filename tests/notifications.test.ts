@@ -174,11 +174,14 @@ test('durable order notifications on an isolated database with mocked transport'
       assert.equal(await dispatchOrderNotification(event.orderId), false);
     });
     await t.test('worker endpoint requires both flags and a valid secret before any dispatch', async () => {
-      const { POST } = await import('../src/app/api/internal/order-notifications/dispatch/route');
+      const { GET, POST } = await import('../src/app/api/internal/order-notifications/dispatch/route');
       process.env.ORDER_OUTBOX_WORKER_SECRET = randomUUID() + randomUUID();
       process.env.ORDER_OUTBOX_WORKER_ENABLED = 'false';
       assert.equal((await POST(new Request('https://test.invalid', { method: 'POST' }))).status, 404);
       process.env.ORDER_OUTBOX_WORKER_ENABLED = 'true';
+      process.env.CRON_SECRET = randomUUID() + randomUUID();
+      assert.equal((await GET(new Request('https://test.invalid'))).status, 401);
+      assert.equal((await GET(new Request('https://test.invalid', { headers: { Authorization: `Bearer ${process.env.CRON_SECRET}` } }))).status, 200);
       assert.equal((await POST(new Request('https://test.invalid', { method: 'POST' }))).status, 401);
       assert.equal((await POST(new Request('https://test.invalid', { method: 'POST', headers: { Authorization: `Bearer ${process.env.ORDER_OUTBOX_WORKER_SECRET}` } }))).status, 200);
     });

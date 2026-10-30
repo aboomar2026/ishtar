@@ -46,7 +46,12 @@
     "test:seo-integration": "node --require ./tests/runtime/server-marker.cjs --import tsx --test tests/seo.integration.test.ts",
     "test:performance": "node --require ./tests/runtime/server-marker.cjs --import tsx --test --test-concurrency=1 tests/cloudinary-image.test.ts tests/catalog-image.test.tsx tests/performance.integration.test.ts tests/performance-http.integration.test.ts",
     "perf:benchmark": "node scripts/performance-benchmark.mjs",
-    "test:navigation": "node --require ./tests/runtime/server-marker.cjs --import tsx --test --test-concurrency=1 tests/navigation-target.test.ts tests/navigation.browser.test.ts"
+    "test:navigation": "node --require ./tests/runtime/server-marker.cjs --import tsx --test --test-concurrency=1 tests/navigation-target.test.ts tests/navigation.browser.test.ts",
+    "postinstall": "prisma generate",
+    "vercel-build": "node scripts/vercel-build.mjs",
+    "db:deploy": "prisma migrate deploy",
+    "db:bootstrap": "tsx scripts/bootstrap-admin.ts",
+    "test:deployment": "node --import tsx --test tests/deployment.test.mjs"
   },
   "dependencies": {
     "@phosphor-icons/react": "2.1.7",
@@ -79,5 +84,8 @@
     "react-test-renderer": "19.2.7",
     "tsx": "4.20.6",
     "typescript": "6.0.3"
+  },
+  "engines": {
+    "node": "22.x"
   }
 }

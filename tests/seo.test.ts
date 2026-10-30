@@ -21,9 +21,9 @@ test('all search, sort, stock and price facets are excluded from indexing', () =
 
 test('preview and missing canonical configuration cannot be indexed', () => {
   const site = new URL('https://ishtar.example');
-  for (const CONTEXT of ['deploy-preview', 'branch-deploy', 'dev']) assert.equal(isIndexingEnabled(site, { CONTEXT }), false);
+  for (const VERCEL_ENV of ['preview', 'development']) assert.equal(isIndexingEnabled(site, { VERCEL_ENV }), false);
   assert.equal(isIndexingEnabled(site, { SEO_NOINDEX: 'true' }), false);
-  assert.equal(isIndexingEnabled(site, { CONTEXT: 'production' }), true);
+  assert.equal(isIndexingEnabled(site, { VERCEL_ENV: 'production' }), true);
   const previous = process.env.NEXT_PUBLIC_SITE_URL;
   const previousUrl = process.env.URL;
   delete process.env.NEXT_PUBLIC_SITE_URL; delete process.env.URL;
