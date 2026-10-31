@@ -59,11 +59,12 @@ test('product availability and image galleries on desktop/mobile, including nest
       const opener=page.getByRole('button',{name:'فتح معرض صور gallery-active',exact:true});
       await opener.click();
       const viewer=page.getByRole('dialog',{name:'معرض صور gallery-active',exact:true});await viewer.waitFor();
-      assert.equal(await viewer.locator('img').count(),4); // one main, three thumbnails
+      assert.equal(await viewer.locator('img').count(),1); // pagination uses dots
       assert.match(await viewer.getByRole('status').innerText(),/1 من 3/);
       await viewer.getByRole('button',{name:'الصورة التالية',exact:true}).click();
       assert.match(await viewer.getByRole('status').innerText(),/2 من 3/);
-      assert.match(await viewer.getByRole('link',{name:'الحجم الأصلي',exact:false}).getAttribute('href')??'',/image=1/);
+      assert.equal(await viewer.getByRole('link').count(),0);
+      assert.equal(await viewer.getByRole('button',{name:'الصورة 2 من 3',exact:true}).getAttribute('aria-pressed'),'true');
       await page.keyboard.press('ArrowLeft');assert.match(await viewer.getByRole('status').innerText(),/3 من 3/);
       await viewer.getByRole('button',{name:'تكبير التفاصيل',exact:true}).click();
       assert.equal(await viewer.locator('.imageViewerStage.isZoomed').count(),1);

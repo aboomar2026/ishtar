@@ -39,7 +39,9 @@ test('gallery opens any thumbnail, cycles only this product, handles keys/swipe/
     const stage = () => view.root.findAllByType('div').find(el => el.props.className === 'imageViewerStage')!;
     await act(async () => { stage().props.onPointerDown({ isPrimary: true, pointerType: 'touch', clientX: 20, clientY: 20 }); stage().props.onPointerUp({ clientX: 120, clientY: 25 }); });
     assert.equal(active(), 'detail');
-    const zoom = view.root.findAllByType('button').find(el => el.children.includes('تكبير التفاصيل'))!;
+    const zoom = button('تكبير التفاصيل');
+    assert.equal(view.root.findAllByType('a').length, 0);
+    assert.equal(button('الصورة 2 من 3').props['aria-pressed'], true);
     await act(async () => zoom.props.onClick());
     assert.equal(view.root.findByProps({ className: 'imageViewerStage isZoomed' }).findByType('img').props.sizes, undefined); // Local URLs need no srcset.
     await key('End'); assert.equal(active(), 'model'); assert.ok(stage());
