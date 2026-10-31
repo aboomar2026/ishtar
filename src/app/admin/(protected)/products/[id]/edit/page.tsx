@@ -1,6 +1,7 @@
 import { collectionsReady } from '@/features/collections/collections.queries';
 import { productOptions } from '@/features/collections/collections.admin';
 import { prisma } from '@/lib/prisma';
+import { StorefrontProductLink } from '@/components/admin/StorefrontProductLink';
 import { ProductCollections } from '@/components/admin/ProductCollections';
 import { IconArrowRight } from '@/components/Icons';
 import Link from '@/components/NavigationLink';
@@ -62,7 +63,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
           <p className="adminMuted">{product.name}</p>
         </div>
         <div className="adminBtnRow">
-          <Link href={`/product/${product.slug}`} className="adminBtn adminBtnGhost" target="_blank">عرض في المتجر</Link>
+          <StorefrontProductLink slug={product.slug} published={product.status === 'ACTIVE' && product.categoryActive} label="عرض في المتجر" className="adminBtn adminBtnGhost" />
           <Link href="/admin/products" className="adminBtn adminBtnGhost"><IconArrowRight size={20} /> رجوع</Link>
         </div>
       </div>

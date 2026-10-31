@@ -1,5 +1,4 @@
-import { CatalogImage } from '@/components/CatalogImage';
-import { PRODUCT_THUMB_IMAGE } from '@/lib/cloudinary-image';
+import { ProductImagePreview } from '@/components/ProductImageViewer';
 import Link from '@/components/NavigationLink';
 import { redirect } from 'next/navigation';
 import { requireAdmin } from '@/features/admin/auth/admin-auth';
@@ -109,7 +108,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
                     <tr key={item.id}>
                       <td>
                         <div className="adminCellMain">
-                          <CatalogImage className="adminThumb" src={item.image ?? '/mock-products/gift-box.svg'} alt={item.name}  transform={{ ...PRODUCT_THUMB_IMAGE, crop: 'fit' }} sizes="100px" loading="lazy" />
+                          <ProductImagePreview imageClassName="adminThumb" title={item.name} images={item.images.length ? item.images : [{ id: 'fallback', url: item.image ?? '/mock-products/gift-box.svg', alt: item.name, sortOrder: 0, isPrimary: true }]} />
                           <div>
                             <strong>{item.name}</strong>
                             <small>{item.slug}</small>
@@ -123,7 +122,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
                       <td><StockBadge item={item} /></td>
                       <td><Flags item={item} /></td>
                       <td className="adminMuted">{formatDateTime(item.updatedAt)}</td>
-                      <td><ProductRowActions id={item.id} slug={item.slug} name={item.name} status={item.status} /></td>
+                      <td><ProductRowActions id={item.id} slug={item.slug} name={item.name} status={item.status} categoryActive={item.categoryActive} /></td>
                     </tr>
                   ))}
                 </tbody>
@@ -136,7 +135,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
             {products.map((item) => (
               <div key={item.id} className="adminRecordCard">
                 <div className="adminRecordTop">
-                  <CatalogImage className="adminThumb" src={item.image ?? '/mock-products/gift-box.svg'} alt={item.name}  transform={{ ...PRODUCT_THUMB_IMAGE, crop: 'fit' }} sizes="100px" loading="lazy" />
+                  <ProductImagePreview imageClassName="adminThumb" title={item.name} images={item.images.length ? item.images : [{ id: 'fallback', url: item.image ?? '/mock-products/gift-box.svg', alt: item.name, sortOrder: 0, isPrimary: true }]} />
                   <div style={{ minWidth: 0 }}>
                     <strong>{item.name}</strong>
                     <div className="adminMuted" style={{ fontSize: 12 }}>{item.slug}</div>
@@ -152,7 +151,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
                   <StockBadge item={item} />
                   <Flags item={item} />
                 </div>
-                <ProductRowActions id={item.id} slug={item.slug} name={item.name} status={item.status} />
+                <ProductRowActions id={item.id} slug={item.slug} name={item.name} status={item.status} categoryActive={item.categoryActive} />
               </div>
             ))}
           </div>

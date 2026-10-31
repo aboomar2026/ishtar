@@ -1,7 +1,7 @@
 import 'server-only';
 import { Prisma, type ProductStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
-import type { ProductStockState } from '@/features/catalog/catalog.types';
+import type { CatalogProductImage, ProductStockState } from '@/features/catalog/catalog.types';
 import { getStockState } from '@/features/catalog/catalog.utils';
 
 export type AdminProductStockFilter = 'all' | 'in-stock' | 'low-stock' | 'out-of-stock';
@@ -21,6 +21,8 @@ export type AdminProductListItem = {
   name: string;
   slug: string;
   categoryName: string;
+  categoryActive: boolean;
+  images: CatalogProductImage[];
   status: ProductStatus;
   basePrice: number;
   image: string | null;
@@ -77,8 +79,8 @@ export async function getAdminProductPage(params: AdminProductListParams = {}) {
   const products = await prisma.product.findMany({
     where: { id: { in: ids }, deletedAt: null },
     include: {
-      category: { select: { name: true } },
-      images: { orderBy: [{ isPrimary: 'desc' }, { sortOrder: 'asc' }], take: 1 },
+      category: { select: { name: true, isActive: true } },
+      images: { orderBy: [{ isPrimary: 'desc' }, { sortOrder: 'asc' }], select: { id: true, url: true, alt: true, sortOrder: true, isPrimary: true } },
       variants: { select: { quantity: true, lowStockThreshold: true, isActive: true } }
     }
   });
@@ -94,6 +96,8 @@ export async function getAdminProductPage(params: AdminProductListParams = {}) {
       name: product.name,
       slug: product.slug,
       categoryName: product.category?.name ?? '—',
+      categoryActive: product.category.isActive,
+      images: product.images.map(image => ({ ...image, alt: image.alt ?? undefined })),
       status: product.status,
       basePrice: decimalToNumber(product.basePrice),
       image: product.images[0]?.url ?? FALLBACK_IMAGE,
@@ -118,6 +122,7 @@ export async function getAdminProductById(id: string) {
   const product = await prisma.product.findUnique({
     where: { id, deletedAt: null },
     include: {
+      category: { select: { isActive: true } },
       images: { orderBy: { sortOrder: 'asc' } },
       variants: { orderBy: [{ colorName: 'asc' }, { size: 'asc' }] }
     }
@@ -134,6 +139,7 @@ export async function getAdminProductById(id: string) {
     careInstructions: product.careInstructions ?? '',
     brand: product.brand ?? '',
     categoryId: product.categoryId,
+    categoryActive: product.category.isActive,
     basePrice: decimalToNumber(product.basePrice),
     compareAtPrice: product.compareAtPrice === null ? undefined : decimalToNumber(product.compareAtPrice),
     status: product.status,

@@ -1,4 +1,5 @@
 'use client';
+import { lockBodyScroll } from './dialog-scroll-lock';
 import Link from '@/components/NavigationLink';
 import { useEffect, useRef, useState } from 'react';
 import type { Product } from '@/lib/types';
@@ -17,12 +18,11 @@ export function QuickView({ product, onClose, opener }: { product: Preview; onCl
     const dialog = ref.current;
     if (!dialog || typeof dialog.showModal !== 'function') { setSupported(false); return; }
     const previous = opener ?? document.activeElement as HTMLElement | null;
-    const overflow = document.body.style.overflow;
     dialog.showModal();
-    document.body.style.overflow = 'hidden';
+    const unlockScroll = lockBodyScroll();
     return () => {
       dialog.close();
-      document.body.style.overflow = overflow;
+      unlockScroll();
       if (previous?.isConnected) previous.focus();
     };
   }, [opener]);

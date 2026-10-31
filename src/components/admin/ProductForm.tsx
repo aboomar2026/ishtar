@@ -1,4 +1,5 @@
 'use client';
+import { ProductImagePreview } from '@/components/ProductImageViewer';
 import { IconPackage } from '@/components/Icons';
 
 import { useUnsavedChanges } from './useUnsavedChanges';
@@ -666,16 +667,16 @@ export function ProductForm({ mode, productId, categories, initial }: {
                 <button type="button" className="adminBtn adminBtnDanger adminBtnSm" onClick={() => setImages((prev) => prev.filter((_, i) => i !== index))}>حذف الصورة</button>
               </div>
               <div className="adminImageRow">
-                {image.url ? <img className="adminImagePreview" src={image.url} alt={image.alt || `صورة ${index + 1}`} /> : <div className="adminImagePreview adminImagePreviewEmpty" aria-hidden="true">لا معاينة</div>}
+                {image.url ? <ProductImagePreview imageClassName="adminImagePreview" title={name || 'المنتج'} initialIndex={index} images={images.map((entry, position) => ({ ...entry, id: entry.id ?? `image-${position}`, sortOrder: position }))} /> : <div className="adminImagePreview adminImagePreviewEmpty" aria-hidden="true">لا معاينة</div>}
                 <div className="adminRepeatGrid" style={{ flex: 1, minWidth: 0 }}>
                   <div className="adminField">
-                    <label htmlFor="product-extra-field-7">رابط الصورة *</label>
-            <input id="product-extra-field-7" className={errorFor(`images.${index}.url`) ? 'hasError' : ''} value={image.url} onChange={(event) => updateImage(index, { url: event.target.value })} placeholder="/mock-products/bag-camel.svg" />
+                    <label htmlFor={`product-image-url-${index}`}>رابط الصورة *</label>
+            <input id={`product-image-url-${index}`} className={errorFor(`images.${index}.url`) ? 'hasError' : ''} value={image.url} onChange={(event) => updateImage(index, { url: event.target.value })} placeholder="/mock-products/bag-camel.svg" />
                     {errorFor(`images.${index}.url`) && <span className="adminFieldError">{errorFor(`images.${index}.url`)}</span>}
                   </div>
                   <div className="adminField">
-                    <label htmlFor="product-extra-field-8">النص البديل</label>
-            <input id="product-extra-field-8" value={image.alt} onChange={(event) => updateImage(index, { alt: event.target.value })} />
+                    <label htmlFor={`product-image-alt-${index}`}>النص البديل</label>
+            <input id={`product-image-alt-${index}`} value={image.alt} onChange={(event) => updateImage(index, { alt: event.target.value })} />
                   </div>
                 </div>
               </div>
