@@ -96,7 +96,7 @@ async function withEffectiveSoldCounts<T extends { id: string; soldCount: number
 }
 
 async function getProductPage(filters: CatalogProductFilters = {}) {
-  const limit = Math.min(48, Math.max(1, filters.limit ?? 24));
+  const limit = Math.min(48, Math.max(1, filters.limit ?? 48));
   const page = Math.max(1, filters.page ?? 1);
   const conditions = [Prisma.sql`p."deletedAt" IS NULL AND p.status = 'ACTIVE' AND c."isActive" = true`];
   if (filters.categorySlug === 'new-in') conditions.push(Prisma.sql`p."isNewArrival" = true`);
@@ -254,10 +254,10 @@ export async function getHomeCatalog(): Promise<HomeCatalogResult> {
     getActiveCategories(),
     getActiveBanners('HOME_HERO'),
     getActiveBanners('HOME_PROMO'),
-    getFeaturedProducts(5),
-    getNewArrivals(5),
-    getBestSellers(5),
-    getProductList({ categorySlug: 'sale', limit: 5, sort: 'best-sellers' })
+    getFeaturedProducts(10),
+    getNewArrivals(10),
+    getBestSellers(10),
+    getProductList({ categorySlug: 'sale', limit: 10, sort: 'best-sellers' })
   ]);
 
   return {

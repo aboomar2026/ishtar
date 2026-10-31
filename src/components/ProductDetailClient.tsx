@@ -128,7 +128,7 @@ export function ProductDetailClient({ product, shareOrigin, compact = false }: {
 
   return (
     <div className="productDetailLayout">
-      <ProductMediaGallery key={product.id} images={product.images} title={product.name} />
+      <ProductMediaGallery key={product.id} images={product.images} title={product.name} caption={product.subtitle} />
       <section className="productDetailPanel">
         <div className="productDetailHeader">
           <span className="eyebrow">{brand.copy.productEyebrow}</span>
