@@ -62,7 +62,7 @@ export default async function HomePage() {
           </div>
           <Link href="/category/sale">مشاهدة الكل</Link>
         </div>
-        <ProductGrid products={catalog.todayOffers} />
+        <ProductGrid products={catalog.todayOffers} homePreview />
       </section>}
 
       <section className="boutiqueBand">
@@ -84,7 +84,7 @@ export default async function HomePage() {
           </div>
           <Link href="/category/new-in">مشاهدة الكل</Link>
         </div>
-        <ProductGrid products={catalog.newArrivals} />
+        <ProductGrid products={catalog.newArrivals} homePreview />
       </section>
 
       {catalog.bestSellers.length > 0 && <section className="contentSection sectionPanel bestSellerPanel">
@@ -95,7 +95,7 @@ export default async function HomePage() {
           </div>
           <Link href="/category/all?sort=best-sellers">شاهدي الأكثر مبيعاً</Link>
         </div>
-        <ProductGrid products={catalog.bestSellers} />
+        <ProductGrid products={catalog.bestSellers} homePreview />
       </section>}
 
       <section className="contentSection">
@@ -106,7 +106,7 @@ export default async function HomePage() {
           </div>
           <Link href="/category/featured">اكتشفي المختارات</Link>
         </div>
-        <ProductGrid products={catalog.featuredProducts} />
+        <ProductGrid products={catalog.featuredProducts} homePreview />
       </section>
       <RecentlyViewed />
     </div>

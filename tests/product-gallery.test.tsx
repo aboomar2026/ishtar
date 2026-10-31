@@ -3,7 +3,7 @@ import test from 'node:test';
 import React from 'react';
 import { act, create } from 'react-test-renderer';
 import { ProductMediaGallery } from '../src/components/ProductMediaGallery';
-import { ProductImageViewer } from '../src/components/ProductImageViewer';
+import { productImageAlt, ProductImageViewer } from '../src/components/ProductImageViewer';
 import { StorefrontProductLink } from '../src/components/admin/StorefrontProductLink';
 import { lockBodyScroll } from '../src/components/dialog-scroll-lock';
 import type { CatalogProductImage } from '../src/features/catalog/catalog.types';
@@ -21,7 +21,7 @@ test('gallery opens any thumbnail, cycles only this product, handles keys/swipe/
   const body = { style: { overflow: 'auto' } };
   Object.assign(globalThis, { document: { body, activeElement: { isConnected: true, focus: () => focused++ } } });
   let view!: ReturnType<typeof create>;
-  await act(async () => { view = create(<ProductMediaGallery images={images} title="قطعة" />, {
+  await act(async () => { view = create(<ProductMediaGallery images={images} title="قطعة" caption="تفاصيل القطعة ولونها" />, {
     createNodeMock: element => element.type === 'dialog' ? { showModal: () => opened++, close: () => closed++ } : null,
   }); });
   const button = (label: string) => view.root.findByProps({ 'aria-label': label });
@@ -30,7 +30,7 @@ test('gallery opens any thumbnail, cycles only this product, handles keys/swipe/
   const key = async (value: string) => act(async () => { view.root.findByType('dialog').props.onKeyDown({ key: value, stopPropagation() {}, preventDefault() {} }); });
   try {
     assert.equal(view.root.findByProps({ className: 'mediaMain' }).findByType('img').props.src, '/primary.jpg');
-    await act(async () => button('فتح الصورة 3: على مودل — صورة توضيحية مولّدة').props.onClick());
+    await act(async () => button('فتح الصورة 3: على مودل').props.onClick());
     assert.equal(active(), 'model'); assert.equal(opened, 1); assert.equal(body.style.overflow, 'hidden');
     await act(async () => button('الصورة التالية').props.onClick());
     assert.equal(active(), 'primary');
@@ -43,7 +43,10 @@ test('gallery opens any thumbnail, cycles only this product, handles keys/swipe/
     await act(async () => zoom.props.onClick());
     assert.equal(view.root.findByProps({ className: 'imageViewerStage isZoomed' }).findByType('img').props.sizes, undefined); // Local URLs need no srcset.
     await key('End'); assert.equal(active(), 'model'); assert.ok(stage());
-    assert.match(JSON.stringify(view.toJSON()), /قد يختلف شكل اللبس/);
+    assert.equal(view.root.findByProps({ className: 'mediaUsageCaption' }).children.join(''), 'تفاصيل القطعة ولونها');
+    assert.equal(view.root.findByProps({ className: 'imageViewerCaption' }).children.join(''), 'تفاصيل القطعة ولونها');
+    assert.doesNotMatch(JSON.stringify(view.toJSON()), /قد يختلف شكل اللبس|صورة توضيحية مولّدة/);
+    assert.equal(productImageAlt({ ...images[2], alt: 'سيروم — صورة مولدة' }, 'سيروم'), 'سيروم');
     await key('Escape');
     assert.equal(view.root.findAllByType(ProductImageViewer).length, 0);
     assert.equal(body.style.overflow, 'auto'); assert.equal(closed, 1); assert.equal(focused, 1);

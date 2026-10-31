@@ -74,15 +74,18 @@ test('bounded admin and catalog queries preserve filters, ranking and fresh visi
     }
     for (const sort of ['newest', 'price-asc', 'price-desc', 'best-sellers'] as const) {
       const seen: CatalogProduct[] = [];
-      for (let page=1; page<=5; page++) {
+      for (let page=1; page<=3; page++) {
         const result = await getProductsByCategorySlug('all', { sort, page });
         assert.ok(result); assert.equal(result.total, 100);
+        assert.equal(result.pageCount, 3);
+        assert.equal(result.products.length, page < 3 ? 48 : 4);
         for (const p of result.products) {
           assert.equal(p.soldCount, p.id === all[3].id ? 3 : 0);
           seen.push(p);
         }
       }
       assert.equal(new Set(seen.map(p => p.id)).size, 100);
+      assert.equal(seen.length, 100);
       if (sort === 'best-sellers') assert.equal(seen[0].id, all[3].id);
       if (sort === 'price-asc') assert.ok(seen.every((p,i) => i===0 || p.price >= seen[i-1].price));
       if (sort === 'price-desc') assert.ok(seen.every((p,i) => i===0 || p.price <= seen[i-1].price));

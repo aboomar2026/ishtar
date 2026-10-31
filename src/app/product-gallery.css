@@ -3,7 +3,10 @@
 .productImagePreviewButton img { display:block; }
 .productImagePreviewButton:focus-visible, .mediaMain:focus-visible, .mediaThumbs button:focus-visible { outline:3px solid var(--brand-primary, #573043); outline-offset:3px; }
 .mediaMain { position:relative; }
-.mediaGalleryHint { display:block; padding:10px 14px; color:var(--brand-primary, #573043); background:var(--brand-bg, #fbf7f0); font-size:14px; }
+.mediaGallery { display:grid; gap:12px; align-content:start; }
+.mediaMain img { display:block; }
+.mediaGallery .mediaThumbs { margin-top:0; }
+.mediaGallery .mediaUsageCaption { margin:0; padding:0 4px; background:transparent; border-radius:0; color:var(--brand-muted, #695760); font-size:14px; line-height:1.65; }
 .productImageViewer { width:calc(100vw - 32px); max-width:1200px; height:94dvh; max-height:1000px; padding:0; border:1px solid #ddced3; border-radius:20px; color:#38252d; background:#fbf7f0; overflow:hidden; box-shadow:0 24px 100px #0005; }
 .productImageViewer::backdrop { background:rgb(32 22 28 / 82%); }
 .imageViewerSurface { height:100%; display:grid; grid-template-rows:auto minmax(0,1fr) auto auto auto; gap:10px; padding:14px; box-sizing:border-box; }

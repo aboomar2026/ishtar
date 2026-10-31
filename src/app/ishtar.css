@@ -190,7 +190,7 @@
 .printDraftNotice { border:2px solid currentColor; padding:12px; margin-bottom:16px; text-align:center; font-weight:800; }
 @media (max-width:1019px) {
  [data-brand="ishtar"] .heroBanner { min-height:auto; padding:28px; }
- [data-brand="ishtar"] .pageShell { padding-bottom:calc(100px + env(safe-area-inset-bottom,0px)); }
+ [data-brand="ishtar"] .pageShell { padding-bottom:24px; }
  [data-brand="ishtar"] .mobileBottomNav { bottom:0; left:0; right:0; border-radius:16px 16px 0 0; padding-bottom:calc(8px + env(safe-area-inset-bottom,0px)); }
  [data-brand="ishtar"] .stickyAddButton { position:sticky; bottom:calc(90px + env(safe-area-inset-bottom,0px)); z-index:20; }
 }
@@ -508,6 +508,7 @@
 
 /* Equal photo frames; the complete product sits over a soft full-bleed copy. */
 [data-brand="ishtar"] .productGrid { align-items: stretch; }
+[data-brand="ishtar"] .siteFooter { margin-top:0; }
 [data-brand="ishtar"] .productCard { display: flex; flex-direction: column; min-width: 0; border-radius: 20px; }
 [data-brand="ishtar"] .productCardMedia { width: 100%; }
 [data-brand="ishtar"] .productCard .productImageWrap { display: block; width: 100%; aspect-ratio: 4 / 5; background: var(--brand-section); isolation: isolate; }
@@ -523,6 +524,7 @@
 [data-brand="ishtar"] .productBuyRow { display: flex; flex-direction: row; align-items: center; flex-wrap: wrap; justify-content: space-between; gap: 10px; margin-top: auto; }
 [data-brand="ishtar"] .productBuyRow .quickAddButton { min-height: 44px; }
 @media screen and (max-width: 767px) {
+  [data-brand="ishtar"] .productGrid--homePreview > :nth-child(n + 6) { display:none; }
   [data-brand="ishtar"] :is(.productGrid, .skeletonGrid) { grid-template-columns: minmax(0, 1fr); gap: 14px; }
   [data-brand="ishtar"] .productCard { display: grid; grid-template-columns: minmax(0, 42%) minmax(0, 1fr); align-items: stretch; }
   [data-brand="ishtar"] .productCardMedia { height: 230px; }

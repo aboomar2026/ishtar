@@ -5,14 +5,14 @@ import type { CatalogProductImage } from '@/features/catalog/catalog.types';
 import { CatalogImage } from './CatalogImage';
 import { PRODUCT_THUMB_IMAGE } from '@/lib/cloudinary-image';
 
-export function imageCaption(image?: CatalogProductImage) {
-  if (image?.alt?.startsWith('توضيح الاستخدام:')) return image.alt;
-  return /مولّ?دة/.test(image?.alt ?? '') ? 'صورة توضيحية مولّدة؛ قد يختلف شكل اللبس الفعلي حسب المقاس.' : null;
+export function productImageAlt(image: CatalogProductImage, title: string) {
+  // Production notes in imported alt text are not descriptions of the product.
+  return image.alt?.replace(/\s*[—،؛-]?\s*صورة(?: توضيحية)? مولّ?دة.*$/u, '').trim() || title;
 }
 
 // Native dialogs stay above the native quick-view dialog when nested.
-export function ProductImageViewer({ images, title, index, onIndexChange, onClose }: {
-  images: CatalogProductImage[]; title: string; index: number;
+export function ProductImageViewer({ images, title, caption, index, onIndexChange, onClose }: {
+  images: CatalogProductImage[]; title: string; caption?: string; index: number;
   onIndexChange: (index: number) => void; onClose: () => void;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -42,7 +42,6 @@ export function ProductImageViewer({ images, title, index, onIndexChange, onClos
     <a href={image.url} target="_blank" rel="noopener noreferrer">فتح الصورة بالحجم الأصلي</a>
     <button type="button" onClick={onClose}>إغلاق معرض الصور</button>
   </div>;
-  const caption = imageCaption(image);
   return <dialog ref={ref} className="productImageViewer" aria-label={`معرض صور ${title}`}
     onCancel={event => { event.preventDefault(); event.stopPropagation(); onClose(); }}
     onClick={event => { if (event.target === event.currentTarget) onClose(); }}
@@ -67,7 +66,7 @@ export function ProductImageViewer({ images, title, index, onIndexChange, onClos
           const dx = event.clientX - start.x, dy = event.clientY - start.y;
           if (Math.abs(dx) >= 50 && Math.abs(dx) > Math.abs(dy) * 1.5) select(activeIndex + (dx > 0 ? 1 : -1));
         }}>
-        <CatalogImage key={image.id} src={image.url} alt={image.alt || title}
+        <CatalogImage key={image.id} src={image.url} alt={productImageAlt(image, title)}
           transform={{ width: 2400, height: 3000, crop: 'limit' }} widths={[800, 1200, 1800, 2400]}
           sizes={zoomed ? '2400px' : '(max-width: 780px) 96vw, 85vw'} loading="eager" draggable={false} />
       </div>
@@ -78,7 +77,7 @@ export function ProductImageViewer({ images, title, index, onIndexChange, onClos
         <button type="button" aria-pressed={zoomed} onClick={() => setZoomed(value => !value)}>{zoomed ? 'تصغير الصورة' : 'تكبير التفاصيل'}</button>
         <a href={image.url} target="_blank" rel="noopener noreferrer">الحجم الأصلي ↗</a>
       </div>
-      {caption && <p className="imageViewerCaption">{caption}</p>}
+      <p className="imageViewerCaption">{caption?.trim() || title}</p>
       <div className="imageViewerThumbs" aria-label="صور هذا المنتج">
         {images.map((entry, position) => <button type="button" key={entry.id} aria-label={`الصورة ${position + 1} من ${images.length}`}
           aria-pressed={position === activeIndex} onClick={() => select(position)}>
@@ -98,7 +97,7 @@ export function ProductImagePreview({ images, title, initialIndex = 0, imageClas
   if (!image) return null;
   return <>
     <button type="button" className="productImagePreviewButton" aria-label={`عرض صور ${title}`} onClick={() => { setIndex(initialIndex); setOpen(true); }}>
-      <CatalogImage className={imageClassName} src={image.url} alt={image.alt || title} transform={{ ...PRODUCT_THUMB_IMAGE, crop: 'fit' }} sizes="100px" loading="lazy" />
+      <CatalogImage className={imageClassName} src={image.url} alt={productImageAlt(image, title)} transform={{ ...PRODUCT_THUMB_IMAGE, crop: 'fit' }} sizes="100px" loading="lazy" />
     </button>
     {open && <ProductImageViewer images={images} title={title} index={index} onIndexChange={setIndex} onClose={() => setOpen(false)} />}
   </>;
