@@ -28,7 +28,9 @@ export function nextHeroLayout(layout: HeroLayout): HeroLayout {
   return HERO_LAYOUTS[(HERO_LAYOUTS.findIndex(item => item.value === layout) + 1) % HERO_LAYOUTS.length].value;
 }
 export const heroSettingsSchema = z.object({
-  layout: z.enum(['classic', 'signature', 'campaign']).default('classic'),
+  layout: z.enum(['classic', 'signature', 'campaign']).default('signature'),
+  startLayout: z.enum(['classic', 'signature', 'campaign']).default('signature'),
+  productSlots: z.array(z.string().max(200).regex(/^\/product\/[^/\\?#]+$/).nullable()).length(3).default([null, null, null]),
   mode: z.enum(['fixed', 'rotate']).default('rotate'),
   profiles: z.object({ classic: heroContentSchema.optional(), signature: heroContentSchema.optional(), campaign: heroContentSchema.optional() }).default({}),
   copySource: z.enum(['brand', 'banners']).default('brand'),
@@ -43,11 +45,11 @@ export const heroSettingsSchema = z.object({
   })).default({})
 });
 export type HeroSettings = z.infer<typeof heroSettingsSchema>;
-/** Storefront policy: always cycle; the saved layout is the starting design.
+/** Storefront policy: always cycle; the explicit startLayout is the starting design. Legacy records start with signature.
  * Retain legacy schema fields for old records and isolated editor previews.
  */
 export function storefrontHeroSettings(settings: HeroSettings): HeroSettings {
-  return { ...settings, mode: 'rotate', motion: settings.motion === 'none' ? 'lively' : settings.motion, autoplay: true };
+  return { ...settings, layout: settings.startLayout, mode: 'rotate', motion: settings.motion === 'none' ? 'lively' : settings.motion, autoplay: true };
 }
 export const DEFAULT_HERO_SETTINGS: HeroSettings = heroSettingsSchema.parse({});
 export function parseHeroSettings(input: unknown): HeroSettings {

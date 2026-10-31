@@ -13,7 +13,7 @@ const CampaignContext = createContext<(HeroProps & { content?: ReturnType<typeof
 function CampaignFallback() {
   const props = useContext(CampaignContext);
   if (!props) return null;
-  return <HeroCampaignSlide banner={props.banners[0] ?? FALLBACK_BANNER} settings={props.settings} first fallbackImage={props.products[0]?.image} content={props.content} products={props.products} />;
+  return <HeroCampaignSlide banner={props.banners[0] ?? FALLBACK_BANNER} settings={props.settings} first fallbackImage={props.products[0]?.image} content={props.content} mainProduct={props.mainProduct} products={props.products} />;
 }
 const HeroCarousel = dynamic(() => import('./HeroCarousel'), { loading: CampaignFallback });
 
@@ -51,7 +51,7 @@ export function HeroView(props: HeroProps) {
   </div>;
 }
 
-function HeroLayoutView({ settings, banners, products, content, catalogProducts = [], preview = false }: HeroProps & { content: ReturnType<typeof heroPresentation>['content'] }) {
+function HeroLayoutView({ settings, banners, products, content, mainProduct, catalogProducts = [], preview = false }: HeroProps & { content: ReturnType<typeof heroPresentation>['content'] }) {
   const [scope, animate] = useAnimate();
   const reduceMotion = useReducedMotion();
   const entered = useRef(false);
@@ -66,11 +66,11 @@ function HeroLayoutView({ settings, banners, products, content, catalogProducts 
   return <div className="shopHeroHost">
     <section ref={scope} className={`shopHero shopHero--${settings.layout}`} data-motion={settings.motion} aria-label="مختارات عشتار" data-preview={preview || undefined}>
       <HeroAtmosphere settings={settings} />
-      {settings.layout === 'campaign' ? <CampaignContext.Provider value={{ settings, banners: slides, products, content }}>
-        <HeroCarousel settings={settings} banners={slides} products={products} preview={preview} content={content} />
+      {settings.layout === 'campaign' ? <CampaignContext.Provider value={{ settings, banners: slides, products, mainProduct, content }}>
+        <HeroCarousel settings={settings} banners={slides} products={products} preview={preview} mainProduct={mainProduct} content={content} />
       </CampaignContext.Provider> : <>
         <HeroCopy banner={resolveHeroBanner(banner, settings)} signature={settings.layout === 'signature'} content={content} />
-        <HeroScene banner={banner} products={products} settings={settings} />
+        <HeroScene banner={banner} products={products} mainProduct={mainProduct} settings={settings} />
       </>}
       <HeroProductRail products={catalogProducts} />
       <HeroBenefits />

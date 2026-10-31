@@ -91,6 +91,17 @@ test('bounded admin and catalog queries preserve filters, ranking and fresh visi
       if (sort === 'price-desc') assert.ok(seen.every((p,i) => i===0 || p.price <= seen[i-1].price));
     }
   });
+  await t.test('hero pool includes only published, available products with images from active categories', async () => {
+    const { getHeroProducts } = await import('../src/features/hero/hero.queries');
+    const candidate = all[4];
+    await prisma.product.update({ where: { id: candidate.id }, data: { status: 'DRAFT' } });
+    const pool = await getHeroProducts();
+    assert.ok(pool.length > 0);
+    assert.ok(pool.every(p => p.image && p.href.startsWith('/product/')));
+    assert.ok(!pool.some(p => p.href === `/product/${all[0].slug}`));
+    assert.ok(!pool.some(p => p.href === `/product/${candidate.slug}`));
+    await prisma.product.update({ where: { id: candidate.id }, data: { status: candidate.status } });
+  });
   await t.test('summary omits member hydration; pills are bounded links; subsequent requests see edits', async () => {
     const summary = await getCollectionSummary('elegance');
     assert.ok(summary); assert.equal('products' in summary, false);

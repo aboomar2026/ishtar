@@ -9,7 +9,8 @@ import { JsonLd } from '@/components/JsonLd';
 import Link from '@/components/NavigationLink';
 import { CategoryStrip } from '@/components/CategoryStrip';
 import { HeroView } from '@/components/hero/HeroView';
-import { getPublicHeroSettings } from '@/features/hero/hero.queries';
+import { shuffleHeroProducts } from '@/features/hero/hero-products';
+import { getHeroProducts, getPublicHeroSettings } from '@/features/hero/hero.queries';
 import { ProductGrid } from '@/components/ProductGrid';
 import { PromoBanner } from '@/components/PromoBanner';
 import { getHomeCatalog } from '@/features/catalog/catalog.queries';
@@ -21,8 +22,8 @@ export const metadata = buildPageMetadata({ title: brand.seo.title, description:
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
-  const [catalog, heroSettings, collections] = await Promise.all([getHomeCatalog(), getPublicHeroSettings(), getCollections({ home: true, limit: 3 })]);
-  const heroProducts = [...catalog.featuredProducts, ...catalog.newArrivals].filter((product, index, all) => all.findIndex(other => other.id === product.id) === index).slice(0, 8).map(product => ({ image: product.image, name: product.name, href: `/product/${product.slug}` }));
+  const [catalog, heroSettings, collections, heroPool] = await Promise.all([getHomeCatalog(), getPublicHeroSettings(), getCollections({ home: true, limit: 3 }), getHeroProducts()]);
+  const heroProducts = shuffleHeroProducts(heroPool);
   const promoBanner = catalog.promoBanners[0];
 
   return (
