@@ -2,11 +2,12 @@
 
 import { useId, useState, useTransition } from 'react';
 import Link from '@/components/NavigationLink';
+import { StorefrontProductLink } from './StorefrontProductLink';
 import { useRouter } from 'next/navigation';
 import type { ProductStatus } from '@prisma/client';
 import { deleteProductAction, setProductStatusAction } from '@/features/admin/products/product-admin.actions';
 
-export function ProductRowActions({ id, slug, name, status }: { id: string; slug: string; name: string; status: ProductStatus }) {
+export function ProductRowActions({ id, slug, name, status, categoryActive = true }: { id: string; slug: string; name: string; status: ProductStatus; categoryActive?: boolean }) {
   const router = useRouter();
   const confirmationId = useId();
   const [confirming, setConfirming] = useState(false);
@@ -45,7 +46,7 @@ export function ProductRowActions({ id, slug, name, status }: { id: string; slug
   return (
     <div className="adminRowActions">
       <Link href={`/admin/products/${id}/edit`} className="adminBtn adminBtnSm">تعديل</Link>
-      <Link href={`/product/${slug}`} className="adminBtn adminBtnGhost adminBtnSm" target="_blank">عرض</Link>
+      <StorefrontProductLink slug={slug} published={status === 'ACTIVE' && categoryActive} className="adminBtn adminBtnGhost adminBtnSm" />
 
       <span className="adminRowActionsSep" aria-hidden="true" />
 
