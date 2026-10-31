@@ -13,7 +13,7 @@ import { getHeroContent } from '@/features/hero/hero-content';
 export function HeroEditor({ initial, banners, products }: { initial: HeroSettings; banners: CatalogBanner[]; products: HeroProduct[] }) {
   const [settings, setSettings] = useState(() => storefrontHeroSettings(initial));
   const [saved, setSaved] = useState(JSON.stringify(storefrontHeroSettings(initial)));
-  const [editingLayout, setEditingLayout] = useState<HeroLayout>(initial.layout);
+  const [editingLayout, setEditingLayout] = useState<HeroLayout>(initial.startLayout);
   const content = getHeroContent(settings, editingLayout, banners, products);
   const [device, setDevice] = useState<'desktop' | 'mobile'>('mobile');
   const [replay, setReplay] = useState(0);
@@ -35,9 +35,21 @@ export function HeroEditor({ initial, banners, products }: { initial: HeroSettin
   return <section className="adminCard heroEditor" aria-labelledby="hero-editor-title">
     <div className="adminCardHeader"><div><h2 id="hero-editor-title">تصميم واجهة المتجر</h2><p className="adminMuted">الواجهة تبدّل بين التصاميم الثلاثة تلقائياً كل دقيقة. اختَر تصميم البداية وخصّص محتوى كل تصميم ثم احفظ. المعاينة ثابتة للتعديل ولا تغيّر المتجر قبل الحفظ.</p></div><span className="adminBadge">{dirty ? 'تعديلات غير محفوظة' : 'الإعدادات المحفوظة'}</span></div>
     <fieldset className="heroLayoutPicker" disabled={pending}><legend>التصميم الأول في الدورة</legend>{HERO_LAYOUTS.map(layout => <label className={`heroLayoutChoice ${settings.layout === layout.value ? 'isSelected' : ''}`} key={layout.value}>
-      <input type="radio" name="hero-layout" value={layout.value} checked={settings.layout === layout.value} onChange={() => { patch({ layout: layout.value }); setEditingLayout(layout.value); }} />
+      <input type="radio" name="hero-layout" value={layout.value} checked={settings.layout === layout.value} onChange={() => { patch({ layout: layout.value, startLayout: layout.value }); setEditingLayout(layout.value); }} />
       <span className={`heroLayoutMini heroLayoutMini--${layout.value}`} aria-hidden="true"><i /><i /><i /></span><strong>{layout.title}</strong><span>{layout.description}</span>
     </label>)}</fieldset>
+    <fieldset disabled={pending} className="heroControlsFieldset"><legend>منتجات الهيرو</legend>
+      <p className="adminMuted">ثبّت منتجًا في أي مكان، أو اتركه عشوائيًا ليتغير مع كل دخول. الأماكن الثلاثة مستقلة ولا يتكرر المنتج بينها. المنتج غير المتوفر يُستبدل تلقائيًا.</p>
+      <div className="adminFormGrid two">{[0, 1, 2].map(index => <div className="adminField" key={index}>
+        <label htmlFor={`hero-slot-${index}`}>{index === 0 ? 'المنتج الأول — الصورة الرئيسية' : `المنتج ${index === 1 ? 'الثاني' : 'الثالث'} — البطاقة العائمة`}</label>
+        <select id={`hero-slot-${index}`} value={settings.productSlots[index] || ''} onChange={event => {
+          const slots = [...settings.productSlots]; slots[index] = event.target.value || null; patch({ productSlots: slots });
+        }}><option value="">عشوائي مع كل دخول</option>
+          {settings.productSlots[index] && !products.some(p => p.href === settings.productSlots[index]) && <option value={settings.productSlots[index]!}>غير متوفر حاليًا — سيُعرض بديل عشوائي</option>}
+          {products.map(product => <option key={product.href} value={product.href} disabled={settings.productSlots.some((href, slot) => slot !== index && href === product.href)}>{product.name}</option>)}
+        </select>
+      </div>)}</div>
+    </fieldset>
     <fieldset disabled={pending} className="heroControlsFieldset"><legend>الحركة والعرض</legend><div className="adminFormGrid two">
       <div className="adminField"><label htmlFor="hero-motion">مستوى الحركة</label><select id="hero-motion" value={settings.motion} onChange={e => patch({ motion: e.target.value as HeroSettings['motion'] })}><option value="calm">هادئة — دخول متتابع</option><option value="lively">حيوية — دخول وطفو واضح على الموبايل والكمبيوتر</option></select></div>
       {(settings.layout === 'campaign' || settings.mode === 'rotate' || editingLayout === 'campaign') && <>

@@ -21,3 +21,13 @@ export const getPublicHeroSettings = unstable_cache(getHeroSettings, ['public-he
   revalidate: 300,
   tags: ['public-hero-settings'],
 });
+
+// Only published, available products with a real primary image enter the hero pool.
+export async function getHeroProducts() {
+  const products = await prisma.product.findMany({
+    where: { deletedAt: null, status: 'ACTIVE', category: { isActive: true }, variants: { some: { isActive: true, quantity: { gt: 0 } } } },
+    select: { name: true, slug: true, images: { orderBy: [{ isPrimary: 'desc' }, { sortOrder: 'asc' }], take: 1, select: { url: true } } },
+    orderBy: [{ name: 'asc' }, { id: 'asc' }]
+  });
+  return products.flatMap(product => product.images[0]?.url ? [{ name: product.name, image: product.images[0].url, href: `/product/${product.slug}` }] : []);
+}

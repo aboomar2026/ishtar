@@ -18,7 +18,7 @@ Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
 test('admin edits each template independently, selects minute rotation and saves the complete configuration', async () => {
   const { HeroEditor } = await import('../src/components/admin/HeroEditor');
   let view!: ReactTestRenderer;
-  await act(async () => { view = create(createElement(HeroEditor, { initial: DEFAULT_HERO_SETTINGS, banners: [], products: [] })); });
+  await act(async () => { view = create(createElement(HeroEditor, { initial: { ...DEFAULT_HERO_SETTINGS, layout: 'classic', startLayout: 'classic' }, banners: [], products: [{ name: 'منتج مثبت', image: '/one.jpg', href: '/product/one' }] })); });
   const change = async (id: string, value: string) => act(async () => view.root.findByProps({ id }).props.onChange({ target: { value } }));
   await change('hero-title-0', 'عنوان الكلاسيكي الخاص');
   await change('hero-edit-layout', 'signature');
@@ -28,10 +28,14 @@ test('admin edits each template independently, selects minute rotation and saves
   await change('hero-title-0', 'عنوان الحملة الخاص');
   await change('hero-edit-layout', 'classic');
   assert.equal(view.root.findByProps({ id: 'hero-title-0' }).props.value, 'عنوان الكلاسيكي الخاص');
+  await change('hero-slot-0', '/product/one');
+  assert.equal(view.root.findByProps({ id: 'hero-slot-1' }).props.value, '');
+  assert.equal(view.root.findByProps({ id: 'hero-slot-2' }).props.value, '');
   const save = view.root.findAllByType('button').find(node => node.children.join('') === 'حفظ تصميم الواجهة');
   assert.ok(save);
   await act(async () => save.props.onClick());
   assert.equal(submitted?.mode, 'rotate');
+  assert.deepEqual(submitted?.productSlots, ['/product/one', null, null]);
   assert.equal(submitted?.layout, 'classic');
   assert.equal(submitted?.profiles.classic?.banners[0].title, 'عنوان الكلاسيكي الخاص');
   assert.equal(submitted?.profiles.signature?.banners[0].title, 'عنوان المميز الخاص');

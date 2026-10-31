@@ -6,7 +6,7 @@ import Fade from 'embla-carousel-fade';
 import { animate, motion, useReducedMotion } from 'motion/react';
 import { HeroCampaignSlide, resolveHeroBanner, type HeroProps } from './HeroVisuals';
 
-export default function HeroCarousel({ banners, settings, products, content }: HeroProps) {
+export default function HeroCarousel({ banners, settings, products, mainProduct, content }: HeroProps) {
   const reduceMotion = useReducedMotion();
   const [emblaRef, api] = useEmblaCarousel({ direction: 'rtl', loop: banners.length > 1, duration: settings.motion === 'none' || reduceMotion ? 0 : 30 }, settings.transition === 'fade' ? [Fade()] : []);
   const [selected, setSelected] = useState(0);
@@ -62,7 +62,7 @@ export default function HeroCarousel({ banners, settings, products, content }: H
     <motion.div className="shopHeroViewport" ref={emblaRef} initial={false} animate={viewportHeight ? { height: viewportHeight } : undefined} transition={{ duration: reduceMotion || settings.motion === 'none' ? 0 : .4, ease: [.22, 1, .36, 1] }} onPointerEnter={event => { if (event.pointerType === 'mouse') setHovered(true); }} onPointerLeave={() => setHovered(false)}>
       <div className="shopHeroTrack" aria-live={playing ? 'off' : 'polite'}>
         {banners.map((banner, index) => <div className={`shopHeroSlide shopHeroSlide--${index % 3}`} key={banner.id} inert={index !== selected} aria-hidden={index !== selected} role="group" aria-roledescription="شريحة" aria-label={`${index + 1} من ${banners.length}`}>
-          <HeroCampaignSlide banner={banner} settings={settings} first={index === 0} active={index === selected} fallbackImage={products[0]?.image} content={content} products={products} />
+          <HeroCampaignSlide banner={banner} settings={settings} first={index === 0} active={index === selected} fallbackImage={products[0]?.image} content={content} mainProduct={mainProduct} products={products} />
         </div>)}
       </div>
     </motion.div>

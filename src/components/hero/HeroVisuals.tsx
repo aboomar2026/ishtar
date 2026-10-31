@@ -10,7 +10,7 @@ import { getCloudinaryTransformedUrl } from '@/lib/cloudinary-image';
 import { heroHref, type HeroContent, type HeroSettings } from '@/features/hero/hero-config';
 
 export type HeroProduct = { image: string; name: string; href: string };
-export type HeroProps = { settings: HeroSettings; banners: CatalogBanner[]; products: HeroProduct[]; preview?: boolean; content?: HeroContent; catalogProducts?: HeroProduct[] };
+export type HeroProps = { settings: HeroSettings; banners: CatalogBanner[]; products: HeroProduct[]; preview?: boolean; content?: HeroContent; mainProduct?: HeroProduct; catalogProducts?: HeroProduct[] };
 export const FALLBACK_BANNER: CatalogBanner = { id: 'default', title: brand.copy.heroTitle, subtitle: brand.copy.heroSubtitle, eyebrow: brand.copy.heroEyebrow, ctaLabel: brand.copy.heroCta, href: '/category/new-in', placement: 'HOME_HERO' };
 
 export function resolveHeroBanner(banner: CatalogBanner, settings: HeroSettings): CatalogBanner {
@@ -43,18 +43,18 @@ export function HeroCopy({ banner, heading = 'h1', signature = false, content }:
   </div>;
 }
 
-export function HeroScene({ banner, products, settings, active = true, priority = true }: { banner: CatalogBanner; products: HeroProduct[]; settings: HeroSettings; active?: boolean; priority?: boolean }) {
+export function HeroScene({ banner, products, mainProduct, settings, active = true, priority = true }: { banner: CatalogBanner; products: HeroProduct[]; mainProduct?: HeroProduct; settings: HeroSettings; active?: boolean; priority?: boolean }) {
   const { ref, enabled, lively } = useHeroMotion(settings);
   const moving = enabled && active;
   const media = settings.media[banner.id];
-  const main = { image: banner.imageUrl || products[0]?.image, name: resolveHeroBanner(banner, settings).title, href: heroHref(banner.href) };
+  const main = mainProduct || { image: banner.imageUrl || products[0]?.image, name: resolveHeroBanner(banner, settings).title, href: heroHref(banner.href) };
   const extras = products.filter(product => product.image !== main.image).slice(0, 2);
   return <div className="shopHeroScene" ref={ref}>
     <span className="shopHeroSceneStamp"><IconStar size={16} weight="fill" /> ISHTAR EDIT</span>
     <motion.div className="shopHeroHalo" aria-hidden="true" initial={false} animate={moving ? { rotate: [-16, 10, -16], scale: [1, 1.07, 1] } : { rotate: -16, scale: 1 }} transition={moving ? { duration: 12, repeat: Infinity, ease: 'easeInOut' } : { duration: .2 }} />
     <motion.div className="shopHeroMainMotion" initial={false} animate={moving ? { y: [0, lively ? -18 : -8, 0], rotate: [0, lively ? -2 : -1, 0] } : { y: 0, rotate: 0 }} transition={moving ? { duration: lively ? 4.8 : 6.5, repeat: Infinity, ease: 'easeInOut' } : { duration: .2 }}>
     <Link className="shopHeroProduct shopHeroProductMain" href={main.href} data-hero-reveal aria-label={main.name}>
-      <HeroImage key={main.image} src={main.image} mobile={media?.mobileImageUrl} focus={media?.focus} priority={priority} />
+      <HeroImage key={main.image} src={main.image} mobile={mainProduct ? undefined : media?.mobileImageUrl} focus={mainProduct ? undefined : media?.focus} priority={priority} />
     </Link>
     </motion.div>
     <span className="shopHeroSceneSpark"><IconSparkle size={42} weight="duotone" /></span>
@@ -67,12 +67,12 @@ export function HeroScene({ banner, products, settings, active = true, priority 
   </div>;
 }
 
-export function HeroCampaignSlide({ banner, settings, first, active = first, fallbackImage, content, products = [] }: { banner: CatalogBanner; settings: HeroSettings; first: boolean; active?: boolean; fallbackImage?: string; content?: HeroContent; products?: HeroProduct[] }) {
+export function HeroCampaignSlide({ banner, settings, first, active = first, fallbackImage, content, mainProduct, products = [] }: { banner: CatalogBanner; settings: HeroSettings; first: boolean; active?: boolean; fallbackImage?: string; content?: HeroContent; mainProduct?: HeroProduct; products?: HeroProduct[] }) {
   const copy = resolveHeroBanner(banner, settings);
   return <div className="shopHeroCampaignSlide">
     <HeroCopy banner={copy} heading={first ? 'h1' : 'h2'} content={content} />
     <div className="shopHeroCampaignArtwork">
-      <HeroScene banner={{ ...banner, imageUrl: banner.imageUrl || fallbackImage }} products={products} settings={settings} active={active} priority={first} />
+      <HeroScene banner={{ ...banner, imageUrl: banner.imageUrl || fallbackImage }} products={products} settings={settings} mainProduct={first ? mainProduct : undefined} active={active} priority={first} />
     </div>
   </div>;
 }

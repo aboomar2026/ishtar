@@ -12,7 +12,7 @@ import type { CatalogBanner } from '../src/features/catalog/catalog.types';
 const banners: CatalogBanner[] = [1, 2].map(id => ({ id: String(id), placement: 'HOME_HERO', title: `حملة ${id}`, subtitle: 'وصف من الأدمن', href: `/category/campaign-${id}`, ctaLabel: 'تسوقي الحملة', imageUrl: `/mock-products/bag-camel.svg` }));
 test('static heroes render admin copy, usable links and one page heading before hydration', () => {
   for (const layout of ['classic', 'signature'] as const) {
-    const html = renderToStaticMarkup(createElement(HeroView, { settings: { ...DEFAULT_HERO_SETTINGS, layout, copySource: 'banners' }, banners, products: [] }));
+    const html = renderToStaticMarkup(createElement(HeroView, { settings: { ...DEFAULT_HERO_SETTINGS, layout, copySource: 'banners' }, banners, products: [], preview: true }));
     assert.match(html, /حملة 1/);
     assert.match(html, /وصف من الأدمن/);
     assert.match(html, /href="\/category\/campaign-1"/);
@@ -21,7 +21,7 @@ test('static heroes render admin copy, usable links and one page heading before 
   }
 });
 test('carousel renders first campaign on the server and keeps hidden campaigns out of tab order', () => {
-  const html = renderToStaticMarkup(createElement(HeroCarousel, { settings: { ...DEFAULT_HERO_SETTINGS, layout: 'campaign' }, banners, products: [] }));
+  const html = renderToStaticMarkup(createElement(HeroCarousel, { settings: { ...DEFAULT_HERO_SETTINGS, layout: 'campaign' }, banners, products: [], preview: true }));
   assert.equal((html.match(/<h1/g) ?? []).length, 1);
   assert.match(html, /inert="" aria-hidden="true"/);
   assert.match(html, /الحملة التالية/);
@@ -43,7 +43,7 @@ test('existing legacy banner copy stays hidden until admin explicitly selects ba
 });
 
 test('carousel exposes a working play control even when autoplay initially starts off', () => {
-  const html = renderToStaticMarkup(createElement(HeroCarousel, { settings: { ...DEFAULT_HERO_SETTINGS, autoplay: false }, banners, products: [] }));
+  const html = renderToStaticMarkup(createElement(HeroCarousel, { settings: { ...DEFAULT_HERO_SETTINGS, autoplay: false }, banners, products: [], preview: true }));
   assert.match(html, /aria-label="تشغيل التنقل التلقائي"/);
   assert.match(html, /aria-pressed="false"/);
   assert.match(html, /shopHeroProgress/);
@@ -53,14 +53,14 @@ test('stored template content replaces legacy copy, images, links and trust item
   const content = getHeroContent(DEFAULT_HERO_SETTINGS, 'signature', banners, []);
   const signature = { ...content, banners: [{ ...content.banners[0], title: 'عنوان مستقل', subtitle: 'وصف مستقل', imageUrl: '/signature.jpg', mobileImageUrl: '/signature-mobile.jpg', href: '/category/gifts' }], secondaryLabel: 'رابط مستقل', secondaryHref: '/category/all', trustItems: ['عبارة مستقلة'] };
   const settings = { ...DEFAULT_HERO_SETTINGS, layout: 'signature' as const, profiles: { signature } };
-  const html = renderToStaticMarkup(createElement(HeroView, { settings, banners, products: [] }));
+  const html = renderToStaticMarkup(createElement(HeroView, { settings, banners, products: [], preview: true }));
   assert.match(html, /عنوان مستقل/);
   assert.match(html, /وصف مستقل/);
   assert.match(html, /signature-mobile.jpg/);
   assert.match(html, /href="\/category\/gifts"/);
   assert.match(html, /عبارة مستقلة/);
   assert.match(html, /رابط مستقل/);
-  const classic = renderToStaticMarkup(createElement(HeroView, { settings: { ...settings, layout: 'classic' }, banners, products: [] }));
+  const classic = renderToStaticMarkup(createElement(HeroView, { settings: { ...settings, layout: 'classic' }, banners, products: [], preview: true }));
   assert.doesNotMatch(classic, /عنوان مستقل|signature-mobile.jpg|عبارة مستقلة/);
 });
 
@@ -89,4 +89,18 @@ test('hero atmosphere is decorative and product discovery links exist without hy
   assert.match(html, /href="\/product\/product-2"/);
   assert.match(html, /الدفع عند الاستلام/);
   assert.doesNotMatch(html.replace(/<[^>]*>/g, ''), /توصيل مجاني|5\.0|عملاء سعداء/);
+});
+
+test('server-rendered hero starts dark and links each pinned image to its matching product', () => {
+  const products = [1, 2, 3, 4].map(id => ({ name: `منتج ${id}`, image: `/product-${id}.jpg`, href: `/product/product-${id}` }));
+  const settings = { ...DEFAULT_HERO_SETTINGS, layout: 'classic' as const, productSlots: [products[3].href, null, products[0].href] };
+  const html = renderToStaticMarkup(createElement(HeroView, { settings, banners, products }));
+  assert.match(html, /shopHero--signature/);
+  const main = html.match(/<a[^>]*shopHeroProductMain[^>]*>[\s\S]*?<\/a>/)?.[0];
+  assert.ok(main);
+  assert.match(main, /href="\/product\/product-4"/);
+  assert.match(main, /src="\/product-4.jpg"/);
+  const third = html.match(/shopHeroFloat2[\s\S]*?<\/a>/)?.[0];
+  assert.ok(third);
+  assert.match(third, /href="\/product\/product-1"/);
 });

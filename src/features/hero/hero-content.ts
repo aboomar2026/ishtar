@@ -1,4 +1,5 @@
 import { ishtarDisplayCopy } from '@/lib/ishtar-display-copy';
+import { resolveHeroProducts } from './hero-products';
 import { brand } from '@/lib/brand';
 import type { CatalogBanner } from '@/features/catalog/catalog.types';
 import type { HeroContent, HeroLayout, HeroSettings } from './hero-config';
@@ -27,6 +28,7 @@ export function getHeroContent(settings: HeroSettings, layout: HeroLayout, banne
 }
 export function heroPresentation(settings: HeroSettings, layout: HeroLayout, banners: CatalogBanner[], products: Product[]) {
   const content = getHeroContent(settings, layout, banners, products);
+  const [mainProduct, ...extraProducts] = resolveHeroProducts(products, settings.productSlots);
   const slides = [...content.banners];
   // A single campaign banner must still become a useful slider when real products exist.
   if (layout === 'campaign' && settings.productSlides) {
@@ -38,7 +40,7 @@ export function heroPresentation(settings: HeroSettings, layout: HeroLayout, ban
   }
   const resolvedBanners: CatalogBanner[] = slides.map((banner, index) => ({ ...banner, id: `hero-${layout}-${index}`, placement: 'HOME_HERO' }));
   return {
-    content, banners: resolvedBanners, products: content.products,
+    content, banners: resolvedBanners, mainProduct, products: extraProducts.filter((p): p is Product => !!p),
     settings: { ...settings, layout, copySource: 'banners' as const, media: Object.fromEntries(slides.map((banner, index) => [`hero-${layout}-${index}`, { mobileImageUrl: banner.mobileImageUrl, focus: banner.focus }])) }
   };
 }

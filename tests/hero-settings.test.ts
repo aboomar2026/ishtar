@@ -12,8 +12,8 @@ function mockModule(id: string, exports: unknown) {
 }
 
 test('hero settings reject invalid controls and unsafe media/links', () => {
-  assert.equal(parseHeroSettings({}).layout, 'classic');
-  assert.equal(parseHeroSettings({ layout: 'unknown' }).layout, 'classic');
+  assert.equal(parseHeroSettings({}).layout, 'signature');
+  assert.equal(parseHeroSettings({ layout: 'unknown' }).layout, 'signature');
   for (const interval of [0, 4, 13, 7.5]) assert.equal(heroSettingsSchema.safeParse({ interval }).success, false);
   for (const mobileImageUrl of ['javascript:alert(1)', '//other.example/image', '/\\evil', 'http://example.com/a.jpg']) {
     assert.equal(heroSettingsSchema.safeParse({ media: { a: { mobileImageUrl } } }).success, false);
@@ -40,7 +40,7 @@ test('admin-only settings persist across database reads and template changes', {
   t.after(() => prisma.$disconnect());
   const { getHeroSettings } = await import('../src/features/hero/hero.queries');
   const { saveHeroSettingsAction } = await import('../src/features/hero/hero.actions');
-  assert.equal((await getHeroSettings()).layout, 'classic');
+  assert.equal((await getHeroSettings()).layout, 'signature');
   const sql = readFileSync('prisma/additive/hero-settings.sql', 'utf8');
   await db.exec(sql);
   await db.exec(sql);
@@ -54,9 +54,11 @@ test('admin-only settings persist across database reads and template changes', {
   const profiles = { classic, signature };
   const media = { 'banner-a': { mobileImageUrl: 'https://example.com/mobile.jpg', focus: 'top' as const } };
   for (const layout of ['signature', 'campaign', 'classic'] as const) {
-    assert.equal((await saveHeroSettingsAction({ layout, profiles, mode: 'rotate', media, motion: 'lively', autoplay: true, interval: 7 })).ok, true);
+    assert.equal((await saveHeroSettingsAction({ layout, startLayout: layout, productSlots: ['/product/fixed', null, null], profiles, mode: 'rotate', media, motion: 'lively', autoplay: true, interval: 7 })).ok, true);
     const saved = await getHeroSettings();
     assert.equal(saved.layout, layout);
+    assert.equal(saved.startLayout, layout);
+    assert.deepEqual(saved.productSlots, ['/product/fixed', null, null]);
     assert.deepEqual(saved.media, media);
     assert.equal(saved.mode, 'rotate');
     assert.deepEqual(saved.profiles, profiles);
