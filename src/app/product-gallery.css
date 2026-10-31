@@ -9,29 +9,32 @@
 .mediaGallery .mediaUsageCaption { margin:0; padding:0 4px; background:transparent; border-radius:0; color:var(--brand-muted, #695760); font-size:14px; line-height:1.65; }
 .productImageViewer { width:calc(100vw - 32px); max-width:1200px; height:94dvh; max-height:1000px; padding:0; border:1px solid #ddced3; border-radius:20px; color:#38252d; background:#fbf7f0; overflow:hidden; box-shadow:0 24px 100px #0005; }
 .productImageViewer::backdrop { background:rgb(32 22 28 / 82%); }
-.imageViewerSurface { height:100%; display:grid; grid-template-rows:auto minmax(0,1fr) auto auto auto; gap:10px; padding:14px; box-sizing:border-box; }
-.imageViewerHeader { display:flex; align-items:center; justify-content:space-between; gap:16px; min-width:0; }
-.imageViewerHeader strong { font-size:18px; line-height:1.4; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.imageViewerHeader button, .imageViewerControls button, .imageViewerControls a, .imageViewerFallback button { min-height:44px; padding:8px 14px; border:1px solid #d9c9d0; border-radius:12px; background:#fff; color:#573043; font:inherit; text-decoration:none; cursor:pointer; flex-shrink:0; }
-.imageViewerControls button:disabled { opacity:.45; cursor:default; }
-.productImageViewer :is(button,a):focus-visible { outline:3px solid #75465c; outline-offset:2px; }
-.imageViewerStage { display:flex; align-items:center; justify-content:center; min-height:0; min-width:0; overflow:auto; border-radius:12px; background:#eee5e2; touch-action:pan-y pinch-zoom; overscroll-behavior:contain; }
+.imageViewerSurface { height:100%; display:grid; grid-template-rows:auto minmax(0,1fr) auto; gap:10px; padding:14px; box-sizing:border-box; }
+.imageViewerHeader { min-width:0; }
+.imageViewerHeader strong { display:block; font-size:18px; line-height:1.4; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.productImageViewer button:focus-visible { outline:3px solid #75465c; outline-offset:2px; }
+.imageViewerCanvas { position:relative; min-height:0; min-width:0; isolation:isolate; }
+.imageViewerStage { display:flex; align-items:center; justify-content:center; height:100%; min-height:0; min-width:0; overflow:auto; border-radius:14px; background:#eee5e2; touch-action:pan-y pinch-zoom; overscroll-behavior:contain; }
 .imageViewerStage img { display:block; max-width:100%; max-height:100%; width:100%; height:100%; object-fit:contain; }
 .imageViewerStage.isZoomed { display:block; touch-action:pan-x pan-y pinch-zoom; }
 .imageViewerStage.isZoomed img { max-width:none; max-height:none; width:auto; height:auto; margin:auto; }
-.imageViewerControls { display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; font-size:14px; }
-.imageViewerControls [role="status"] { min-width:100px; text-align:center; }
+.imageViewerIcon { position:absolute; z-index:1; display:grid; place-items:center; width:44px; height:44px; padding:0; border:1px solid #ffffffb3; border-radius:50%; color:#573043; background:#fbf7f0ed; box-shadow:0 2px 12px #38252d26; cursor:pointer; }
+.imageViewerIcon:hover { background:#fff; }
+.imageViewerClose { top:12px; left:12px; }
+.imageViewerZoom { top:12px; right:12px; }
+.imageViewerPrevious { top:50%; right:12px; transform:translateY(-50%); }
+.imageViewerNext { top:50%; left:12px; transform:translateY(-50%); }
+.imageViewerDots { position:absolute; z-index:1; bottom:12px; left:50%; transform:translateX(-50%); display:flex; max-width:calc(100% - 24px); overflow-x:auto; border-radius:24px; padding:0 4px; background:#fbf7f0ed; box-shadow:0 2px 12px #38252d26; }
+.imageViewerDots button { display:grid; place-items:center; flex:0 0 32px; min-height:44px; padding:0; border:0; background:transparent; cursor:pointer; }
+.imageViewerDots span { width:8px; height:8px; border-radius:50%; background:#b8a5ad; transition:width .15s, background .15s; }
+.imageViewerDots button[aria-pressed="true"] span { width:22px; border-radius:6px; background:#573043; }
+.imageViewerDots button:focus-visible { outline-offset:-4px; border-radius:20px; }
+.imageViewerAnnouncement { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; border:0; }
 .imageViewerCaption { margin:0; text-align:center; font-size:13px; line-height:1.5; }
-.imageViewerThumbs { display:flex; justify-content:safe center; gap:8px; padding:3px; overflow-x:auto; overscroll-behavior:contain; }
-.imageViewerThumbs button { flex:0 0 58px; height:68px; padding:2px; border:2px solid transparent; border-radius:10px; background:#fff; cursor:pointer; }
-.imageViewerThumbs button[aria-pressed="true"] { border-color:#75465c; }
-.imageViewerThumbs img { display:block; width:100%; height:100%; object-fit:contain; border-radius:6px; }
-.imageViewerFallback { padding:16px; background:#fbf7f0; }
 @media (max-width:600px) {
   .productImageViewer { width:100vw; max-width:100vw; height:100dvh; max-height:100dvh; margin:0; border:0; border-radius:0; }
   .imageViewerSurface { padding:max(10px, env(safe-area-inset-top)) 10px max(10px, env(safe-area-inset-bottom)); gap:8px; }
   .imageViewerHeader strong { font-size:16px; }
-  .imageViewerControls { gap:6px; }
-  .imageViewerControls button, .imageViewerControls a { padding:7px 10px; }
-  .imageViewerThumbs button { flex-basis:50px; height:58px; }
+  .imageViewerClose, .imageViewerNext { left:8px; }
+  .imageViewerZoom, .imageViewerPrevious { right:8px; }
 }
