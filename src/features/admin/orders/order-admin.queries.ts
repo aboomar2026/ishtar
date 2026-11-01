@@ -166,7 +166,7 @@ export type AdminOrderDetail = {
   discount: number;
   total: number;
   createdAt: Date;
-  items: OrderItemView[];
+  items: (OrderItemView & { stockLocation: string })[];
   statusHistory: { id: string; fromStatus: OrderStatus | null; toStatus: OrderStatus; note?: string; createdAt: Date }[];
   inventoryLogs: { id: string; type: string; quantityChange: number; note?: string; createdAt: Date }[];
 };
@@ -175,7 +175,7 @@ export async function getAdminOrderById(id: string): Promise<AdminOrderDetail | 
   const order = await prisma.order.findUnique({
     where: { id },
     include: {
-      items: { orderBy: { createdAt: 'asc' } },
+      items: { orderBy: { createdAt: 'asc' }, include: { product: { select: { stockLocation: true } } } },
       statusHistory: { orderBy: { createdAt: 'asc' } }
     }
   });
@@ -214,7 +214,7 @@ export async function getAdminOrderById(id: string): Promise<AdminOrderDetail | 
     discount: decimalToNumber(order.discount),
     total: decimalToNumber(order.total),
     createdAt: order.createdAt,
-    items: order.items.map(mapOrderItem),
+    items: order.items.map((item) => ({ ...mapOrderItem(item), stockLocation: item.product.stockLocation })),
     statusHistory: order.statusHistory.map((entry) => ({
       id: entry.id,
       fromStatus: entry.fromStatus,

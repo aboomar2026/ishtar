@@ -32,6 +32,7 @@ export type ProductFormInitial = {
   details: string[];
   careInstructions: string;
   brand: string;
+  stockLocation: string;
   categoryId: string;
   basePrice: number | '';
   compareAtPrice?: number;
@@ -47,7 +48,7 @@ export type ProductFormInitial = {
 export function buildEmptyProduct(): ProductFormInitial {
   return {
     name: '', slug: '', subtitle: '', description: '', details: [],
-    careInstructions: '', brand: '', categoryId: '', basePrice: '',
+    careInstructions: '', brand: '', stockLocation: 'مخزون جوليا', categoryId: '', basePrice: '',
     status: 'DRAFT', isFeatured: false, isNewArrival: false, isBestSeller: false,
     tags: [], images: [], variants: []
   };
@@ -297,7 +298,7 @@ function VariantMatrix({ groups, sizes, errorFor, onChange, onEdit, onApplyQuant
 // ── ProductForm ─────────────────────────────────────────────────────────────
 
 const productFieldNames: Record<string, string> = {
-  name: 'اسم المنتج', slug: 'الرابط المختصر', subtitle: 'العنوان القصير',
+  name: 'اسم المنتج', slug: 'الرابط المختصر', subtitle: 'العنوان القصير', stockLocation: 'مكان المخزون',
   description: 'الوصف', categoryId: 'التصنيف', basePrice: 'السعر الأساسي',
   compareAtPrice: 'السعر قبل الخصم', status: 'حالة المنتج', images: 'صور المنتج',
   variants: 'خيارات المنتج', tags: 'الوسوم',
@@ -330,6 +331,7 @@ export function ProductForm({ mode, productId, categories, initial }: {
   const [details, setDetails] = useState(initial.details.join('\n'));
   const [careInstructions, setCareInstructions] = useState(initial.careInstructions);
   const [brand, setBrand] = useState(initial.brand);
+  const [stockLocation, setStockLocation] = useState(initial.stockLocation);
   const [categoryId, setCategoryId] = useState(initial.categoryId);
   const [basePrice, setBasePrice] = useState(initial.basePrice === '' ? '' : String(initial.basePrice));
   const [keepVariantPrices, setKeepVariantPrices] = useState(false);
@@ -517,6 +519,7 @@ export function ProductForm({ mode, productId, categories, initial }: {
       details: details.split('\n').map((line) => line.trim()).filter(Boolean),
       careInstructions: careInstructions.trim() || undefined,
       brand: brand.trim() || undefined,
+      stockLocation: stockLocation.trim(),
       categoryId,
       basePrice: numberOrUndefined(basePrice) ?? Number.NaN,
       compareAtPrice: numberOrUndefined(compareAtPrice),
@@ -654,6 +657,12 @@ export function ProductForm({ mode, productId, categories, initial }: {
           <div className="adminField">
             <label htmlFor="p-brand">العلامة التجارية</label>
             <input id="p-brand" value={brand} onChange={(event) => setBrand(event.target.value)} />
+          </div>
+          <div className="adminField">
+            <label htmlFor="p-stock-location">مكان المخزون (للإدارة فقط) *</label>
+            <input id="p-stock-location" value={stockLocation} maxLength={120} required onChange={(event) => setStockLocation(event.target.value)} placeholder="مخزون جوليا" />
+            <span className="adminFieldHint">معلومة داخلية لتجهيز الطلبات، لا تظهر للعملاء.</span>
+            {errorFor('stockLocation') && <span className="adminFieldError">{errorFor('stockLocation')}</span>}
           </div>
           <div className="adminField">
             <label htmlFor="p-tags">الوسوم (مفصولة بفواصل)</label>

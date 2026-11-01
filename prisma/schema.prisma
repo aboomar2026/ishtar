@@ -83,6 +83,7 @@ model Product {
   details          Json?
   careInstructions String?
   brand            String?
+  stockLocation    String        @default("مخزون جوليا")
   basePrice        Decimal       @db.Decimal(10, 2)
   compareAtPrice   Decimal?      @db.Decimal(10, 2)
   status           ProductStatus @default(DRAFT)

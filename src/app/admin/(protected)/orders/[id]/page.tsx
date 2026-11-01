@@ -123,7 +123,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                   <td>
                     <div className="adminCellMain">
                       <CatalogImage className="adminThumb" src={item.image ?? '/mock-products/gift-box.svg'} alt={item.productName}  transform={{ ...PRODUCT_THUMB_IMAGE, crop: 'fit' }} sizes="100px" loading="lazy" />
-                      <div><strong>{item.productName}</strong><small>{item.sku ?? '—'}</small></div>
+                      <div><strong>{item.productName}</strong><small>{item.sku ?? '—'}</small><small style={{ display: "block", fontWeight: 600 }}>المخزون: {item.stockLocation}</small></div>
                     </div>
                   </td>
                   <td>{[item.colorName, item.size].filter(Boolean).join(' · ') || '—'}</td>

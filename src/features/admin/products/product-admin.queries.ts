@@ -138,6 +138,7 @@ export async function getAdminProductById(id: string) {
     details: Array.isArray(product.details) ? (product.details as unknown[]).filter((d): d is string => typeof d === 'string') : [],
     careInstructions: product.careInstructions ?? '',
     brand: product.brand ?? '',
+    stockLocation: product.stockLocation,
     categoryId: product.categoryId,
     categoryActive: product.category.isActive,
     basePrice: decimalToNumber(product.basePrice),

@@ -127,6 +127,7 @@ function productScalarData(data: ProductParsed): Prisma.ProductUpdateInput {
     details: data.details,
     careInstructions: data.careInstructions ?? null,
     brand: data.brand ?? null,
+    stockLocation: data.stockLocation,
     basePrice: data.basePrice,
     compareAtPrice: data.compareAtPrice ?? null,
     status: data.status,
