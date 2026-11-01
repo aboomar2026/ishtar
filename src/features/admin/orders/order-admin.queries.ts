@@ -166,7 +166,7 @@ export type AdminOrderDetail = {
   discount: number;
   total: number;
   createdAt: Date;
-  items: OrderItemView[];
+  items: (OrderItemView & { stockLocation: string })[];
   statusHistory: { id: string; fromStatus: OrderStatus | null; toStatus: OrderStatus; note?: string; createdAt: Date }[];
   inventoryLogs: { id: string; type: string; quantityChange: number; note?: string; createdAt: Date }[];
 };
