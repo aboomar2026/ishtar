@@ -175,7 +175,7 @@ export async function getAdminOrderById(id: string): Promise<AdminOrderDetail | 
   const order = await prisma.order.findUnique({
     where: { id },
     include: {
-      items: { orderBy: { createdAt: 'asc' } },
+      items: { orderBy: { createdAt: 'asc' }, include: { product: { select: { stockLocation: true } } } },
       statusHistory: { orderBy: { createdAt: 'asc' } }
     }
   });
@@ -214,7 +214,7 @@ export async function getAdminOrderById(id: string): Promise<AdminOrderDetail | 
     discount: decimalToNumber(order.discount),
     total: decimalToNumber(order.total),
     createdAt: order.createdAt,
-    items: order.items.map(mapOrderItem),
+    items: order.items.map((item) => ({ ...mapOrderItem(item), stockLocation: item.product.stockLocation })),
     statusHistory: order.statusHistory.map((entry) => ({
       id: entry.id,
       fromStatus: entry.fromStatus,
