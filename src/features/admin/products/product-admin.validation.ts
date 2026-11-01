@@ -70,6 +70,7 @@ export const productInputSchema = z
     details: z.array(z.string().trim()).optional().default([]),
     careInstructions: optionalText,
     brand: optionalText,
+    stockLocation: z.string().trim().min(1, 'مكان المخزون مطلوب').max(120, 'اسم المخزون طويل جداً').default('مخزون جوليا'),
     categoryId: z.string().trim().min(1, 'التصنيف مطلوب'),
     basePrice: z.coerce.number().min(0, 'السعر الأساسي يجب ألا يقل عن صفر'),
     compareAtPrice: z
