@@ -139,6 +139,7 @@ export async function getAdminProductById(id: string) {
     careInstructions: product.careInstructions ?? '',
     brand: product.brand ?? '',
     stockLocation: product.stockLocation,
+    stockLocation: product.stockLocation,
     categoryId: product.categoryId,
     categoryActive: product.category.isActive,
     basePrice: decimalToNumber(product.basePrice),
