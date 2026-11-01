@@ -303,12 +303,12 @@ const productFieldNames: Record<string, string> = {
   variants: 'خيارات المنتج', tags: 'الوسوم',
 };
 function productIssueLabel(path: string): string {
-  const match = /^variants\\.(\\d+)\\.(\\w+)$/.exec(path);
+  const match = /^variants\.(\d+)\.(\w+)$/.exec(path);
   if (match) {
     const fields: Record<string, string> = { sku: 'الرقم التعريفي SKU', colorValue: 'كود اللون', size: 'المقاس', price: 'السعر', compareAtPrice: 'السعر قبل الخصم', quantity: 'الكمية', lowStockThreshold: 'حد المخزون' };
     return `الخيار ${Number(match[1]) + 1} — ${fields[match[2]] || match[2]}`;
   }
-  const imageMatch = /^images\\.(\\d+)\\.(\\w+)$/.exec(path);
+  const imageMatch = /^images\.(\d+)\.(\w+)$/.exec(path);
   if (imageMatch) return `الصورة ${Number(imageMatch[1]) + 1} — ${imageMatch[2] === 'url' ? 'رابط الصورة' : imageMatch[2]}`;
   return productFieldNames[path] || path;
 }
