@@ -1,5 +1,5 @@
 'use client';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import type { CatalogProductImage } from '@/features/catalog/catalog.types';
 import { FALLBACK_PRODUCT_IMAGE } from '@/features/catalog/catalog.utils';
 import { brand } from '@/lib/brand';
@@ -9,7 +9,7 @@ import { productImageAlt, ProductImageViewer } from './ProductImageViewer';
 
 const galleryTransform = brand.key === 'ishtar' ? { ...PRODUCT_GALLERY_IMAGE, crop: 'fit' as const } : PRODUCT_GALLERY_IMAGE;
 const thumbTransform = { ...PRODUCT_THUMB_IMAGE, crop: 'fit' as const };
-export function ProductMediaGallery({ images, title, caption }: { images: CatalogProductImage[]; title: string; caption?: string }) {
+export function ProductMediaGallery({ images, title, caption, actions }: { images: CatalogProductImage[]; title: string; caption?: string; actions?: ReactNode }) {
   const galleryImages = useMemo(() => {
     if (!images.length) return [{ id: 'fallback', url: FALLBACK_PRODUCT_IMAGE, alt: title, sortOrder: 0, isPrimary: true }];
     const primary = images.find(image => image.isPrimary) ?? images[0];
@@ -35,6 +35,6 @@ export function ProductMediaGallery({ images, title, caption }: { images: Catalo
         <CatalogImage src={image.url} transform={thumbTransform} sizes="(max-width: 780px) 30vw, 180px" loading="lazy" alt={productImageAlt(image, title)} />
       </button>)}
     </div>
-    {open && <ProductImageViewer images={galleryImages} title={title} caption={caption} index={index} onIndexChange={select} onClose={() => setOpen(false)} />}
+    {open && <ProductImageViewer images={galleryImages} title={title} caption={caption} actions={actions} index={index} onIndexChange={select} onClose={() => setOpen(false)} />}
   </div>;
 }

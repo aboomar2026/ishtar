@@ -1,6 +1,6 @@
 'use client';
 import { lockBodyScroll } from './dialog-scroll-lock';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { CatalogProductImage } from '@/features/catalog/catalog.types';
 import { CatalogImage } from './CatalogImage';
 import { PRODUCT_THUMB_IMAGE } from '@/lib/cloudinary-image';
@@ -12,8 +12,8 @@ export function productImageAlt(image: CatalogProductImage, title: string) {
 }
 
 // Native dialogs stay above the native quick-view dialog when nested.
-export function ProductImageViewer({ images, title, caption, index, onIndexChange, onClose }: {
-  images: CatalogProductImage[]; title: string; caption?: string; index: number;
+export function ProductImageViewer({ images, title, caption, actions, index, onIndexChange, onClose }: {
+  images: CatalogProductImage[]; title: string; caption?: string; actions?: ReactNode; index: number;
   onIndexChange: (index: number) => void; onClose: () => void;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -52,7 +52,7 @@ export function ProductImageViewer({ images, title, caption, index, onIndexChang
     }}>
     <div className="imageViewerSurface" dir="rtl">
       <header className="imageViewerHeader"><strong>{title}</strong></header>
-      <div className="imageViewerCanvas">
+      <div className={`imageViewerCanvas${images.length > 1 ? ' hasPagination' : ''}`}>
       <div className={`imageViewerStage${zoomed ? ' isZoomed' : ''}`}
         onPointerDown={event => { pointer.current = !zoomed && event.isPrimary && event.pointerType !== 'mouse' ? { x: event.clientX, y: event.clientY } : null; }}
         onPointerCancel={() => { pointer.current = null; }}
@@ -77,6 +77,7 @@ export function ProductImageViewer({ images, title, caption, index, onIndexChang
           {images.map((entry, position) => <button type="button" key={entry.id} aria-label={`الصورة ${position + 1} من ${images.length}`} aria-pressed={position === activeIndex} onClick={() => select(position)}><span /></button>)}
         </div>
       </>}
+      {actions && <div className="imageViewerActions">{actions}</div>}
       <span className="imageViewerAnnouncement" role="status" aria-live="polite" aria-atomic="true">الصورة {activeIndex + 1} من {images.length}</span>
       </div>
       <p className="imageViewerCaption">{caption?.trim() || title}</p>

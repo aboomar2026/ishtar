@@ -2,7 +2,7 @@
 import { WhatsAppContact } from './WhatsAppContact';
 import { ShareProductButton } from './ShareProductButton';
 import { WishlistButton } from './WishlistButton';
-import { IconStar, IconCheck } from './Icons';
+import { IconStar, IconCheck, IconCart } from './Icons';
 import { showCatalogMetrics } from '@/lib/catalog-display';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -31,6 +31,10 @@ function uniqueBy<T>(items: T[], getKey: (item: T) => string) {
 
 export function ProductDetailClient({ product, shareOrigin, compact = false }: { product: Product; shareOrigin?: string; compact?: boolean }) {
   const { addToCart, isCartLoaded } = useCart();
+  const [galleryOrigin, setGalleryOrigin] = useState(shareOrigin);
+  useEffect(() => {
+    if (!shareOrigin && typeof window !== 'undefined') setGalleryOrigin(window.location?.origin);
+  }, [shareOrigin]);
   const addedTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useEffect(() => () => { if (addedTimer.current) clearTimeout(addedTimer.current); }, []);
   const activeVariants = useMemo(() => product.variants.filter((variant) => variant.isActive), [product.variants]);
@@ -128,7 +132,24 @@ export function ProductDetailClient({ product, shareOrigin, compact = false }: {
 
   return (
     <div className="productDetailLayout">
-      <ProductMediaGallery key={product.id} images={product.images} title={product.name} caption={product.subtitle} />
+      <ProductMediaGallery key={product.id} images={product.images} title={product.name} caption={product.subtitle} actions={<>
+        {(hasColorOptions || hasSizeOptions) && <p className="imageViewerSelection">
+          {[selectedVariant?.colorName, selectedVariant?.size].filter(Boolean).join(' · ')} · الكمية {quantity}
+        </p>}
+        <div className="imageViewerActionButtons">
+          <button type="button" className="imageViewerAdd" aria-label="إضافة المنتج للسلة من معرض الصور" onClick={onAddToCart} disabled={!isCartLoaded || isOutOfStock}>
+            {added && !addFailed ? <IconCheck size={20} /> : <IconCart size={20} />}
+            {isOutOfStock ? 'نفدت الكمية' : added && !addFailed ? 'تمت الإضافة' : 'أضيفي للسلة'}
+          </button>
+          <WhatsAppContact label="اسألي عبر واتساب" context={{
+            kind: 'product', name: product.name, sku: selectedVariant?.sku,
+            url: galleryOrigin ? `${galleryOrigin}/product/${encodeURIComponent(product.slug)}` : undefined
+          }} />
+        </div>
+        <p className="imageViewerActionFeedback" role={addFailed ? 'alert' : 'status'} aria-live="polite">
+          {addFailed ? 'وصلتِ للكمية المتاحة في السلة.' : added ? 'تمت الإضافة للسلة' : ''}
+        </p>
+      </>} />
       <section className="productDetailPanel">
         <div className="productDetailHeader">
           <span className="eyebrow">{brand.copy.productEyebrow}</span>

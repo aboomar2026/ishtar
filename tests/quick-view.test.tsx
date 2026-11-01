@@ -93,3 +93,42 @@ test('quick view loads current data, retries network errors, blocks unpublished 
     assert.equal(additions.length, 0, 'loading/closing a preview never adds merchandise');
   } finally { await act(async () => view.unmount()); globalThis.fetch = originalFetch; }
 });
+
+
+test('gallery purchases use the selected variant and quantity, report cart limits and offer a product WhatsApp link', async () => {
+  const { ProductDetailClient } = await import('../src/components/ProductDetailClient');
+  const { ProductImageViewer } = await import('../src/components/ProductImageViewer');
+  const before = globalThis.document;
+  Object.assign(globalThis, { document: { body: { style: { overflow: '' } }, activeElement: null } });
+  let view!: ReactTestRenderer;
+  await act(async () => { view = create(createElement(ProductDetailClient, { product, compact: true, shareOrigin: 'https://ishtar.live' }), {
+    createNodeMock: element => element.type === 'dialog' ? { showModal() {}, close() {} } : null,
+  }); });
+  const button = (text: string) => view.root.findAllByType('button').find(b => b.children.includes(text))!;
+  try {
+    await act(async () => button('blue').props.onClick());
+    await act(async () => button('L').props.onClick());
+    await act(async () => view.root.findByProps({ 'aria-label': `فتح معرض صور ${product.name}` }).props.onClick());
+    const viewer = () => view.root.findByType(ProductImageViewer);
+    const add = () => viewer().findByProps({ 'aria-label': 'إضافة المنتج للسلة من معرض الصور' });
+    const link = viewer().findByType('a');
+    const message = new URL(link.props.href).searchParams.get('text')!;
+    assert.match(message, /منتج حديث/); assert.match(message, /blue-l/);
+    assert.match(message, /https:\/\/ishtar.live\/product\/product/);
+    assert.equal(link.props.target, '_blank');
+    await act(async () => add().props.onClick());
+    assert.equal(additions.length, 1);
+    assert.deepEqual({ id: additions[0].variantId, quantity: additions[0].quantity, price: additions[0].unitPrice }, { id: 'blue-l', quantity: 1, price: 40 });
+    accepted = false;
+    await act(async () => add().props.onClick());
+    assert.match(viewer().findByProps({ role: 'alert' }).children.join(''), /للكمية المتاحة/);
+    await act(async () => view.update(createElement(ProductDetailClient, { product: { ...product, isOutOfStock: true }, compact: true })));
+    assert.equal(add().props.disabled, true);
+    const count = additions.length;
+    await act(async () => add().props.onClick());
+    assert.equal(additions.length, count);
+  } finally {
+    await act(async () => view.unmount());
+    Object.assign(globalThis, { document: before }); accepted = true; additions.length = 0;
+  }
+});
