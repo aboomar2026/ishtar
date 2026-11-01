@@ -43,6 +43,9 @@ export default async function OrderSuccessPage({ searchParams }: { searchParams?
           وصلنا طلبك بنجاح. سنراجع التفاصيل ونتواصل معك لتأكيد الطلب وسعر التوصيل حسب المنطقة قبل التجهيز.
           طريقة الدفع: <strong>كاش عند الاستلام</strong>.
         </p>
+        <p role="alert" style={{ color: '#b91c1c', background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: 10, padding: '12px 14px', fontWeight: 700 }}>
+          يجب تأكيد طلبك عبر واتساب حتى يتم اعتماده وتجهيزه. استخدمي زر واتساب أسفل الصفحة مع رقم الطلب.
+        </p>
         <div className="orderBadgeRow">
           <span className="orderNumberPill">رقم الطلب: <strong>{order.orderNumber}</strong></span>
           <span className={`orderStatusBadge status-${order.status}`}>{ORDER_STATUS_LABEL_AR[order.status]}</span>
@@ -90,7 +93,7 @@ export default async function OrderSuccessPage({ searchParams }: { searchParams?
 
       <div className="heroActions center">
         <Link href={`/track-order?order=${encodeURIComponent(order.orderNumber)}`} className="primaryButton">تتبع هذا الطلب</Link>
-        <WhatsAppContact context={{ kind: 'order', orderNumber: order.orderNumber }} label="استفسار عن الطلب عبر واتساب" />
+        <WhatsAppContact context={{ kind: 'order', orderNumber: order.orderNumber }} label="تأكيد الطلب عبر واتساب" />
         <Link href="/category/new-in" className="ghostButton">تسوقي المزيد</Link>
         <Link href="/" className="ghostButton">العودة للرئيسية</Link>
       </div>
