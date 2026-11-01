@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { absoluteUrl, buildPageMetadata, catalogPath, categorySeoPath, hasCatalogFacets, isIndexingEnabled, plainDescription, serializeJsonLd } from '../src/lib/seo';
+import { absoluteUrl, buildPageMetadata, catalogPath, categorySeoPath, collectionSeoPath, collectionPageNumber, hasCatalogFacets, isIndexingEnabled, plainDescription, serializeJsonLd } from '../src/lib/seo';
 import { breadcrumbData, productData, storeData } from '../src/lib/structured-data';
 import { mapProductDetail } from '../src/features/catalog/catalog.mappers';
 
@@ -74,4 +74,12 @@ test('product markup reports selectable variant prices/stock and omits unverifie
     'https://www.tiktok.com/@ishtarr_3'
   ]);
   assert.equal(breadcrumbData([{ name: 'الرئيسية', path: '/' }])?.itemListElement[0].position, 1);
+});
+
+ test('collection URLs keep valid pagination and normalize invalid requests to the displayed page', () => {
+  assert.equal(collectionSeoPath('حقائب', 1), '/collections/%D8%AD%D9%82%D8%A7%D8%A6%D8%A8');
+  assert.equal(collectionSeoPath('bags', 2), '/collections/bags?page=2');
+  for (const [raw, expected] of [[undefined, 1], ['2', 2], ['999', 2], ['-2', 1], ['Infinity', 1], ['invalid', 1], ['1.9', 1]] as const) {
+    assert.equal(collectionPageNumber(raw, 25), expected);
+  }
 });

@@ -4,31 +4,26 @@ import { notFound, redirect } from "next/navigation";
 import { CollectionSymbol } from "@/components/CollectionCard";
 import { ProductGrid } from "@/components/ProductGrid";
 import { getCollection, getCollectionSummary } from "@/features/collections/collections.queries";
-import { publicSiteUrl } from "@/lib/site-url";
+import { buildPageMetadata, collectionSeoPath, collectionPageNumber } from "@/lib/seo";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbData } from "@/lib/structured-data";
 export const dynamic = "force-dynamic";
 type Props = {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ page?: string }>;
 };
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { slug } = await params;
   const collection = await getCollectionSummary(slug);
   if (!collection)
     return { title: "المجموعة غير موجودة", robots: { index: false } };
-  return {
-    title: `${collection.name} | عشتار`,
+  const page = collectionPageNumber((await searchParams).page, collection.productCount);
+  return buildPageMetadata({
+    title: `${collection.name}${page > 1 ? ` — صفحة ${page}` : ""} | عشتار`,
     description: collection.description,
-    alternates: publicSiteUrl()
-      ? { canonical: `/collections/${encodeURIComponent(slug)}` }
-      : undefined,
-    openGraph: {
-      title: collection.name,
-      description: collection.description,
-      images: collection.imageUrl
-        ? [collection.imageUrl]
-        : collection.images.slice(0, 1),
-    },
-  };
+    path: collectionSeoPath(slug, page),
+    image: collection.imageUrl || collection.images[0],
+  });
 }
 export default async function CollectionPage({ params, searchParams }: Props) {
   const { slug } = await params;
@@ -41,6 +36,11 @@ export default async function CollectionPage({ params, searchParams }: Props) {
   }
   return (
     <section className="contentSection">
+      <JsonLd data={breadcrumbData([
+        { name: 'الرئيسية', path: '/' },
+        { name: 'المجموعات', path: '/collections' },
+        { name: collection.name, path: collectionSeoPath(slug, collection.page) },
+      ])} />
       <nav className="collectionBreadcrumb" aria-label="مسار التصفح">
         <Link href="/">الرئيسية</Link>
         <span>/</span>

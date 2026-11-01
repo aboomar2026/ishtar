@@ -1,7 +1,7 @@
-import { getCollections } from '@/features/collections/collections.queries';
+import { collectionsReady, publishedProduct } from '@/features/collections/collections.queries';
 import type { MetadataRoute } from 'next';
 import { prisma } from '@/lib/prisma';
-import { absoluteUrl, categorySeoPath, catalogPath, isIndexingEnabled } from '@/lib/seo';
+import { absoluteUrl, categorySeoPath, collectionSeoPath, catalogPath, isIndexingEnabled } from '@/lib/seo';
 import { getProductsByCategorySlug } from '@/features/catalog/catalog.queries';
 import { virtualCategories } from '@/features/catalog/catalog.utils';
 
@@ -14,10 +14,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       slug: true, updatedAt: true, images: { select: { url: true, updatedAt: true } },
       variants: { select: { updatedAt: true } }
     } }),
-    getCollections({ limit: 100 })
+    // Sitemaps must not inherit the storefront card limit or load unused collage images.
+    (await collectionsReady()) ? prisma.collection.findMany({
+      where: { isActive: true, products: { some: { product: publishedProduct } } },
+      select: { slug: true, _count: { select: { products: { where: { product: publishedProduct } } } } },
+      orderBy: [{ sortOrder: 'asc' }, { id: 'asc' }],
+    }) : []
   ]);
   const entries: MetadataRoute.Sitemap = [{ url: absoluteUrl('/')! }];
-  entries.push({ url: absoluteUrl('/collections')! }, ...collections.map(collection => ({ url: absoluteUrl(`/collections/${encodeURIComponent(collection.slug)}`)! })));
+  entries.push({ url: absoluteUrl('/collections')! }, ...collections.flatMap(collection => Array.from({ length: Math.ceil(collection._count.products / 24) }, (_, index) => ({ url: absoluteUrl(collectionSeoPath(collection.slug, index + 1))! }))));
   const slugs = new Set([...Object.keys(virtualCategories), ...categories.map((category) => category.slug)]);
   // Use the storefront's exact sale/availability rules; empty categories must not be submitted.
   for (const slug of slugs) {

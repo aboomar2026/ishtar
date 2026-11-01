@@ -29,13 +29,24 @@ test('SEO rendered by production Next with a disposable catalogue', { timeout: 9
     { id: 'visible', name: 'حقائب', slug: 'bags' }, { id: 'empty', name: 'فارغ', slug: 'empty' },
     { id: 'hidden', name: 'مخفي', slug: 'hidden', isActive: false }
   ] });
-  for (let i = 0; i < 25; i++) await prisma.product.create({ data: {
+  for (let i = 0; i < 49; i++) await prisma.product.create({ data: {
     name: `حقيبة ${i}`, slug: `bag-${i}`, description: 'حقيبة يومية جميلة', categoryId: 'visible', status: 'ACTIVE', basePrice: 999,
     isFeatured: true, isNewArrival: true,
     images: { create: { url: 'https://images.example.invalid/bag.jpg', alt: 'حقيبة', isPrimary: true } },
     variants: { create: { sku: `BAG-${i}`, price: 25, quantity: 3 } }
   } });
   for (const [slug, categoryId, status] of [['draft', 'visible', 'DRAFT'], ['archived', 'visible', 'ARCHIVED'], ['hidden-product', 'hidden', 'ACTIVE']] as const) await prisma.product.create({ data: { name: slug, slug, categoryId, status, basePrice: 5, description: 'Not public' } });
+  const members = await prisma.product.findMany({ where: { categoryId: 'visible', status: 'ACTIVE' }, select: { id: true } });
+  await prisma.collection.create({ data: {
+    isActive: true, name: 'مجموعة الحقائب', slug: 'bags-collection', description: 'حقائب مختارة',
+    products: { create: members.slice(0, 25).map(product => ({ productId: product.id })) }
+  } });
+  await prisma.collection.createMany({ data: Array.from({ length: 101 }, (_, index) => ({
+    isActive: true, id: `collection-${index}`, name: `Collection ${index}`, slug: `extra-collection-${index}`, sortOrder: index + 1,
+  })) });
+  await prisma.collectionProduct.createMany({ data: Array.from({ length: 101 }, (_, index) => ({
+    collectionId: `collection-${index}`, productId: members[0].id,
+  })) });
   await prisma.$disconnect();
   await db.exec('DEALLOCATE ALL');
   let origin = ''; let output = '';
@@ -53,7 +64,7 @@ test('SEO rendered by production Next with a disposable catalogue', { timeout: 9
   const get = (path: string) => fetch(`${origin}${path}`, { headers: { 'User-Agent': 'Twitterbot/1.0' } });
   const canonical = (html: string) => html.match(/<link rel="canonical" href="([^"]+)"/g) ?? [];
   await t.test('home, product, category and pagination have exactly one correct canonical', async () => {
-    for (const [path, suffix] of [['/', ''], ['/product/bag-0?utm_source=ad', '/product/bag-0'], ['/category/bags?page=1', '/category/bags'], ['/category/bags?page=2&utm_source=ad', '/category/bags?page=2']]) {
+    for (const [path, suffix] of [['/', ''], ['/product/bag-0?utm_source=ad', '/product/bag-0'], ['/category/bags?page=1', '/category/bags'], ['/category/bags?page=2&utm_source=ad', '/category/bags?page=2'], ['/collections', '/collections'], ['/collections/bags-collection', '/collections/bags-collection'], ['/collections/bags-collection?page=2&utm_source=ad', '/collections/bags-collection?page=2']]) {
       const response = await get(path); assert.equal(response.status, 200);
       const html = await response.text();
       assert.deepEqual(canonical(html), [`<link rel="canonical" href="https://ishtar-qa.example.invalid${suffix}"`]);
@@ -61,6 +72,17 @@ test('SEO rendered by production Next with a disposable catalogue', { timeout: 9
       assert.match(html, process.env.SEO_TEST_PREVIEW === 'true' ? /<meta name="robots" content="noindex/ : /<meta name="robots" content="index/);
       assert.match(html, /<meta name="twitter:card" content="summary_large_image"/);
     }
+  });
+  await t.test('collection metadata matches its page, image fallback and breadcrumb structure', async () => {
+    const html = await (await get('/collections/bags-collection?page=2')).text();
+    assert.match(html, /property="og:url" content="https:\/\/ishtar-qa.example.invalid\/collections\/bags-collection\?page=2"/);
+    assert.match(html, /property="og:image" content="https:\/\/images.example.invalid\/bag.jpg"/);
+    const data = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/g)].map(match => JSON.parse(match[1]));
+    const breadcrumbs = data.find(item => item['@type'] === 'BreadcrumbList');
+    assert.equal(breadcrumbs.itemListElement[2].item, 'https://ishtar-qa.example.invalid/collections/bags-collection?page=2');
+    const response = await fetch(`${origin}/collections/bags-collection?page=999`, { redirect: 'manual' });
+    assert.equal(response.status, 307);
+    assert.equal(response.headers.get('location'), '/collections/bags-collection?page=2');
   });
   await t.test('server HTML contains actual offers, breadcrumbs, stock and ILS', async () => {
     const html = await (await get('/product/bag-0')).text();
@@ -88,6 +110,8 @@ test('SEO rendered by production Next with a disposable catalogue', { timeout: 9
     if (process.env.SEO_TEST_PREVIEW === 'true') { assert.doesNotMatch(xml, /<loc>/); return; }
     assert.match(xml, /\/category\/bags\?page=2<\/loc>/);
     assert.match(xml, /\/product\/bag-24<\/loc>/);
+    assert.match(xml, /\/collections\/bags-collection\?page=2<\/loc>/);
+    assert.match(xml, /\/collections\/extra-collection-100<\/loc>/);
     assert.match(xml, /<image:loc>https:\/\/images.example.invalid\/bag.jpg<\/image:loc>/);
     for (const excluded of ['draft', 'archived', 'hidden-product', '/category/hidden', '/category/empty', '/category/sale', '/cart', '/checkout']) assert.ok(!xml.includes(excluded), excluded);
   });
