@@ -38,3 +38,17 @@
   .imageViewerClose, .imageViewerNext { left:8px; }
   .imageViewerZoom, .imageViewerPrevious { right:8px; }
 }
+
+/* Storefront actions share the selected variant, quantity and cart result. */
+.imageViewerActions { position:absolute; z-index:1; bottom:12px; left:50%; transform:translateX(-50%); width:calc(100% - 24px); max-width:460px; padding:8px; box-sizing:border-box; border:1px solid #ffffffb3; border-radius:18px; background:#fbf7f0f2; box-shadow:0 3px 18px #38252d26; }
+.imageViewerCanvas.hasPagination .imageViewerActions { bottom:70px; }
+.imageViewerActionButtons { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.imageViewerActionButtons :is(button,a) { display:flex; align-items:center; justify-content:center; gap:7px; min-height:44px; padding:9px 8px; border:0; border-radius:12px; font:inherit; font-size:14px; font-weight:700; line-height:1.35; text-decoration:none; cursor:pointer; }
+.imageViewerActionButtons svg { flex-shrink:0; }
+.imageViewerActionButtons .imageViewerAdd { color:#fff; background:#573043; }
+.imageViewerActionButtons .imageViewerAdd:disabled { opacity:.55; cursor:not-allowed; }
+.imageViewerActionButtons .whatsappContact { margin:0; color:#185c41; background:#e4f0e8; }
+.imageViewerSelection { margin:0 0 7px; color:#573043; font-size:12px; line-height:1.5; text-align:center; }
+.imageViewerActionFeedback { margin:0; font-size:12px; line-height:1.5; text-align:center; color:#573043; }
+.imageViewerActionFeedback:not(:empty) { margin-top:7px; }
+@media (max-width:360px) { .imageViewerActionButtons :is(button,a) { font-size:12px; gap:4px; } }
