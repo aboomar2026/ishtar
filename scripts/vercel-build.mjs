@@ -13,8 +13,10 @@ export function buildSteps(env) {
   const steps = [['prisma', 'generate']];
   // Preview deployments share the connected database by default. Only production
   // applies schema changes and creates the initial administrator.
-  if (env.VERCEL_ENV === 'production' || (env.VERCEL_ENV === 'preview' && env.VERCEL_GIT_COMMIT_REF === 'feature/whatsapp-confirmation-stock-location')) {
+  if (env.VERCEL_ENV === 'production') {
     steps.push(['prisma', 'migrate', 'deploy'], ['tsx', 'scripts/bootstrap-admin.ts']);
+  } else if (env.VERCEL_ENV === 'preview' && env.VERCEL_GIT_COMMIT_REF === 'feature/whatsapp-confirmation-stock-location') {
+    steps.push(['prisma', 'migrate', 'deploy']);
   }
   steps.push(['next', 'build']);
   return steps;
