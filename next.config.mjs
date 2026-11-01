@@ -1,5 +1,8 @@
+import { productionDomainRedirects } from './scripts/site-redirects.mjs';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async redirects() { return productionDomainRedirects(process.env); },
   env: { SEO_NOINDEX: process.env.SEO_NOINDEX === 'true' || ['preview', 'development'].includes(process.env.VERCEL_ENV ?? '') ? 'true' : 'false' },
   // Ensure the Prisma query-engine binaries are bundled into the serverless
   // functions on Vercel. Without this the engine can be missing at

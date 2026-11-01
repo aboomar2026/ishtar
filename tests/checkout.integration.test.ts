@@ -18,6 +18,7 @@ test('real Prisma checkout and HTTP rendering on disposable Postgres', { timeout
   const connection = address.startsWith('postgres') ? address : `postgresql://postgres:test@${address}/postgres`;
   process.env.DATABASE_URL = `${connection}${connection.includes('?') ? '&' : '?'}connection_limit=1&sslmode=disable`;
   process.env.NEXT_PUBLIC_STORE_BRAND = 'ishtar';
+  process.env.NEXT_PUBLIC_SITE_URL = 'https://www.ishtar.live/';
   process.env.ORDER_OUTBOX_ENABLED = 'true';
   process.env.ORDER_OUTBOX_WORKER_ENABLED = 'false';
   process.env.ADMIN_SESSION_SECRET = randomUUID();
@@ -77,6 +78,13 @@ test('real Prisma checkout and HTTP rendering on disposable Postgres', { timeout
       assert.equal(await prisma.orderNotification.count(), 1);
       assert.equal((await prisma.orderNotification.findUniqueOrThrow({ where: { orderId } })).deliveryStatus, 'SENT');
       assert.match(telegramMessages[0], new RegExp(orderNumber));
+      const sent = JSON.parse(telegramMessages[0]);
+      assert.ok(sent.text.includes(`فتح الطلب: https://www.ishtar.live/admin/orders/${encodeURIComponent(orderId)}`));
+      assert.ok(!sent.text.includes('vercel.app') && !sent.text.includes('localhost'));
+      const { getOrderForPrint } = await import('../src/features/admin/orders/order-print.queries');
+      const printed = await getOrderForPrint(orderId);
+      assert.equal(printed?.trackUrl, `https://www.ishtar.live/track-order?order=${encodeURIComponent(orderNumber)}`);
+      assert.match(printed!.qrDataUrl, /^data:image\/png;base64,/);
     });
     await t.test('same key with changed payload is rejected and receipt recovery returns no customer data', async () => {
       const result = await createCodOrderAction({ ...input(key), area: 'منطقة مختلفة' });
