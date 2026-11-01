@@ -315,6 +315,7 @@ export function ProductForm({ mode, productId, categories, initial }: {
   const [brand, setBrand] = useState(initial.brand);
   const [categoryId, setCategoryId] = useState(initial.categoryId);
   const [basePrice, setBasePrice] = useState(initial.basePrice === '' ? '' : String(initial.basePrice));
+  const [keepVariantPrices, setKeepVariantPrices] = useState(false);
   const [compareAtPrice, setCompareAtPrice] = useState(initial.compareAtPrice != null ? String(initial.compareAtPrice) : '');
   const [status, setStatus] = useState(initial.status);
   const [isFeatured, setIsFeatured] = useState(initial.isFeatured);
@@ -423,7 +424,18 @@ export function ProductForm({ mode, productId, categories, initial }: {
     });
   }
 
+  const activePrices = variants.filter(variant => variant.isActive);
+  const priceMismatch = productType === 'variable' && activePrices.some(variant =>
+    Number(variant.price) !== Number(basePrice) ||
+    (variant.compareAtPrice === '' ? (compareAtPrice === '' ? undefined : Number(compareAtPrice)) : Number(variant.compareAtPrice)) !==
+      (compareAtPrice === '' ? undefined : Number(compareAtPrice))
+  );
+  const purchasablePrices = activePrices.filter(variant => Number(variant.quantity) > 0);
+  const storefrontPrice = Math.min(...(purchasablePrices.length ? purchasablePrices : activePrices).map(variant => Number(variant.price)));
+
   function applyProductPriceToAllVariants() {
+    setKeepVariantPrices(false);
+    setFormMessage(null);
     setVariants((prev) => prev.map((variant) => ({ ...variant, price: basePrice, compareAtPrice })));
   }
 
@@ -531,6 +543,10 @@ export function ProductForm({ mode, productId, categories, initial }: {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (priceMismatch && !keepVariantPrices) {
+      setFormMessage('أسعار الخيارات تختلف عن السعر الأساسي. طبّق السعر على كل الخيارات أو أكّد الاحتفاظ بأسعار مختلفة قبل الحفظ.');
+      return;
+    }
     if (uploading) { setFormMessage('انتظر اكتمال رفع الصورة قبل الحفظ.'); return; }
     setFormMessage(null);
     setIssues({});
@@ -632,15 +648,31 @@ export function ProductForm({ mode, productId, categories, initial }: {
           </div>
           <div className="adminField">
             <label htmlFor="p-baseprice">السعر الأساسي (₪) *</label>
-            <input id="p-baseprice" className={errorFor('basePrice') ? 'hasError' : ''} type="number" min="0" step="0.01" value={basePrice} onChange={(event) => setBasePrice(event.target.value)} required />
+            <input id="p-baseprice" className={errorFor('basePrice') ? 'hasError' : ''} type="number" min="0" step="0.01" value={basePrice} onChange={(event) => { setBasePrice(event.target.value); setKeepVariantPrices(false); }} required />
             {errorFor('basePrice') && <span className="adminFieldError">{errorFor('basePrice')}</span>}
           </div>
           <div className="adminField">
             <label htmlFor="p-compareprice">السعر قبل الخصم (₪)</label>
-            <input id="p-compareprice" className={errorFor('compareAtPrice') ? 'hasError' : ''} type="number" min="0" step="0.01" value={compareAtPrice} onChange={(event) => setCompareAtPrice(event.target.value)} />
+            <input id="p-compareprice" className={errorFor('compareAtPrice') ? 'hasError' : ''} type="number" min="0" step="0.01" value={compareAtPrice} onChange={(event) => { setCompareAtPrice(event.target.value); setKeepVariantPrices(false); }} />
             {errorFor('compareAtPrice') && <span className="adminFieldError">{errorFor('compareAtPrice')}</span>}
           </div>
         </div>
+        {productType === 'variable' && (
+          <div className="adminAlert isInfo" role="status">
+            <p>سعر المتجر والطلب يؤخذ من خيارات اللون والمقاس، وليس من السعر الأساسي وحده.</p>
+            {activePrices.length > 0 && <p>سعر المتجر بعد الحفظ حسب الخيارات: {storefrontPrice} ₪</p>}
+            <button type="button" className="adminBtn adminBtnGhost" onClick={applyProductPriceToAllVariants}>تطبيق السعر على كل الخيارات</button>
+            {priceMismatch && (
+              <>
+                <p>تنبيه: أسعار الخيارات تختلف عن السعر الأساسي أو السعر قبل الخصم.</p>
+                <label className="adminCheck">
+                  <input type="checkbox" checked={keepVariantPrices} onChange={event => setKeepVariantPrices(event.target.checked)} />
+                  أريد الاحتفاظ بأسعار مختلفة للخيارات
+                </label>
+              </>
+            )}
+          </div>
+        )}
         <div className="adminCheckRow" style={{ marginTop: 13 }}>
           <label className={`adminCheck${isFeatured ? ' isOn' : ''}`}><input type="checkbox" checked={isFeatured} onChange={(event) => setIsFeatured(event.target.checked)} /> مميز</label>
           <label className={`adminCheck${isNewArrival ? ' isOn' : ''}`}><input type="checkbox" checked={isNewArrival} onChange={(event) => setIsNewArrival(event.target.checked)} /> وصل حديثاً</label>
