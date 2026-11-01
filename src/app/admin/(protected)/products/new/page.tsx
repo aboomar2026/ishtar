@@ -13,6 +13,7 @@ const EMPTY: ProductFormInitial = {
   details: [],
   careInstructions: '',
   brand: '',
+  stockLocation: 'مخزون جوليا',
   categoryId: '',
   basePrice: '',
   status: 'DRAFT',
