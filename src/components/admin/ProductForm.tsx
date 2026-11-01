@@ -296,6 +296,23 @@ function VariantMatrix({ groups, sizes, errorFor, onChange, onEdit, onApplyQuant
 
 // ── ProductForm ─────────────────────────────────────────────────────────────
 
+const productFieldNames: Record<string, string> = {
+  name: 'اسم المنتج', slug: 'الرابط المختصر', subtitle: 'العنوان القصير',
+  description: 'الوصف', categoryId: 'التصنيف', basePrice: 'السعر الأساسي',
+  compareAtPrice: 'السعر قبل الخصم', status: 'حالة المنتج', images: 'صور المنتج',
+  variants: 'خيارات المنتج', tags: 'الوسوم',
+};
+function productIssueLabel(path: string): string {
+  const match = /^variants\.(\d+)\.(\w+)$/.exec(path);
+  if (match) {
+    const fields: Record<string, string> = { sku: 'الرقم التعريفي SKU', colorValue: 'كود اللون', size: 'المقاس', price: 'السعر', compareAtPrice: 'السعر قبل الخصم', quantity: 'الكمية', lowStockThreshold: 'حد المخزون' };
+    return `الخيار ${Number(match[1]) + 1} — ${fields[match[2]] || match[2]}`;
+  }
+  const imageMatch = /^images\.(\d+)\.(\w+)$/.exec(path);
+  if (imageMatch) return `الصورة ${Number(imageMatch[1]) + 1} — ${imageMatch[2] === 'url' ? 'رابط الصورة' : imageMatch[2]}`;
+  return productFieldNames[path] || path;
+}
+
 export function ProductForm({ mode, productId, categories, initial }: {
   mode: 'create' | 'edit';
   productId?: string;
@@ -335,6 +352,7 @@ export function ProductForm({ mode, productId, categories, initial }: {
 
   const [formMessage, setFormMessage] = useState<string | null>(null);
   const [issues, setIssues] = useState<Record<string, string>>({});
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
   const [showBuilder, setShowBuilder] = useState(true);
   const [editingVariantIndex, setEditingVariantIndex] = useState<number | null>(null);
   const [bulkQuantity, setBulkQuantity] = useState('');
@@ -543,6 +561,7 @@ export function ProductForm({ mode, productId, categories, initial }: {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setAttemptedSubmit(true);
     if (priceMismatch && !keepVariantPrices) {
       setFormMessage('أسعار الخيارات تختلف عن السعر الأساسي. طبّق السعر على كل الخيارات أو أكّد الاحتفاظ بأسعار مختلفة قبل الحفظ.');
       return;
@@ -553,15 +572,20 @@ export function ProductForm({ mode, productId, categories, initial }: {
     const payload = buildPayload();
 
     startTransition(async () => {
-      const result = mode === 'create'
-        ? await createProductAction(payload)
-        : await updateProductAction(productId as string, payload);
+      try {
+        const result = mode === 'create'
+          ? await createProductAction(payload)
+          : await updateProductAction(productId as string, payload);
 
-      if (result && !result.ok) {
-        setFormMessage(result.message);
-        const map: Record<string, string> = {};
-        result.issues.forEach((issue: ActionIssue) => { map[issue.path] = issue.message; });
-        setIssues(map);
+        if (result && !result.ok) {
+          setFormMessage(result.message);
+          const map: Record<string, string> = {};
+          result.issues.forEach((issue: ActionIssue) => { map[issue.path] = issue.message; });
+          setIssues(map);
+          if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      } catch {
+        setFormMessage('تعذّر حفظ المنتج بسبب مشكلة اتصال أو خطأ في الخادم. لم يتم تأكيد الحفظ؛ تحقق من قائمة المنتجات قبل إعادة المحاولة.');
         if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     });
@@ -571,12 +595,24 @@ export function ProductForm({ mode, productId, categories, initial }: {
 
   const dirty = useUnsavedChanges(JSON.stringify(buildPayload()), pending);
   return (
-    <form className="adminForm" onSubmit={handleSubmit}>
+    <form className="adminForm" noValidate onSubmit={handleSubmit}>
       {dirty && <p className="adminAlert isInfo" role="status">لديك تعديلات غير محفوظة.</p>}
       {formMessage && <div className="adminAlert isError" role="alert">{formMessage}</div>}
-      {status === 'ACTIVE' && activeCount === 0 && <div className="adminAlert isInfo">يحتاج المنتج النشط إلى خيار نشط واحد على الأقل قبل أن يُحفظ.</div>}
+      {Object.keys(issues).length > 0 && (
+        <div className="adminAlert isError" role="alert" aria-label="تفاصيل أخطاء الحفظ">
+          <strong>تعذّر حفظ المنتج: {Object.keys(issues).length} حقول تحتاج مراجعة</strong>
+          <ul style={{ margin: '8px 0 0', paddingInlineStart: 22 }}>
+            {Object.entries(issues).map(([path, message]) => (
+              <li key={path}><strong>{productIssueLabel(path)}:</strong> {message}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {status === 'ACTIVE' && activeCount === 0 && <div className="adminAlert isInfo">يحتاج المنتج النشط إلى خيار نشط واحد على الأقل قبل أن يُحفظ. في المنتجات متعددة الخيارات، اضغط «⚡ توليد الخيارات» بعد اختيار الألوان والمقاسات، ثم تأكد من ظهور خيارات نشطة في «الخيارات الناتجة».</div>}
       {status === 'ACTIVE' && allActiveVariantsOutOfStock && <div className="adminAlert isInfo">كل الخيارات النشطة كميتها صفر، سيظهر المنتج كغير متوفر.</div>}
       {duplicateActiveComboCount > 0 && <div className="adminAlert isError">لا يمكن تكرار نفس اللون والمقاس أكثر من مرة في الخيارات النشطة.</div>}
+      {attemptedSubmit && status === 'ACTIVE' && activeCount === 0 && productType === 'variable' && <div className="adminAlert isError" role="alert">لم يتم توليد خيارات نشطة. انزل إلى «منشئ الخيارات» واضغط «⚡ توليد الخيارات»، وتأكد أن عدد الخيارات النشطة أكبر من صفر.</div>}
 
       <div className="adminCard">
         <div className="adminCardHeader"><h2>أساسيات المنتج</h2></div>
