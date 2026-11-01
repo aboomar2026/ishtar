@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import type { DeliveryFeeStatus, OrderStatus } from '@prisma/client';
 import { updateOrderStatusAction } from '@/features/admin/orders/order-admin.actions';
@@ -17,37 +17,46 @@ export function OrderStatusActions({
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const submitting = useRef(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
 
   const nextStatuses = ALLOWED_TRANSITIONS[status] ?? [];
   const deliveryPending = deliveryFeeStatus === 'PENDING';
 
   function run(next: OrderStatus) {
+    if (submitting.current) return;
     setError(null);
+    setSuccess(null);
     if (next === 'SHIPPED' && deliveryPending) {
       setError('حدد سعر التوصيل أو اعتمده مجانياً قبل تحويل الطلب إلى تم الشحن.');
       return;
     }
-
-    let note: string | undefined;
-    if (next === 'CANCELED') {
-      const confirmed = window.confirm('هل تريد إلغاء هذا الطلب؟ ستتم إعادة الكمية إلى المخزون.');
-      if (!confirmed) return;
-      const reason = window.prompt('سبب الإلغاء (اختياري):');
-      if (reason === null) return;
-      note = reason.trim() || undefined;
+    if (next === 'CANCELED' && !cancelOpen) {
+      setCancelOpen(true);
+      return;
     }
+
+    const note = next === 'CANCELED' ? cancelReason.trim() || undefined : undefined;
+    submitting.current = true;
     startTransition(async () => {
       try {
-
-      const result = await updateOrderStatusAction(orderId, next, note);
-      if (!result.ok) {
-        setError(result.message);
-        return;
+        const result = await updateOrderStatusAction(orderId, next, note);
+        if (!result.ok) {
+          setError(result.message);
+          return;
+        }
+        setCancelOpen(false);
+        setCancelReason('');
+        setSuccess(next === 'CANCELED' ? 'تم إلغاء الطلب وإعادة الكمية إلى المخزون.' : 'تم تحديث حالة الطلب.');
+        router.refresh();
+      } catch {
+        setError('تعذر تأكيد تغيير الحالة. حدّث الطلب قبل إعادة المحاولة.');
+      } finally {
+        submitting.current = false;
       }
-      router.refresh();
-
-      } catch { setError('تعذر تأكيد تغيير الحالة. حدّث الطلب قبل إعادة المحاولة.'); }
     });
   }
 
@@ -70,7 +79,7 @@ export function OrderStatusActions({
               key={next}
               type="button"
               className={`adminBtn ${next === 'CANCELED' ? 'adminBtnDanger' : 'adminBtnPrimary'}`}
-              disabled={pending || disabledByDelivery}
+              disabled={pending || disabledByDelivery || cancelOpen}
               onClick={() => run(next)}
               title={disabledByDelivery ? 'حدد سعر التوصيل أولاً' : undefined}
             >
@@ -79,7 +88,26 @@ export function OrderStatusActions({
           );
         })}
       </div>
-      {error && <div className="adminAlert isError" style={{ marginTop: 10 }}>{error}</div>}
+      {cancelOpen && (
+        <fieldset className="adminCard" disabled={pending} style={{ marginTop: 12 }}>
+          <legend>تأكيد إلغاء الطلب</legend>
+          <p>سيتم إلغاء الطلب وإعادة كمياته إلى المخزون. يمكنك ترك السبب فارغاً.</p>
+          <label className="adminField">
+            <span>سبب الإلغاء (اختياري)</span>
+            <textarea value={cancelReason} onChange={event => setCancelReason(event.target.value)} rows={3} />
+          </label>
+          <div className="adminBtnRow">
+            <button type="button" className="adminBtn adminBtnDanger" disabled={pending} onClick={() => run('CANCELED')}>
+              {pending ? 'جارٍ إلغاء الطلب…' : 'تأكيد إلغاء الطلب'}
+            </button>
+            <button type="button" className="adminBtn adminBtnGhost" disabled={pending} onClick={() => { setCancelOpen(false); setCancelReason(''); setError(null); }}>
+              تراجع
+            </button>
+          </div>
+        </fieldset>
+      )}
+      {error && <div role="alert" className="adminAlert isError" style={{ marginTop: 10 }}>{error}</div>}
+      {success && <p role="status" className="adminAlert isInfo">{success}</p>}
     </div>
   );
 }
