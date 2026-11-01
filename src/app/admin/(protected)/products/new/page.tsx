@@ -14,6 +14,7 @@ const EMPTY: ProductFormInitial = {
   careInstructions: '',
   brand: '',
   stockLocation: 'مخزون جوليا',
+  stockLocation: 'مخزون جوليا',
   categoryId: '',
   basePrice: '',
   status: 'DRAFT',
