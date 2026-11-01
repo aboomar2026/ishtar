@@ -267,6 +267,9 @@ export function CheckoutForm() {
         <p role="alert" style={{ color: '#b91c1c', fontWeight: 700, border: '1px solid #fca5a5', background: '#fef2f2', borderRadius: 10, padding: '12px 14px', marginBlock: 12 }}>
           تنبيه مهم: يجب تأكيد الطلب عبر واتساب بعد إرساله حتى يتم اعتماده وتجهيزه.
         </p>
+        <p role="alert" style={{ color: "#b91c1c", fontWeight: 700, border: "1px solid #fca5a5", background: "#fef2f2", borderRadius: 10, padding: "12px 14px", marginBlock: 12 }}>
+          تنبيه مهم: يجب تأكيد الطلب عبر واتساب بعد إرساله حتى يتم اعتماده وتجهيزه.
+        </p>
         <button type="submit" className="primaryButton fullWidth checkoutSubmit" disabled={submitting || refreshing || Boolean(cartError) || lines.some((line) => line.maxQuantity === 0)}>
           {submitting ? 'جاري تأكيد الطلب...' : 'تأكيد الطلب'}
         </button>
