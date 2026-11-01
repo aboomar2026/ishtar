@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import { CollectionCard } from "@/components/CollectionCard";
 import { getCollections } from "@/features/collections/collections.queries";
-import { publicSiteUrl } from "@/lib/site-url";
+import { buildPageMetadata } from "@/lib/seo";
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "مجموعات عشتار",
   description: "اختيارات تجمعها المناسبة والستايل؛ اكتشفي مجموعتك المفضّلة.",
-  alternates: publicSiteUrl() ? { canonical: "/collections" } : undefined,
-};
+  path: "/collections",
+});
 export default async function CollectionsPage() {
   const collections = await getCollections();
   return (

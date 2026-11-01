@@ -45,6 +45,17 @@ export function categorySeoPath(slug: string, page: number): string {
   return page > 1 ? `${path}?page=${page}` : path;
 }
 
+export function collectionSeoPath(slug: string, page = 1): string {
+  const path = `/collections/${encodeURIComponent(slug)}`;
+  return page > 1 ? `${path}?page=${page}` : path;
+}
+
+export function collectionPageNumber(raw: string | undefined, productCount: number): number {
+  const pageCount = Math.max(1, Math.ceil(productCount / 24));
+  const requested = Number(raw);
+  return Math.max(1, Math.min(pageCount, Number.isFinite(requested) ? Math.trunc(requested) || 1 : 1));
+}
+
 export function hasCatalogFacets(params: Record<string, string | string[] | undefined>): boolean {
   return ['q', 'sort', 'availability', 'minPrice', 'maxPrice'].some((key) => {
     const value = params[key];
