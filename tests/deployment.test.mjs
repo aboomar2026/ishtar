@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync, readdirSync } from 'node:fs';
 import { PGlite } from '@electric-sql/pglite';
+import { productionDomainRedirects } from '../scripts/site-redirects.mjs';
 import { deploymentEnvironment, buildSteps } from '../scripts/vercel-build.mjs';
 
 test('Marketplace direct URL configures Prisma CLI without changing the runtime pool', () => {
@@ -81,4 +82,20 @@ test('fresh database bootstrap creates a working admin and preserves it on redep
     assert.deepEqual((await db.query('SELECT * FROM "AdminUser"')).rows, [before]);
     assert.equal((await db.query('SELECT COUNT(*)::int AS n FROM "Product"')).rows[0].n, 0);
   } finally { if (socket) await socket.stop(); await db.close(); }
+});
+
+
+test('custom-domain redirects preserve deep paths and apply only on configured production', () => {
+  const env = { VERCEL_ENV: 'production', NEXT_PUBLIC_SITE_URL: 'https://www.ishtar.live/' };
+  const rules = productionDomainRedirects(env);
+  assert.deepEqual(rules.map(rule => rule.has[0].value), ['ishtarstore.vercel.app', 'ishtar.live']);
+  for (const rule of rules) {
+    assert.equal(rule.source, '/:path*');
+    assert.equal(rule.destination, 'https://www.ishtar.live/:path*');
+    assert.equal(rule.permanent, true);
+  }
+  for (const VERCEL_ENV of ['preview', 'development', undefined]) assert.deepEqual(productionDomainRedirects({ ...env, VERCEL_ENV }), []);
+  for (const NEXT_PUBLIC_SITE_URL of [undefined, 'bad', 'http://www.ishtar.live', 'https://ishtarstore.vercel.app', 'https://user:secret@www.ishtar.live', 'https://www.ishtar.live.evil.example']) {
+    assert.deepEqual(productionDomainRedirects({ ...env, NEXT_PUBLIC_SITE_URL }), []);
+  }
 });
