@@ -46,6 +46,9 @@ export default async function OrderSuccessPage({ searchParams }: { searchParams?
         <p role="alert" style={{ color: '#b91c1c', background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: 10, padding: '12px 14px', fontWeight: 700 }}>
           يجب تأكيد طلبك عبر واتساب حتى يتم اعتماده وتجهيزه. استخدمي زر واتساب أسفل الصفحة مع رقم الطلب.
         </p>
+        <p role="alert" style={{ color: "#b91c1c", background: "#fef2f2", border: "1px solid #fca5a5", borderRadius: 10, padding: "12px 14px", fontWeight: 700 }}>
+          يجب تأكيد طلبك عبر واتساب حتى يتم اعتماده وتجهيزه. استخدمي زر واتساب أسفل الصفحة مع رقم الطلب.
+        </p>
         <div className="orderBadgeRow">
           <span className="orderNumberPill">رقم الطلب: <strong>{order.orderNumber}</strong></span>
           <span className={`orderStatusBadge status-${order.status}`}>{ORDER_STATUS_LABEL_AR[order.status]}</span>
