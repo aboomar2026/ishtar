@@ -20,7 +20,7 @@ export type VariantState = {
   isActive: boolean;
 };
 
-const SIZE_PRESETS = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '36', '37', '38', '39', '40', '41', '42', 'One Size'];
+const SIZE_PRESETS = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '36', '37', '38', '39', '40', '41', '42', '43', '44', 'One Size'];
 
 // ── SKU generation ───────────────────────────────────────────────────────────
 
