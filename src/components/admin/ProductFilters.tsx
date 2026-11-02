@@ -62,9 +62,18 @@ export function ProductFilters({ categories }: { categories: CategoryOption[] })
         <option value="low-stock">مخزون منخفض</option>
         <option value="out-of-stock">نفد المخزون</option>
       </select>
+      <select className="adminInput" value={searchParams.get('recent') ?? 'all'} onChange={(event) => update({ recent: event.target.value, ...(event.target.value !== 'all' ? { sort: 'newest' } : {}) })} aria-label="تصفية حسب وقت إضافة المنتج">
+        <option value="all">جميع أوقات الإضافة</option>
+        <option value="10m">آخر 10 دقائق</option>
+        <option value="1h">آخر ساعة</option>
+        <option value="2h">آخر ساعتين</option>
+        <option value="24h">آخر 24 ساعة</option>
+        <option value="7d">آخر 7 أيام</option>
+        <option value="30d">آخر 30 يوم</option>
+      </select>
       <select className="adminInput" value={searchParams.get('sort') ?? 'updated'} onChange={(event) => update({ sort: event.target.value })} aria-label="ترتيب المنتجات">
         <option value="updated">الأحدث تحديثاً</option>
-        <option value="newest">الأحدث</option>
+        <option value="newest">الأحدث إضافةً</option>
         <option value="name">الاسم (أ–ي)</option>
         <option value="stock-asc">المخزون (من الأقل إلى الأعلى)</option>
       </select>
