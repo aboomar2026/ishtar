@@ -20,14 +20,15 @@ const mappings: { filename: string; name: string }[] = [
 export function GalleryBulkUploader({ products }: { products: Product[] }) {
   const [files, setFiles] = useState<File[]>([]);
   const [approval, setApproval] = useState(false);
+  const [overrides, setOverrides] = useState<Record<string,string>>({});
   const [message, setMessage] = useState('');
   const [pending, startTransition] = useTransition();
   const matches = mappings.map(m => ({
     ...m,
-    product: products.find(p => p.name.trim() === m.name),
+    product: products.find(p => p.id === overrides[m.filename]) ?? products.find(p => p.name.trim() === m.name),
     file: files.find(f => f.name === m.filename)
   }));
-  const allMatched = matches.every(m => m.product && m.file) && files.length === 10 &&
+  const allMatched = matches.every(m => m.product && m.file) && new Set(matches.map(m => m.product?.id)).size === 10 && files.length === 10 &&
     matches.every(m => m.file && !validateImageFile(m.file));
   function submit() {
     if (!approval || !allMatched || pending) return;
@@ -68,8 +69,17 @@ export function GalleryBulkUploader({ products }: { products: Product[] }) {
     <input aria-label="اختيار صور المنتجات العشرة" type="file" multiple accept="image/jpeg" disabled={pending}
       onChange={event => { setFiles(Array.from(event.target.files ?? [])); setApproval(false); setMessage(''); }} />
     <div style={{ marginTop: 12 }}>
-      {matches.map(m => <div key={m.filename} style={{ padding: '5px 0' }}>
-        {m.file && m.product ? '✓' : '—'} {m.name} · {m.filename} {m.product ? '' : '(المنتج غير مطابق)'}
+      {matches.map(m => <div key={m.filename} style={{ padding: '8px 0', borderBottom: '1px solid #eee' }}>
+        <strong>{m.file && m.product ? '✓' : '—'} {m.name}</strong> · <span dir="ltr">{m.filename}</span>
+        <div className="adminMuted">المنتج المختار: {m.product?.name ?? 'غير محدد'}</div>
+        {(!products.some(p => p.name.trim() === m.name) || overrides[m.filename]) && (
+          <label>اختيار المنتج الصحيح:
+            <select value={m.product?.id ?? ''} disabled={pending} onChange={e => {setOverrides(previous => ({...previous, [m.filename]: e.target.value}));setApproval(false);}}>
+              <option value="">اختر المنتج</option>
+              {products.map(p => <option value={p.id} key={p.id}>{p.name}</option>)}
+            </select>
+          </label>
+        )}
       </div>)}
     </div>
     <label style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 12 }}>
@@ -81,6 +91,6 @@ export function GalleryBulkUploader({ products }: { products: Product[] }) {
       {pending ? 'جارٍ الرفع…' : 'رفع 10 صور إلى المعارض'}
     </button>
     {message && <p role="status">{message}</p>}
-    {!allMatched && files.length > 0 && <p role="alert">لا يمكن المتابعة إلا بعد مطابقة المنتجات العشرة بالضبط.</p>}
+    {!allMatched && files.length > 0 && <p role="alert">تأكد من اختيار المنتج الصحيح لكل صورة، دون تكرار نفس المنتج.</p>}
   </section>;
 }
