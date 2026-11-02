@@ -12,6 +12,7 @@ export const COLOR_PRESETS = [
   { name: 'جملي',   value: '#C19A6B' },
   { name: 'أحمر',   value: '#B91C1C' },
   { name: 'وردي',   value: '#F4A6B8' },
+  { name: 'توتي',   value: '#8E244D' },
   { name: 'أزرق',   value: '#2563EB' },
   { name: 'أخضر',   value: '#166534' },
   { name: 'ذهبي',   value: '#D4AF37' },
