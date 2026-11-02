@@ -33,10 +33,13 @@ try {
     if (apply && !entry.approved) throw new Error('Unapproved gallery: ' + entry.expectedName);
     const product = await db.product.findFirst({
       where: { id: entry.productId, deletedAt: null },
-      select: { id: true, name: true, slug: true, images: { select: { id: true, isPrimary: true } } }
+      select: { id: true, name: true, slug: true, images: { select: { id: true, isPrimary: true, alt: true } } }
     });
     if (!product || product.name !== entry.expectedName) throw new Error('Product ID/name mismatch: ' + entry.expectedName);
     if (product.images.length === 0) throw new Error('Missing original image: ' + entry.expectedName);
+    if (product.images.some(img => img.alt?.includes('صورة توضيحية مولدة بالذكاء الاصطناعي'))) {
+      throw new Error('AI gallery already imported; refusing duplicate: ' + entry.expectedName);
+    }
     for (const file of entry.images) {
       if (isAbsolute(file) || file.includes('..')) throw new Error('Use safe relative image paths');
       const data = await readFile(resolve(dirname(manifestFile), file));
