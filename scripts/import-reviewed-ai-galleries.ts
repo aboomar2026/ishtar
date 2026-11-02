@@ -7,7 +7,7 @@
  * npx tsx scripts/import-reviewed-ai-galleries.ts --manifest ./gallery-approval.json --apply
  */
 import { readFile } from 'node:fs/promises';
-import { resolve, isAbsolute, dirname } from 'node:path';
+import { resolve, isAbsolute, dirname, extname, relative } from 'node:path';
 import { PrismaClient } from '@prisma/client';
 import { v2 as cloudinary } from 'cloudinary';
 
@@ -23,14 +23,16 @@ if (!Array.isArray(manifest.items) || manifest.items.length !== 10) {
   throw new Error('Manifest must contain exactly ten products');
 }
 if (new Set(manifest.items.map(e => e.productId)).size !== 10) throw new Error('Duplicate productId');
+if (manifest.items.some(e => !e.productId.trim())) throw new Error('All ten real product IDs are required');
 const db = new PrismaClient();
 try {
   // Preflight all entries and files *before* any writes.
   for (const entry of manifest.items) {
-    if (!entry.productId || !entry.expectedName || !Array.isArray(entry.images) || !entry.images.length) {
+    if (!entry.productId || !entry.expectedName || !Array.isArray(entry.images) || !entry.images.length || entry.images.length > 3) {
       throw new Error('Incomplete product mapping');
     }
     if (apply && !entry.approved) throw new Error('Unapproved gallery: ' + entry.expectedName);
+    if (new Set(entry.images).size !== entry.images.length) throw new Error('Duplicate file in manifest: ' + entry.expectedName);
     const product = await db.product.findFirst({
       where: { id: entry.productId, deletedAt: null },
       select: { id: true, name: true, slug: true, images: { select: { id: true, isPrimary: true, alt: true } } }
@@ -41,7 +43,8 @@ try {
       throw new Error('AI gallery already imported; refusing duplicate: ' + entry.expectedName);
     }
     for (const file of entry.images) {
-      if (isAbsolute(file) || file.includes('..')) throw new Error('Use safe relative image paths');
+      const absoluteFile = resolve(dirname(manifestFile), file);
+      if (isAbsolute(file) || relative(dirname(manifestFile), absoluteFile).startsWith('..') || !['.jpg','.jpeg','.png','.webp'].includes(extname(file).toLowerCase())) throw new Error('Use safe relative image paths');
       const data = await readFile(resolve(dirname(manifestFile), file));
       if (data.byteLength < 10_000 || data.byteLength > 5_000_000) {
         throw new Error('Invalid file size: ' + file);
