@@ -2,6 +2,7 @@ import Link from '@/components/NavigationLink';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/features/admin/auth/admin-auth';
 import { GalleryReviewRow } from '@/components/admin/GalleryReviewRow';
+import { GalleryBulkUploader } from '@/components/admin/GalleryBulkUploader';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,6 +29,7 @@ export default async function GalleryReviewPage() {
       <div className="adminCard" style={{ padding: 16, marginBottom: 20 }}>
         يتم إضافة كل صورة إلى المعرض فقط، دون استبدال الصورة الرئيسية. الصور المولدة بالذكاء الاصطناعي قد تحتوي على تفاصيل غير صحيحة؛ يجب مراجعتها قبل النشر.
       </div>
+      <GalleryBulkUploader products={products.map(({ id, name }) => ({ id, name }))} />
       {products.map(product =>
         <GalleryReviewRow key={product.id} productId={product.id} productName={product.name}
           imageCount={product.images.length}
