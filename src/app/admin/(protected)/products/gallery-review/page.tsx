@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function GalleryReviewPage() {
   await requireAdmin();
-  const products = await prisma.product.findMany({
+  const [products, allProducts] = await Promise.all([prisma.product.findMany({
     where: { deletedAt: null },
     orderBy: { createdAt: 'desc' },
     take: 40,
@@ -16,7 +16,11 @@ export default async function GalleryReviewPage() {
       id: true, name: true,
       images: { orderBy: { sortOrder: 'asc' }, select: { url: true, isPrimary: true } }
     }
-  });
+  }), prisma.product.findMany({
+    where: { deletedAt: null },
+    orderBy: { name: 'asc' },
+    select: { id: true, name: true, slug: true, images: { orderBy: { sortOrder: 'asc' }, take: 1, select: { url: true } } }
+  })]);
   return (
     <div>
       <div className="adminPageHeader">
@@ -29,7 +33,7 @@ export default async function GalleryReviewPage() {
       <div className="adminCard" style={{ padding: 16, marginBottom: 20 }}>
         يتم إضافة كل صورة إلى المعرض فقط، دون استبدال الصورة الرئيسية. الصور المولدة بالذكاء الاصطناعي قد تحتوي على تفاصيل غير صحيحة؛ يجب مراجعتها قبل النشر.
       </div>
-      <GalleryBulkUploader products={products.map(({ id, name }) => ({ id, name }))} />
+      <GalleryBulkUploader products={allProducts.map(({ id, name, slug, images }) => ({ id, name, slug, image: images[0]?.url ?? null }))} />
       {products.map(product =>
         <GalleryReviewRow key={product.id} productId={product.id} productName={product.name}
           imageCount={product.images.length}
