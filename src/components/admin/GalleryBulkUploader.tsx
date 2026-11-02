@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react';
 import { appendReviewedGalleryImage } from '@/features/admin/products/gallery-review.actions';
 import { validateImageFile, type UploadResponse } from '@/features/admin/uploads/upload-constants';
 
-type Product = { id: string; name: string };
+type Product = { id: string; name: string; slug: string; image: string | null };
 const mappings: { filename: string; name: string }[] = [
   { filename: '01_pink_dress.jpg', name: 'فستان نسائي طويل مفصل ناعم' },
   { filename: '02_navy_jumpsuit.jpg', name: 'جمبسوت (Jumpsuit) نسائي طويل' },
@@ -72,11 +72,15 @@ export function GalleryBulkUploader({ products }: { products: Product[] }) {
       {matches.map(m => <div key={m.filename} style={{ padding: '8px 0', borderBottom: '1px solid #eee' }}>
         <strong>{m.file && m.product ? '✓' : '—'} {m.name}</strong> · <span dir="ltr">{m.filename}</span>
         <div className="adminMuted">المنتج المختار: {m.product?.name ?? 'غير محدد'}</div>
+        {m.product && <div style={{display:'flex',gap:8,alignItems:'center',marginTop:6}}>
+          {m.product.image ? <img src={m.product.image} alt={'الصورة الأصلية: '+m.product.name} width={55} height={72} style={{objectFit:'cover',borderRadius:5}} /> : <span>بلا صورة</span>}
+          <a href={'/admin/products/'+m.product.id+'/edit'} target="_blank" rel="noreferrer">تأكيد المنتج في الإدارة</a>
+        </div>}
         {(!products.some(p => p.name.trim() === m.name) || overrides[m.filename]) && (
           <label>اختيار المنتج الصحيح:
             <select value={m.product?.id ?? ''} disabled={pending} onChange={e => {setOverrides(previous => ({...previous, [m.filename]: e.target.value}));setApproval(false);}}>
               <option value="">اختر المنتج</option>
-              {products.map(p => <option value={p.id} key={p.id}>{p.name}</option>)}
+              {products.map(p => <option value={p.id} key={p.id}>{p.name} — {p.slug}</option>)}
             </select>
           </label>
         )}
