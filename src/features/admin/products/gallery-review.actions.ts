@@ -22,7 +22,7 @@ export async function appendReviewedGalleryImage(
     parsed.protocol !== 'https:' || parsed.hostname !== 'res.cloudinary.com' ||
     !parsed.pathname.startsWith('/' + cloud + '/image/upload/') ||
     !publicId.startsWith(folder + '/products/') ||
-    !parsed.pathname.includes('/' + publicId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\\\\/g, '/'))
+    !decodeURIComponent(parsed.pathname).includes('/' + publicId + '.')
   ) {
     return { ok: false, message: 'الصورة لا تنتمي إلى مساحة صور عشتار.' };
   }
