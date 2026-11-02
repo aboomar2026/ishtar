@@ -6,9 +6,8 @@
  * npx tsx scripts/import-reviewed-ai-galleries.ts --manifest ./gallery-approval.json
  * npx tsx scripts/import-reviewed-ai-galleries.ts --manifest ./gallery-approval.json --apply
  */
-import 'dotenv/config';
 import { readFile } from 'node:fs/promises';
-import { resolve, isAbsolute } from 'node:path';
+import { resolve, isAbsolute, dirname } from 'node:path';
 import { PrismaClient } from '@prisma/client';
 import { v2 as cloudinary } from 'cloudinary';
 
@@ -40,7 +39,7 @@ try {
     if (product.images.length === 0) throw new Error('Missing original image: ' + entry.expectedName);
     for (const file of entry.images) {
       if (isAbsolute(file) || file.includes('..')) throw new Error('Use safe relative image paths');
-      const data = await readFile(resolve(manifestFile, '..', file));
+      const data = await readFile(resolve(dirname(manifestFile), file));
       if (data.byteLength < 10_000 || data.byteLength > 5_000_000) {
         throw new Error('Invalid file size: ' + file);
       }
@@ -62,7 +61,7 @@ try {
       const uploaded: { url: string; publicId: string }[] = [];
       try {
         for (const file of entry.images) {
-          const buffer = await readFile(resolve(manifestFile, '..', file));
+          const buffer = await readFile(resolve(dirname(manifestFile), file));
           const result = await new Promise<{ secure_url: string; public_id: string }>((ok, fail) => {
             const stream = cloudinary.uploader.upload_stream({
               folder: process.env.CLOUDINARY_FOLDER + '/products',
