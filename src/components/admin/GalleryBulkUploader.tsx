@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useEffect, useMemo, useState, useTransition } from 'react';
 import { appendReviewedGalleryImage } from '@/features/admin/products/gallery-review.actions';
 import { validateImageFile, type UploadResponse } from '@/features/admin/uploads/upload-constants';
 
@@ -19,6 +19,8 @@ const mappings: { filename: string; name: string }[] = [
 ];
 export function GalleryBulkUploader({ products }: { products: Product[] }) {
   const [files, setFiles] = useState<File[]>([]);
+  const previews = useMemo(() => new Map(files.map(file => [file.name, URL.createObjectURL(file)])), [files]);
+  useEffect(() => () => { previews.forEach(url => URL.revokeObjectURL(url)); }, [previews]);
   const [approval, setApproval] = useState(false);
   const [overrides, setOverrides] = useState<Record<string,string>>({});
   const [confirmed, setConfirmed] = useState<Record<string,boolean>>({});
@@ -81,7 +83,7 @@ export function GalleryBulkUploader({ products }: { products: Product[] }) {
           <strong>{m.file && m.product && confirmed[m.filename] ? '✓' : '○'} {m.name}</strong> · <span dir="ltr">{m.filename}</span>
           <div className="adminMuted">المطابقة تعتمد على معرّف المنتج، وليس نص الاسم. راجع الصورة الأصلية قبل التأكيد.</div>
           <div style={{display:'flex',gap:12,alignItems:'center',marginTop:10,flexWrap:'wrap'}}>
-            {m.file && <img src={URL.createObjectURL(m.file)} alt={'الصورة المولدة '+m.name} width={85} height={105} style={{objectFit:'cover',borderRadius:8}} />}
+            {m.file && <img src={previews.get(m.file.name)} alt={'الصورة المولدة '+m.name} width={85} height={105} style={{objectFit:'cover',borderRadius:8}} />}
             {m.product?.image ? <img src={m.product.image} alt={'الصورة الأصلية '+m.product.name} width={85} height={105} style={{objectFit:'cover',borderRadius:8}} /> : <span>لم يتم اختيار المنتج</span>}
             <div style={{flex:'1 1 230px'}}>
               <div>المنتج المحدد: <strong>{m.product?.name ?? 'غير محدد'}</strong></div>
