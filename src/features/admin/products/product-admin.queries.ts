@@ -5,6 +5,7 @@ import type { CatalogProductImage, ProductStockState } from '@/features/catalog/
 import { getStockState } from '@/features/catalog/catalog.utils';
 
 export type AdminProductStockFilter = 'all' | 'in-stock' | 'low-stock' | 'out-of-stock';
+export type AdminProductRecentFilter = 'all' | '10m' | '1h' | '2h' | '24h' | '7d' | '30d';
 export type AdminProductSort = 'newest' | 'updated' | 'name' | 'stock-asc';
 
 export type AdminProductListParams = {
@@ -13,6 +14,7 @@ export type AdminProductListParams = {
   status?: ProductStatus | 'ALL';
   categoryId?: string | 'ALL';
   stock?: AdminProductStockFilter;
+  recent?: AdminProductRecentFilter;
   sort?: AdminProductSort;
 };
 
@@ -32,6 +34,7 @@ export type AdminProductListItem = {
   isFeatured: boolean;
   isNewArrival: boolean;
   isBestSeller: boolean;
+  createdAt: Date;
   updatedAt: Date;
 };
 
@@ -45,12 +48,19 @@ function decimalToNumber(value: Prisma.Decimal | number | string | null): number
 }
 
 export async function getAdminProductPage(params: AdminProductListParams = {}) {
-  const { q, status = 'ALL', categoryId = 'ALL', stock = 'all', sort = 'updated' } = params;
+  const { q, status = 'ALL', categoryId = 'ALL', stock = 'all', recent = 'all', sort = 'updated' } = params;
   const requestedPage = Number.isFinite(params.page) ? Math.min(1_000_000, Math.max(1, Math.floor(params.page!))) : 1;
   const pageSize = 24;
   const conditions: Prisma.Sql[] = [Prisma.sql`p."deletedAt" IS NULL`];
   if (status !== 'ALL') conditions.push(Prisma.sql`p.status::text = ${status}`);
   if (categoryId !== 'ALL') conditions.push(Prisma.sql`p."categoryId" = ${categoryId}`);
+  const recentMinutes: Record<Exclude<AdminProductRecentFilter, 'all'>, number> = {
+    '10m': 10, '1h': 60, '2h': 120, '24h': 1440, '7d': 10080, '30d': 43200
+  };
+  if (recent !== 'all' && Object.prototype.hasOwnProperty.call(recentMinutes, recent)) {
+    const since = new Date(Date.now() - recentMinutes[recent as keyof typeof recentMinutes] * 60_000);
+    conditions.push(Prisma.sql`p."createdAt" >= ${since}`);
+  }
   const term = q?.trim();
   if (term) {
     const pattern = `%${term.replace(/[\\%_]/g, character => `\\${character}`)}%`;
@@ -107,6 +117,7 @@ export async function getAdminProductPage(params: AdminProductListParams = {}) {
       isFeatured: product.isFeatured,
       isNewArrival: product.isNewArrival,
       isBestSeller: product.isBestSeller,
+      createdAt: product.createdAt,
       updatedAt: product.updatedAt
     };
   });

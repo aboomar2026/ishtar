@@ -116,7 +116,7 @@ test('hero rotation and navigation feedback in production Chromium on desktop an
             ['/cart','مساعدة بالسلة عبر واتساب'],
             ['/track-order','مساعدة بتتبع الطلب عبر واتساب'],
             ['/order-success','تواصلي معنا عبر واتساب'],
-            ['/order-success?order=IS-WA-FIXTURE','استفسار عن الطلب عبر واتساب']
+            ['/order-success?order=IS-WA-FIXTURE','تأكيد الطلب عبر واتساب']
           ]) {
             await page.goto(`${origin}${path}`);
             const link = page.locator('main').getByRole('link',{ name:`${label} (يفتح في تبويب جديد)`,exact:true });

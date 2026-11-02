@@ -8,6 +8,7 @@ import {
   getCategoryOptions,
   type AdminProductListItem,
   type AdminProductSort,
+  type AdminProductRecentFilter,
   type AdminProductStockFilter
 } from '@/features/admin/products/product-admin.queries';
 import { formatCurrency, formatDateTime, STOCK_STATE_LABEL } from '@/features/admin/shared/admin-format';
@@ -45,7 +46,18 @@ function Flags({ item }: { item: AdminProductListItem }) {
   );
 }
 
-type SearchParams = Promise<{ q?: string; status?: string; category?: string; stock?: string; sort?: string; page?: string }>;
+function addedAgo(createdAt: Date, now: number): string {
+  const minutes = Math.max(0, Math.floor((now - createdAt.getTime()) / 60_000));
+  if (minutes < 1) return 'أُضيف الآن';
+  if (minutes < 60) return `أُضيف قبل ${new Intl.NumberFormat('ar').format(minutes)} دقيقة`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `أُضيف قبل ${new Intl.NumberFormat('ar').format(hours)} ساعة`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `أُضيف قبل ${new Intl.NumberFormat('ar').format(days)} يوم`;
+  return `أُضيف في ${formatDateTime(createdAt)}`;
+}
+
+type SearchParams = Promise<{ q?: string; status?: string; category?: string; stock?: string; recent?: string; sort?: string; page?: string }>;
 
 export default async function AdminProductsPage({ searchParams }: { searchParams: SearchParams }) {
   await requireAdmin();
@@ -57,12 +69,14 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
       status: (sp.status as ProductStatus | 'ALL') ?? 'ALL',
       categoryId: sp.category ?? 'ALL',
       stock: (sp.stock as AdminProductStockFilter) ?? 'all',
+      recent: (sp.recent as AdminProductRecentFilter) ?? 'all',
       sort: (sp.sort as AdminProductSort) ?? 'updated'
     }),
     getCategoryOptions()
   ]);
 
   const products = result.items;
+  const now = Date.now();
   function pageHref(page: number) {
     const values = new URLSearchParams();
     for (const [key, value] of Object.entries(sp)) if (value && key !== 'page') values.set(key, value);
@@ -99,6 +113,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
                     <th>الخيارات</th>
                     <th>المخزون</th>
                     <th>السمات</th>
+                    <th>تاريخ الإضافة</th>
                     <th>آخر تحديث</th>
                     <th>الإجراءات</th>
                   </tr>
@@ -112,6 +127,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
                           <div>
                             <strong>{item.name}</strong>
                             <small>{item.slug}</small>
+                            <small className="adminMuted" title={formatDateTime(item.createdAt)}>{addedAgo(item.createdAt, now)}</small>
                           </div>
                         </div>
                       </td>
@@ -121,6 +137,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
                       <td>{item.variantCount}</td>
                       <td><StockBadge item={item} /></td>
                       <td><Flags item={item} /></td>
+                      <td className="adminMuted">{formatDateTime(item.createdAt)}</td>
                       <td className="adminMuted">{formatDateTime(item.updatedAt)}</td>
                       <td><ProductRowActions id={item.id} slug={item.slug} name={item.name} status={item.status} categoryActive={item.categoryActive} /></td>
                     </tr>
@@ -139,6 +156,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
                   <div style={{ minWidth: 0 }}>
                     <strong>{item.name}</strong>
                     <div className="adminMuted" style={{ fontSize: 12 }}>{item.slug}</div>
+                    <div className="adminMuted" style={{ fontSize: 12 }} title={formatDateTime(item.createdAt)}>{addedAgo(item.createdAt, now)}</div>
                   </div>
                 </div>
                 <div className="adminRecordMeta">
