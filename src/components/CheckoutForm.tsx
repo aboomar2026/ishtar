@@ -1,4 +1,5 @@
 'use client';
+import { ANALYTICS_READY_EVENT, trackCommerce } from '@/lib/analytics';
 import { CatalogImage } from '@/components/CatalogImage';
 import { PRODUCT_THUMB_IMAGE } from '@/lib/cloudinary-image';
 
@@ -24,6 +25,18 @@ const EMPTY_FIELDS: ShippingFields = { name: '', phone: '', whatsappPhone: '', c
 export function CheckoutForm() {
   const router = useRouter();
   const { lines, subtotal, deliveryFee, total, clearCart, isCartLoaded, refreshing, cartError, refreshCart } = useCart();
+
+  const checkoutTracked = useRef(false);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const send = () => {
+      if (!isCartLoaded || !lines.length || checkoutTracked.current) return;
+      if (trackCommerce('begin_checkout', lines.map(line => ({ item_id: line.productId, item_variant: line.variantId, price: line.unitPrice, quantity: line.quantity })))) checkoutTracked.current = true;
+    };
+    send();
+    window.addEventListener?.(ANALYTICS_READY_EVENT, send);
+    return () => window.removeEventListener?.(ANALYTICS_READY_EVENT, send);
+  }, [isCartLoaded, lines]);
 
   const errorRef = useRef<HTMLDivElement>(null);
   const attemptRef = useRef<{ key: string } | null>(null);
@@ -140,6 +153,13 @@ export function CheckoutForm() {
       });
       try { sessionStorage.removeItem(`${SHIPPING_KEY}:attempt`); } catch { /* optional */ }
       attemptRef.current = null;
+      try {
+        const key = `ishtar:ga-purchase:${result.orderNumber}`;
+        if (!sessionStorage.getItem(key)) {
+          trackCommerce('purchase', lines.map(line => ({ item_id: line.productId, item_variant: line.variantId, price: line.unitPrice, quantity: line.quantity })), result.orderNumber, result.total);
+          sessionStorage.setItem(key, '1');
+        }
+      } catch { /* Analytics cannot block a confirmed order. */ }
       clearCart();
       router.push(`/order-success?order=${encodeURIComponent(result.orderNumber)}`);
       return;

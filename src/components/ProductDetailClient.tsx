@@ -1,4 +1,5 @@
 'use client';
+import { ANALYTICS_READY_EVENT, trackCommerce } from '@/lib/analytics';
 import { WhatsAppContact } from './WhatsAppContact';
 import { ShareProductButton } from './ShareProductButton';
 import { WishlistButton } from './WishlistButton';
@@ -31,6 +32,17 @@ function uniqueBy<T>(items: T[], getKey: (item: T) => string) {
 
 export function ProductDetailClient({ product, shareOrigin, compact = false }: { product: Product; shareOrigin?: string; compact?: boolean }) {
   const { addToCart, isCartLoaded } = useCart();
+  const trackedProduct = useRef('');
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const send = () => {
+      if (trackedProduct.current === product.id) return;
+      if (trackCommerce('view_item', [{ item_id: product.id, price: product.price, quantity: 1 }])) trackedProduct.current = product.id;
+    };
+    send();
+    window.addEventListener?.(ANALYTICS_READY_EVENT, send);
+    return () => window.removeEventListener?.(ANALYTICS_READY_EVENT, send);
+  }, [product.id, product.price]);
   const [galleryOrigin, setGalleryOrigin] = useState(shareOrigin);
   useEffect(() => {
     if (!shareOrigin && typeof window !== 'undefined') setGalleryOrigin(window.location?.origin);

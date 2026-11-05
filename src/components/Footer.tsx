@@ -37,7 +37,8 @@ const storeLinks = [
   { href: '/category/all', label: 'كل المنتجات' },
   { href: '/category/care-accessories', label: 'الإكسسوارات' },
   { href: '/cart', label: 'السلة' },
-  { href: '/track-order', label: 'تتبع الطلب' }
+  { href: '/track-order', label: 'تتبع الطلب' },
+  { href: '/privacy', label: 'الخصوصية وإحصاءات الزيارات' }
 ];
 
 const serviceLinks = [
