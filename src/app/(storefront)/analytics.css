@@ -1,0 +1,4 @@
+/* Optional analytics consent: equal access to accept and decline. */
+.analyticsConsent { position: fixed; z-index: 120; inset-inline: 16px; bottom: 90px; margin-inline: auto; max-width: 640px; padding: 16px; background: var(--brand-surface, white); color: var(--brand-ink); border: 1px solid var(--brand-border); border-radius: 16px; box-shadow: 0 8px 32px #0002; }
+.analyticsConsent p { margin: 0 0 12px; }
+.analyticsConsent > div { display: flex; flex-wrap: wrap; gap: 12px; }

@@ -1,4 +1,5 @@
 'use client';
+import { trackCommerce } from '@/lib/analytics';
 
 import { getCartAvailability } from '@/features/orders/cart.actions';
 import { brandStorageKeys } from '@/lib/brand-storage';
@@ -119,6 +120,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
       return [...current, { ...sanitized, quantity: Math.min(sanitized.quantity, max) }];
     });
+    trackCommerce('add_to_cart', [{ item_id: sanitized.productId, item_variant: sanitized.variantId, price: sanitized.unitPrice, quantity: Math.min(sanitized.quantity, Math.max(0, max - (existing?.quantity ?? 0))) }]);
     return true;
   }, [lines]);
 
