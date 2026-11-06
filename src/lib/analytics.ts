@@ -1,7 +1,6 @@
 // Only allow catalog data into GA. Never pass checkout forms or order receipts.
-export const ANALYTICS_CONSENT_KEY = 'ishtar:analytics-consent:v1';
 export const ANALYTICS_READY_EVENT = 'ishtar:analytics-ready';
-export const ANALYTICS_PREFERENCES_EVENT = 'ishtar:analytics-preferences';
+export const COOKIELESS_CONSENT = { analytics_storage: 'denied', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' } as const;
 export type AnalyticsItem = { item_id: string; item_variant?: string; price: number; quantity: number };
 type AnalyticsWindow = Window & { dataLayer?: unknown[]; gtag?: (...args: unknown[]) => void };
 export function validMeasurementId(value: string | undefined): value is string {
@@ -28,7 +27,6 @@ export function analyticsPageTitle(path: string) {
 }
 export function getAnalyticsWindow(): AnalyticsWindow | undefined {
   if (typeof window === 'undefined' || !['www.ishtar.live', 'ishtar.live'].includes(window.location.hostname) || window.location.pathname.startsWith('/admin')) return;
-  try { if (window.localStorage.getItem(ANALYTICS_CONSENT_KEY) !== 'granted') return; } catch { return; }
   return window as AnalyticsWindow;
 }
 export function trackCommerce(event: 'add_to_cart' | 'view_item' | 'begin_checkout' | 'purchase', items: AnalyticsItem[], transactionId?: string, value?: number) {

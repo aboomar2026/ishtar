@@ -1,4 +1,3 @@
-import './analytics.css';
 import { StoreAnalytics } from '@/components/StoreAnalytics';
 import { QuickViewProvider } from '@/components/QuickViewProvider';
 import { CartProvider } from '@/components/CartProvider';
