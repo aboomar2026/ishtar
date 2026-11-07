@@ -91,7 +91,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
           <h1>المنتجات</h1>
           <p className="adminMuted">عرض {products.length} من {result.total} منتج.</p>
         </div>
-        <Link href="/admin/products/new" className="adminBtn adminBtnPrimary">+ إضافة منتج</Link>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}><Link href="/admin/products/gallery-review" className="adminBtn">مراجعة صور المنتجات</Link><Link href="/admin/products/new" className="adminBtn adminBtnPrimary">+ إضافة منتج</Link></div>
       </div>
 
       <ProductFilters categories={categories} />

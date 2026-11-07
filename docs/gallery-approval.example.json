@@ -1,0 +1,84 @@
+{
+  "items": [
+    {
+      "productId": "",
+      "expectedName": "فستان نسائي طويل مفصل ناعم",
+      "approved": false,
+      "images": [
+        "01_pink_dress/01_ai_model_hero.jpg"
+      ]
+    },
+    {
+      "productId": "",
+      "expectedName": "جمبسوت (Jumpsuit) نسائي طويل",
+      "approved": false,
+      "images": [
+        "02_navy_jumpsuit/01_ai_model_hero.jpg"
+      ]
+    },
+    {
+      "productId": "",
+      "expectedName": "طقم نسائي كلاسيكي",
+      "approved": false,
+      "images": [
+        "03_olive_suit/01_ai_model_hero.jpg"
+      ]
+    },
+    {
+      "productId": "",
+      "expectedName": "عباية نسائية طويلة بقطعة علوية كاب",
+      "approved": false,
+      "images": [
+        "04_mauve_cape/01_ai_model_hero.jpg"
+      ]
+    },
+    {
+      "productId": "",
+      "expectedName": "طقم نسائي أنيق",
+      "approved": false,
+      "images": [
+        "05_camel_suit/01_ai_model_hero.jpg"
+      ]
+    },
+    {
+      "productId": "",
+      "expectedName": "فستان نسائي طويل",
+      "approved": false,
+      "images": [
+        "06_lavender_dress/01_ai_model_hero.jpg"
+      ]
+    },
+    {
+      "productId": "",
+      "expectedName": "عباية نسائية مفصل سوداء",
+      "approved": false,
+      "images": [
+        "07_black_abaya/01_ai_model_hero.jpg"
+      ]
+    },
+    {
+      "productId": "",
+      "expectedName": "عباية قطعتين مطرزة مع حزام خصر",
+      "approved": false,
+      "images": [
+        "08_embroidered_abaya/01_ai_model_hero.jpg"
+      ]
+    },
+    {
+      "productId": "",
+      "expectedName": "طقم نسائي رسمي قطعتين",
+      "approved": false,
+      "images": [
+        "09_teal_formal_suit/01_ai_model_hero.jpg"
+      ]
+    },
+    {
+      "productId": "",
+      "expectedName": "تونيك نسائي طويل بأزرار أمامية",
+      "approved": false,
+      "images": [
+        "10_button_tunic/01_ai_model_hero.jpg"
+      ]
+    }
+  ]
+}
